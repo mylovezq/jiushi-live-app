@@ -1,0 +1,12 @@
+- Dubbo 3.2
+- SpringBoot 3.0.4
+- MyBatis-Plus 3.5.3
+- MySQL 8.0
+- Redis 6.0
+- RocketMQ 4.8.0
+- Nacos 2.2.1
+- ShardingJDBC 5.3.2
+- Gateway 4.0.6
+- Netty 3.7.0
+- Docker 容器部署
+- Docker-Compose 容器集群管理

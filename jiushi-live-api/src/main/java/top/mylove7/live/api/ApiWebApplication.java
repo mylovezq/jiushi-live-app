@@ -1,0 +1,20 @@
+package top.mylove7.live.api;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+/**
+ * @Author jiushi
+ *
+ * @Description
+ */
+@SpringBootApplication
+@EnableDiscoveryClient
+public class ApiWebApplication {
+
+    public static void main(String[] args) {
+        SpringApplication springApplication = new SpringApplication(ApiWebApplication.class);
+        springApplication.run(args);
+    }
+}

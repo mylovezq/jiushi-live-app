@@ -1,0 +1,20 @@
+version: '3'
+services:
+  jiushi-live-auth-provider-1:
+    container_name: jiushi-live-auth-provider-1
+    image: 'mylove7.top/jiushi-live/jiushi-live-auth-provider-docker:1.0.0'
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 256m
+    ports:
+      - "9097:9097"
+    volumes:
+      - /tmp/logs/jiushi-live-auth-provider:/tmp/logs/jiushi-live-auth-provider
+    environment:
+      - DUBBO_IP_TO_REGISTRY=192.168.1.20
+      - DUBBO_PORT_TO_REGISTRY=9097
+      - DUBBO_PORT_TO_BIND=9097
+      - TZ=Asia/Shanghai

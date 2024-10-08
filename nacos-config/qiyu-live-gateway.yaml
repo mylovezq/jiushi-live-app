@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: jiushi-live-api
+          uri: lb://jiushi-live-api
+          predicates:
+            - Path=/live/api/**
+
+dubbo:
+  application:
+    name: jiushi-live-gateway
+    qos-enable: false
+  registry:
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.client: INFO
+
+qiyu:
+  gateway:
+    notCheckUrlList:
+      - /live/api/userLogin/
+      - /live/api/living/list/
