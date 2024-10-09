@@ -61,7 +61,7 @@ public class HeartBeatImMsgHandler implements SimplyHandler {
         msgBody.setAppId(appId);
         msgBody.setData("true");
         ImMsg respMsg = ImMsg.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(msgBody));
-        LOGGER.info("[HeartBeatImMsgHandler] imMsg is {}", imMsg);
+        LOGGER.info("[HeartBeatImMsgHandler] imMsg is {}", imMsg.toJson());
         ctx.writeAndFlush(respMsg);
     }
 

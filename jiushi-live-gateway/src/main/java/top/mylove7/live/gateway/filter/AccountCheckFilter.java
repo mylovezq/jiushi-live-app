@@ -49,15 +49,6 @@ public class AccountCheckFilter implements GlobalFilter, Ordered {
         //获取请求url，判断是否为空，如果为空则返回请求不通过
         ServerHttpRequest request = exchange.getRequest();
         String reqUrl = request.getURI().getPath();
-        ServerHttpResponse response = exchange.getResponse();
-        HttpHeaders headers = response.getHeaders();
-        headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:63342");
-        headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "POST, GET");
-        headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-        headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
-        headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, ALL);
-        headers.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, MAX_AGE);
-
         if (StringUtils.isEmpty(reqUrl)) {
             return Mono.empty();
         }

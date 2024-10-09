@@ -2,6 +2,8 @@ package org.qiyu.live.im.core.server.common;
 
 
 
+import cn.hutool.json.JSONObject;
+import lombok.Data;
 import top.mylove7.live.common.interfaces.constants.ImConstants;
 
 import java.io.Serial;
@@ -13,6 +15,7 @@ import java.util.Arrays;
  *
  * @Description
  */
+@Data
 public class ImMsg implements Serializable {
 
     @Serial
@@ -30,38 +33,6 @@ public class ImMsg implements Serializable {
     private byte[] body;
 
 
-    public short getMagic() {
-        return magic;
-    }
-
-    public void setMagic(short magic) {
-        this.magic = magic;
-    }
-
-    public int getLen() {
-        return len;
-    }
-
-    public void setLen(int len) {
-        this.len = len;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public byte[] getBody() {
-        return body;
-    }
-
-    public void setBody(byte[] body) {
-        this.body = body;
-    }
-
     public static ImMsg build(int code,String data) {
         ImMsg imMsg = new ImMsg();
         imMsg.setMagic(ImConstants.DEFAULT_MAGIC);
@@ -71,13 +42,14 @@ public class ImMsg implements Serializable {
         return imMsg;
     }
 
-    @Override
-    public String toString() {
-        return "ImMsg{" +
-                "magic=" + magic +
-                ", len=" + len +
-                ", code=" + code +
-                ", body=" + Arrays.toString(body) +
-                '}';
+    public String toJson() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.set("magic", magic);
+        jsonObject.set("code", code);
+        jsonObject.set("len", len);
+        jsonObject.set("body", new String(body));
+        return jsonObject.toString();
     }
+
+
 }

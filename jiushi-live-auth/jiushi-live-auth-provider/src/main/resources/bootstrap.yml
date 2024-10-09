@@ -16,3 +16,5 @@ spring:
   config:
     import:
       - optional:nacos:jiushi-live-account-provider.yaml
+      - optional:nacos:jiushi-live-common.yaml
+

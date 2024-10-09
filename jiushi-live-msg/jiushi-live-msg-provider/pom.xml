@@ -34,7 +34,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
-
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,13 +63,16 @@
             <artifactId>jiushi-live-framework-redis-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-common-interface</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>shardingsphere-jdbc-core</artifactId>
-            <version>${sharding.jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>com.cloopen</groupId>

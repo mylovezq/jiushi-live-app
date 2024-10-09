@@ -21,7 +21,6 @@
         <dependency>
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-framework-redis-starter</artifactId>
-
         </dependency>
         <dependency>
             <groupId>org.apache.dubbo</groupId>
