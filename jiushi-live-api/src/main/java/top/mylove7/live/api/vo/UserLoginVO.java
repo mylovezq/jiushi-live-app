@@ -1,26 +1,17 @@
 package top.mylove7.live.api.vo;
 
+import lombok.Data;
+
 /**
  * @Author jiushi
  *
  * @Description
  */
+@Data
 public class UserLoginVO {
 
     private Long userId;
 
-    public Long getUserId() {
-        return userId;
-    }
+    public String token;
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public String toString() {
-        return "UserLoginVO{" +
-                "userId=" + userId +
-                '}';
-    }
 }

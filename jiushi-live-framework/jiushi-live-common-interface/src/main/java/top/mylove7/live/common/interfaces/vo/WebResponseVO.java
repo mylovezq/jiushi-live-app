@@ -1,5 +1,7 @@
 package top.mylove7.live.common.interfaces.vo;
 
+import lombok.Data;
+
 /**
  * 统一返回给前端的VO对象
  *
@@ -7,44 +9,13 @@ package top.mylove7.live.common.interfaces.vo;
  *
  * @Description
  */
+@Data
 public class WebResponseVO {
 
     private int code;
     private String msg;
     private Object data;
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "WebResponseVO{" +
-                "code=" + code +
-                ", msg='" + msg + '\'' +
-                ", data=" + data +
-                '}';
-    }
 
     public static WebResponseVO bizError(String msg) {
         WebResponseVO webResponseVO = new WebResponseVO();

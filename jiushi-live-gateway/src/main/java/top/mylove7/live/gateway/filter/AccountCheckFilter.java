@@ -61,18 +61,18 @@ public class AccountCheckFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         //如果不存在url白名单，那么就需要提取cookie，并且对cookie做基本的格式校验
-        List<HttpCookie> httpCookieList = request.getCookies().get("jiushiToken");
-        if (CollectionUtils.isEmpty(httpCookieList)) {
+        List<String> authorization = request.getHeaders().get("Authorization");
+        if (CollectionUtils.isEmpty(authorization)) {
             LOGGER.error("请求没有检索到qytk的cookie，被拦截");
             return Mono.empty();
         }
-        String qiyuTokenCookieValue = httpCookieList.get(0).getValue();
-        if (StringUtils.isEmpty(qiyuTokenCookieValue) || StringUtils.isEmpty(qiyuTokenCookieValue.trim())) {
+        String jiushiTokenValue = authorization.get(0);
+        if (StringUtils.isEmpty(jiushiTokenValue) || StringUtils.isEmpty(jiushiTokenValue.trim())) {
             LOGGER.error("请求的cookie中的qytk是空，被拦截");
             return Mono.empty();
         }
         //token获取到之后，调用rpc判断token是否合法，如果合法则吧token换取到的userId传递给到下游
-        Long userId = accountTokenRPC.getUserIdByToken(qiyuTokenCookieValue);
+        Long userId = accountTokenRPC.getUserIdByToken(jiushiTokenValue);
         //如果token不合法，则拦截请求，日志记录token失效
         if (userId == null) {
             LOGGER.error("请求的token失效了，被拦截");

@@ -1,5 +1,7 @@
 package top.mylove7.live.user.dto;
 
+import lombok.Data;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -8,6 +10,7 @@ import java.io.Serializable;
  *
  * @Description
  */
+@Data
 public class UserLoginDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = -4290788036479984698L;
@@ -16,29 +19,8 @@ public class UserLoginDTO implements Serializable {
     private String desc;
     private Long userId;
 
-    public boolean isLoginSuccess() {
-        return isLoginSuccess;
-    }
+    private String token;
 
-    public void setLoginSuccess(boolean loginSuccess) {
-        isLoginSuccess = loginSuccess;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     public static UserLoginDTO loginError(String desc) {
         UserLoginDTO userLoginDTO = new UserLoginDTO();

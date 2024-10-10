@@ -65,15 +65,7 @@ public class UserLoginServiceImpl implements IUserLoginService {
         ErrorAssert.isTure(userLoginDTO.isLoginSuccess(),ApiErrorEnum.USER_LOGIN_ERROR);
 
         String token = accountTokenRPC.createAndSaveLoginToken(userLoginDTO.getUserId());
-        Cookie cookie = new Cookie("jiushiToken", token);
-        //http://app.qiyu.live.com/html/qiyu_live_list_room.html
-        //http://api.qiyu.live.com/live/api/userLogin/sendLoginCode
-        cookie.setDomain("localhost");
-        cookie.setPath("/");
-        //cookie有效期，一般他的默认单位是秒
-        cookie.setMaxAge(30 * 24 * 3600);
-        //加上它，不然web浏览器不会将cookie自动记录下
-        response.addCookie(cookie);
+        userLoginDTO.setToken(token);
         return WebResponseVO.success(ConvertBeanUtils.convert(userLoginDTO, UserLoginVO.class));
     }
 }
