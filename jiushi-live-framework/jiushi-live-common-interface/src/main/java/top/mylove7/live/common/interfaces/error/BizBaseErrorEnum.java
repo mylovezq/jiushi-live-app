@@ -1,11 +1,11 @@
-package top.mylove7.jiushi.live.web.starter.error;
+package top.mylove7.live.common.interfaces.error;
 
 /**
  * @Author jiushi
  *
  * @Description
  */
-public enum BizBaseErrorEnum implements QiyuBaseError{
+public enum BizBaseErrorEnum implements BaseError {
 
     PARAM_ERROR(100001,"参数异常"),
     TOKEN_ERROR(100002,"用户token异常");

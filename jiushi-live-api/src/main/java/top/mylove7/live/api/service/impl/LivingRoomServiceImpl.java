@@ -18,8 +18,8 @@ import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.dto.LivingRoomRespDTO;
 import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
 
-import top.mylove7.jiushi.live.web.starter.error.ErrorAssert;
-import top.mylove7.jiushi.live.web.starter.error.QiyuErrorException;
+import top.mylove7.live.common.interfaces.error.ErrorAssert;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.mylove7.live.user.dto.UserDTO;
@@ -69,7 +69,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
         reqDTO.setPkObjId(JiushiLoginRequestContext.getUserId());
         LivingPkRespDTO tryOnlineStatus = livingRoomRpc.onlinePk(reqDTO);
-        ErrorAssert.isTure(tryOnlineStatus.isOnlineStatus(), new QiyuErrorException(-1,tryOnlineStatus.getMsg()));
+        ErrorAssert.isTure(tryOnlineStatus.isOnlineStatus(), new BizErrorException(-1,tryOnlineStatus.getMsg()));
         return true;
     }
 

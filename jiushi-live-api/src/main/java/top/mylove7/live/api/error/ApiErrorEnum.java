@@ -1,6 +1,6 @@
 package top.mylove7.live.api.error;
 
-import top.mylove7.jiushi.live.web.starter.error.QiyuBaseError;
+import top.mylove7.live.common.interfaces.error.BaseError;
 import top.mylove7.live.common.interfaces.constants.ErrorAppIdEnum;
 
 /**
@@ -8,7 +8,7 @@ import top.mylove7.live.common.interfaces.constants.ErrorAppIdEnum;
  *
  * @Description
  */
-public enum ApiErrorEnum implements QiyuBaseError {
+public enum ApiErrorEnum implements BaseError {
 
     PHONE_IS_EMPTY(1, "手机号不能为空"),
     PHONE_IN_VALID(2,"手机号格式异常"),
@@ -24,13 +24,14 @@ public enum ApiErrorEnum implements QiyuBaseError {
     private int errorCode;
 
     ApiErrorEnum(int errorCode, String errorMsg) {
-        this.errorMsg = errorMsg;
         this.errorCode = errorCode;
+        this.errorMsg = errorMsg;
+
     }
 
     @Override
     public int getErrorCode() {
-        return Integer.parseInt(ErrorAppIdEnum.QIYU_API_ERROR.getCode() + "" + errorCode);
+        return Integer.parseInt(ErrorAppIdEnum.JIUSHI_API_ERROR.getCode() + "" + errorCode);
     }
 
     @Override

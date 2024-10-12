@@ -1,8 +1,19 @@
 package top.mylove7.live.gateway.filter;
 
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import top.mylove7.live.account.interfaces.user.IAccountTokenRPC;
+import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.gateway.properties.GatewayApplicationProperties;
 import top.mylove7.live.common.interfaces.enums.GatewayHeaderEnum;
 import org.slf4j.Logger;
@@ -21,10 +32,13 @@ import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import top.mylove7.live.gateway.vo.GatewayRespVO;
 
 import java.util.List;
 
 import static io.netty.handler.codec.http.cookie.CookieHeaderNames.MAX_AGE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.web.cors.CorsConfiguration.ALL;
 
 /**
@@ -33,9 +47,8 @@ import static org.springframework.web.cors.CorsConfiguration.ALL;
  * @Description
  */
 @Component
+@Slf4j
 public class AccountCheckFilter implements GlobalFilter, Ordered {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccountCheckFilter.class);
 
     @DubboReference
     private IAccountTokenRPC accountTokenRPC;
@@ -44,41 +57,37 @@ public class AccountCheckFilter implements GlobalFilter, Ordered {
     @Resource
     private GatewayApplicationProperties gatewayApplicationProperties;
 
+    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //获取请求url，判断是否为空，如果为空则返回请求不通过
         ServerHttpRequest request = exchange.getRequest();
         String reqUrl = request.getURI().getPath();
-        if (StringUtils.isEmpty(reqUrl)) {
-            return Mono.empty();
+        if (StrUtil.isBlank(reqUrl)) {
+            return GatewayRespVO.bizErr("非法请求路径", BAD_REQUEST.value(), exchange);
         }
         //根据url，判断是否存在于url白名单中，如果存在，则不对token进行校验
         List<String> notCheckUrlList = gatewayApplicationProperties.getNotCheckUrlList();
         if (this.isPathMatched(reqUrl,notCheckUrlList)) {
-            LOGGER.info("匹配到的白名单："+reqUrl);
-            LOGGER.info("请求没有进行token校验，直接传达给业务下游");
+            log.info("匹配到的白名单："+reqUrl);
+            log.info("请求没不需要进行token校验，直接传达给业务下游");
             //直接将请求转给下游
             return chain.filter(exchange);
         }
-        //如果不存在url白名单，那么就需要提取cookie，并且对cookie做基本的格式校验
+        //如果不存在url白名单，从请求头中获取token
         List<String> authorization = request.getHeaders().get("Authorization");
-        if (CollectionUtils.isEmpty(authorization)) {
-            LOGGER.error("请求没有检索到qytk的cookie，被拦截");
-            return Mono.empty();
+        if (CollectionUtils.isEmpty(authorization) || StrUtil.isBlank(authorization.get(0))) {
+            log.error("没有登录，没有请求token");
+            return GatewayRespVO.bizErr("请先登录", UNAUTHORIZED.value(),exchange);
         }
         String jiushiTokenValue = authorization.get(0);
-        if (StringUtils.isEmpty(jiushiTokenValue) || StringUtils.isEmpty(jiushiTokenValue.trim())) {
-            LOGGER.error("请求的cookie中的qytk是空，被拦截");
-            return Mono.empty();
-        }
         //token获取到之后，调用rpc判断token是否合法，如果合法则吧token换取到的userId传递给到下游
         Long userId = accountTokenRPC.getUserIdByToken(jiushiTokenValue);
         //如果token不合法，则拦截请求，日志记录token失效
         if (userId == null) {
-            LOGGER.error("请求的token失效了，被拦截");
-            return Mono.empty();
+            log.error("请求的token失效了，被拦截");
+            return GatewayRespVO.bizErr("登录已失效，请重新登录",401,exchange);
         }
-        // gateway --(header)--> springboot-web(interceptor-->get header)
         ServerHttpRequest.Builder builder = request.mutate();
         builder.header(GatewayHeaderEnum.USER_LOGIN_ID.getName(), String.valueOf(userId));
          return chain.filter(exchange.mutate().request(builder.build()).build());

@@ -1,6 +1,5 @@
 package top.mylove7.live.api.service.impl;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import top.mylove7.live.api.error.ApiErrorEnum;
 import top.mylove7.live.api.service.IUserLoginService;
@@ -11,7 +10,7 @@ import top.mylove7.live.account.interfaces.user.IAccountTokenRPC;
 import org.qiyu.live.msg.dto.MsgCheckDTO;
 import org.qiyu.live.msg.enums.MsgSendResultEnum;
 import org.qiyu.live.msg.interfaces.ISmsRpc;
-import top.mylove7.jiushi.live.web.starter.error.ErrorAssert;
+import top.mylove7.live.common.interfaces.error.ErrorAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

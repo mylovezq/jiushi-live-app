@@ -3,7 +3,7 @@ package top.mylove7.jiushi.live.web.starter.context;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import top.mylove7.jiushi.live.web.starter.error.QiyuErrorException;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class RequestLimitInterceptor implements HandlerInterceptor {
                 }
                 //直接抛出全局异常，让异常捕获器处理
                 LOGGER.error("[RequestLimitInterceptor] userId is {},req too much", userId);
-                throw new QiyuErrorException(-1, requestLimit.msg());
+                throw new BizErrorException(-1, requestLimit.msg());
             } else {
                 return true;
             }

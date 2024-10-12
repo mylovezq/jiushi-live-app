@@ -1,11 +1,11 @@
-package top.mylove7.jiushi.live.web.starter.error;
+package top.mylove7.live.common.interfaces.error;
 
 /**
  * @Author jiushi
  *
  * @Description
  */
-public interface QiyuBaseError {
+public interface BaseError {
 
     int getErrorCode();
     String getErrorMsg();

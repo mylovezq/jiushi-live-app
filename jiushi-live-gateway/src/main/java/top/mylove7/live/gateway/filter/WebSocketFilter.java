@@ -18,10 +18,12 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import top.mylove7.live.gateway.vo.GatewayRespVO;
 
 import java.net.URI;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static top.mylove7.live.common.interfaces.constants.ImCoreServerConstants.IM_WS_BIND_IP_KEY;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
@@ -44,7 +46,9 @@ public class WebSocketFilter implements GlobalFilter, Ordered {
         }
         List<String> token = exchange.getRequest().getQueryParams().get("token");
         ImUserInfoTokenDto userIdByToken = imTokenRpc.getUserIdByToken(token.get(0));
-        Assert.notNull(userIdByToken, "im token is null");
+        if (userIdByToken == null){
+            return GatewayRespVO.bizErr("请先登录im", UNAUTHORIZED.value(),exchange);
+        }
 
         String redisIpAddr = stringRedisTemplate.opsForValue().get(IM_WS_BIND_IP_KEY + userIdByToken.getAppId() + ":" + userIdByToken.getUserId());
         if (redisIpAddr !=  null){
