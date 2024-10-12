@@ -1,6 +1,7 @@
 package top.mylove7.live.api.controller;
 
 import jakarta.annotation.Resource;
+import org.springframework.util.Assert;
 import top.mylove7.live.api.service.ILivingRoomService;
 import top.mylove7.live.api.vo.LivingRoomInitVO;
 import top.mylove7.live.api.vo.req.LivingRoomReqVO;
@@ -29,6 +30,7 @@ public class LivingRoomController {
 
     @PostMapping("/list")
     public WebResponseVO list(LivingRoomReqVO livingRoomReqVO) {
+        Assert.notNull(null, "不能为空");
         ErrorAssert.isTure(livingRoomReqVO != null && livingRoomReqVO.getType() != null, BizBaseErrorEnum.PARAM_ERROR);
         ErrorAssert.isTure(livingRoomReqVO.getPage() > 0 && livingRoomReqVO.getPageSize() <= 100, BizBaseErrorEnum.PARAM_ERROR);
         return WebResponseVO.success(livingRoomService.list(livingRoomReqVO));
