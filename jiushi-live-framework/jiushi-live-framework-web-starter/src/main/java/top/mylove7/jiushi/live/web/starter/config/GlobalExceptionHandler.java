@@ -1,4 +1,4 @@
-package top.mylove7.live.api.config;
+package top.mylove7.jiushi.live.web.starter.config;
 
 
 import jakarta.servlet.http.HttpServletRequest;
