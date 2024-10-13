@@ -3,7 +3,7 @@ package top.mylove7.live.im.router.interfaces.rpc;
 
 
 
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 
 import java.util.List;
 
@@ -18,16 +18,16 @@ public interface ImRouterRpc {
     /**
      * 发送消息
      *
-     * @param imMsgBody
+     * @param imMsgBodyInTcpWsDto
      * @return
      */
-    boolean sendMsg(ImMsgBody imMsgBody);
+    boolean sendMsg(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto);
 
 
     /**
      * 批量发送消息，在直播间内
      *
-     * @param imMsgBody
+     * @param imMsgBodyInTcpWsDto
      */
-    void batchSendMsg(List<ImMsgBody> imMsgBody);
+    void batchSendMsg(List<ImMsgBodyInTcpWsDto> imMsgBodyInTcpWsDto);
 }

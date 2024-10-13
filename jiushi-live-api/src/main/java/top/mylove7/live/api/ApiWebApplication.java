@@ -15,6 +15,7 @@ public class ApiWebApplication {
 
     public static void main(String[] args) {
         SpringApplication springApplication = new SpringApplication(ApiWebApplication.class);
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", String.valueOf(16));
         springApplication.run(args);
     }
 }

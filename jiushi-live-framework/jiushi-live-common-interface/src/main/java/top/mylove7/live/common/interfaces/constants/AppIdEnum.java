@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public enum AppIdEnum {
 
-    JIUSHI_LIVE_BIZ(10001L,"旗鱼直播业务");
+    JIUSHI_LIVE_BIZ(10001L,"直播业务");
 
     Long code;
     String desc;

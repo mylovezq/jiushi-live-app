@@ -1,8 +1,8 @@
 package top.mylove7.live.living.provider.service;
 
 
-import org.qiyu.live.im.core.server.interfaces.dto.ImOfflineDTO;
-import org.qiyu.live.im.core.server.interfaces.dto.ImOnlineDTO;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
 import top.mylove7.live.living.interfaces.dto.LivingPkRespDTO;
 import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;

@@ -7,7 +7,7 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.MessageExt;
-import org.qiyu.live.im.core.server.interfaces.dto.ImOnlineDTO;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
 import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerProperties;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.living.provider.service.ILivingRoomService;
@@ -44,12 +44,12 @@ public class LivingRoomOnlineConsumer implements InitializingBean {
         //监听im发送过来的业务消息topic
         mqPushConsumer.subscribe(ImCoreServerProviderTopicNames.IM_ONLINE_TOPIC, "");
         mqPushConsumer.setMessageListener((MessageListenerConcurrently) (msgs, context) -> {
-            for (MessageExt msg : msgs) {
+            msgs.parallelStream().forEach(msg -> {
                 livingRoomService.userOnlineHandler(JSON.parseObject(new String(msg.getBody()),ImOnlineDTO.class));
-            }
+            });
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         mqPushConsumer.start();
-        LOGGER.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
+        LOGGER.info("mq消费者启动成功,监听的top{}，namesrv is {}",ImCoreServerProviderTopicNames.IM_ONLINE_TOPIC, rocketMQConsumerProperties.getNameSrv());
     }
 }

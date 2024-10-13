@@ -12,13 +12,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.dubbo.config.annotation.DubboReference;
 
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
+import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.live.account.interfaces.im.ImTokenRpc;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.constants.ImMsgCodeEnum;
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
-import org.qiyu.live.im.core.server.common.ImMsg;
-import org.qiyu.live.im.core.server.common.TcpImMsgDecoder;
-import org.qiyu.live.im.core.server.common.TcpImMsgEncoder;
+import top.mylove7.live.im.core.server.common.TcpImMsgDecoder;
+import top.mylove7.live.im.core.server.common.TcpImMsgEncoder;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
@@ -67,11 +67,11 @@ public class ImClientHandler implements InitializingBean {
 //                    Long objectId = scanner.nextLong();
                     String token = imTokenRpc.createImLoginToken(userId, AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
                     //发送登录消息包
-                    ImMsgBody imMsgBody = new ImMsgBody();
-                    imMsgBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-                    imMsgBody.setToken(token);
-                    imMsgBody.setUserId(userId);
-                    ImMsg loginMsg = ImMsg.build(ImMsgCodeEnum.IM_LOGIN_MSG.getCode(), JSON.toJSONString(imMsgBody));
+                    ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
+                    imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+                    imMsgBodyInTcpWsDto.setToken(token);
+                    imMsgBodyInTcpWsDto.setUserId(userId);
+                    ImTcpWsDto loginMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_LOGIN_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
                     channel.writeAndFlush(loginMsg);
 
                     while (true) {
@@ -84,8 +84,8 @@ public class ImClientHandler implements InitializingBean {
                         jsonObject.put("userId", userId);
                         jsonObject.put("objectId", 1L);
                         jsonObject.put("content", "hello world" + UUID.randomUUID());
-                        imMsgBody.setData(String.valueOf(jsonObject));
-                        ImMsg loginMsg1 = ImMsg.build(ImMsgCodeEnum.IM_BIZ_MSG.getCode(), JSON.toJSONString(imMsgBody));
+                        imMsgBodyInTcpWsDto.setData(String.valueOf(jsonObject));
+                        ImTcpWsDto loginMsg1 = ImTcpWsDto.build(ImMsgCodeEnum.IM_BIZ_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
                         channel.writeAndFlush(loginMsg1);
                     }
 
@@ -97,7 +97,7 @@ public class ImClientHandler implements InitializingBean {
 //                        if (StringUtils.isEmpty(content)) {
 //                            continue;
 //                        }
-//                        ImMsgBody bizBody = new ImMsgBody();
+//                        ImMsgBodyInTcpWsDto bizBody = new ImMsgBodyInTcpWsDto();
 //                        bizBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
 //                        bizBody.setUserId(userId);
 //                        bizBody.setBizCode(5555);
@@ -106,7 +106,7 @@ public class ImClientHandler implements InitializingBean {
 //                        jsonObject.put("objectId", objectId);
 //                        jsonObject.put("content", content);
 //                        bizBody.setData(JSON.toJSONString(jsonObject));
-//                        ImMsg heartBeatMsg = ImMsg.build(ImMsgCodeEnum.IM_BIZ_MSG.getCode(), JSON.toJSONString(bizBody));
+//                        ImTcpWsDto heartBeatMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_BIZ_MSG.getCode(), JSON.toJSONString(bizBody));
 //                        channel.writeAndFlush(heartBeatMsg);
 //                    }
                 } catch (InterruptedException e) {
@@ -126,10 +126,10 @@ public class ImClientHandler implements InitializingBean {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                ImMsgBody imMsgBody = new ImMsgBody();
-                imMsgBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-                imMsgBody.setUserId(userId);
-                ImMsg loginMsg = ImMsg.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(imMsgBody));
+                ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
+                imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+                imMsgBodyInTcpWsDto.setUserId(userId);
+                ImTcpWsDto loginMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
                 channel.writeAndFlush(loginMsg);
             }
         }).start();

@@ -23,7 +23,7 @@ import top.mylove7.live.bank.dto.AccountTradeReqDTO;
 import top.mylove7.live.bank.dto.AccountTradeRespDTO;
 import top.mylove7.live.bank.interfaces.IJiushiCurrencyAccountRpc;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.dto.SendGiftMq;
 import top.mylove7.live.common.interfaces.topic.GiftProviderTopicNames;
 import top.mylove7.live.im.router.interfaces.constants.ImMsgBizCodeEnum;
@@ -139,12 +139,12 @@ public class SendGiftConsumer implements InitializingBean {
      * @param jsonObject
      */
     private void sendImMsgSingleton(Long userId, int bizCode, JSONObject jsonObject) {
-        ImMsgBody imMsgBody = new ImMsgBody();
-        imMsgBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-        imMsgBody.setBizCode(bizCode);
-        imMsgBody.setUserId(userId);
-        imMsgBody.setData(jsonObject.toJSONString());
-        routerRpc.sendMsg(imMsgBody);
+        ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
+        imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+        imMsgBodyInTcpWsDto.setBizCode(bizCode);
+        imMsgBodyInTcpWsDto.setUserId(userId);
+        imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
+        routerRpc.sendMsg(imMsgBodyInTcpWsDto);
     }
 
     private void pkImMsgSend(JSONObject jsonObject, SendGiftMq sendGiftMq, Long receiverId) {
@@ -203,13 +203,13 @@ public class SendGiftConsumer implements InitializingBean {
      * @param jsonObject
      */
     private void batchSendImMsg(List<Long> userIdList, ImMsgBizCodeEnum imMsgBizCodeEnum, JSONObject jsonObject) {
-        List<ImMsgBody> imMsgBodies = userIdList.stream().map(userId -> {
-            ImMsgBody imMsgBody = new ImMsgBody();
-            imMsgBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-            imMsgBody.setBizCode(imMsgBizCodeEnum.getCode());
-            imMsgBody.setUserId(userId);
-            imMsgBody.setData(jsonObject.toJSONString());
-            return imMsgBody;
+        List<ImMsgBodyInTcpWsDto> imMsgBodies = userIdList.stream().map(userId -> {
+            ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
+            imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+            imMsgBodyInTcpWsDto.setBizCode(imMsgBizCodeEnum.getCode());
+            imMsgBodyInTcpWsDto.setUserId(userId);
+            imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
+            return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());
         routerRpc.batchSendMsg(imMsgBodies);
     }

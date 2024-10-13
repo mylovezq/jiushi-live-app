@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import org.apache.dubbo.config.annotation.DubboReference;
 
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.im.router.interfaces.rpc.ImRouterRpc;
-import org.qiyu.live.msg.dto.MessageDTO;
+import org.qiyu.live.msg.dto.ChatRoomMessageDTO;
 import top.mylove7.live.im.router.interfaces.constants.ImMsgBizCodeEnum;
 import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
@@ -17,18 +17,19 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @Component
 
 public class SingleMessageHandlerImpl implements MessageHandler {
 
-   private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SingleMessageHandlerImpl.class);
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SingleMessageHandlerImpl.class);
 
     @DubboReference
     private ImRouterRpc routerRpc;
@@ -37,35 +38,35 @@ public class SingleMessageHandlerImpl implements MessageHandler {
 
 
     @Override
-    public void onMsgReceive(ImMsgBody imMsgBody) {
-        int bizCode = imMsgBody.getBizCode();
-        LOGGER.info("im消息-msg-provider服务收到消息，消息内容：{}", imMsgBody);
+    public void onMsgReceive(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
+        int bizCode = imMsgBodyInTcpWsDto.getBizCode();
+        LOGGER.info("im消息-msg-provider服务收到消息，消息内容：{}", imMsgBodyInTcpWsDto);
         //直播间的聊天消息
         if (ImMsgBizCodeEnum.LIVING_ROOM_IM_CHAT_MSG_BIZ.getCode() == bizCode) {
             //一个人发送 n个人接收
             // 根据roomId，appId 去调用rpc方法，获取对应的直播间内的userId
             // 创建一个list的imMsgBody对象，
-            MessageDTO messageDTO = JSON.parseObject(imMsgBody.getData(), MessageDTO.class);
-            Long roomId = messageDTO.getRoomId();
+            ChatRoomMessageDTO chatRoomMessageDTO = JSON.parseObject(imMsgBodyInTcpWsDto.getData(), ChatRoomMessageDTO.class);
+            Long roomId = chatRoomMessageDTO.getRoomId();
             LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
             reqDTO.setRoomId(roomId);
-            reqDTO.setAppId(imMsgBody.getAppId());
+            reqDTO.setAppId(imMsgBodyInTcpWsDto.getAppId());
             //自己不用发
-            List<Long> userIdList = livingRoomRpc.queryUserIdByRoomId(reqDTO).stream().filter(x->!x.equals(imMsgBody.getUserId())).collect(Collectors.toList());
-            if(CollectionUtils.isEmpty(userIdList)) {
-                return;
-            }
-            List<ImMsgBody> imMsgBodies = new ArrayList<>();
-            userIdList.forEach(userId -> {
-                ImMsgBody respMsg = new ImMsgBody();
-                respMsg.setUserId(userId);
-                respMsg.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-                respMsg.setBizCode(ImMsgBizCodeEnum.LIVING_ROOM_IM_CHAT_MSG_BIZ.getCode());
-                respMsg.setData(JSON.toJSONString(messageDTO));
-                imMsgBodies.add(respMsg);
-            });
+            List<ImMsgBodyInTcpWsDto> imMsgInTcpWsBodies
+                    = Optional.ofNullable(livingRoomRpc.queryUserIdByRoomId(reqDTO)).orElse(new ArrayList<>())
+                    .parallelStream()
+                    .filter(userId -> !Objects.equals(imMsgBodyInTcpWsDto.getUserId(), userId))
+                    .map(userId -> {
+                        ImMsgBodyInTcpWsDto respMsg = new ImMsgBodyInTcpWsDto();
+                        respMsg.setMsgId(imMsgBodyInTcpWsDto.getMsgId());
+                        respMsg.setUserId(userId);
+                        respMsg.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+                        respMsg.setBizCode(ImMsgBizCodeEnum.LIVING_ROOM_IM_CHAT_MSG_BIZ.getCode());
+                        respMsg.setData(JSON.toJSONString(chatRoomMessageDTO));
+                        return respMsg;
+                    }).collect(Collectors.toList());
             //暂时不做过多的处理
-            routerRpc.batchSendMsg(imMsgBodies);
+            routerRpc.batchSendMsg(imMsgInTcpWsBodies);
         }
     }
 }

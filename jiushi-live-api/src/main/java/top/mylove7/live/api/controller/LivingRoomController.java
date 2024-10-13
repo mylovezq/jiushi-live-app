@@ -30,7 +30,6 @@ public class LivingRoomController {
 
     @PostMapping("/list")
     public WebResponseVO list(LivingRoomReqVO livingRoomReqVO) {
-        Assert.notNull(null, "不能为空");
         ErrorAssert.isTure(livingRoomReqVO != null && livingRoomReqVO.getType() != null, BizBaseErrorEnum.PARAM_ERROR);
         ErrorAssert.isTure(livingRoomReqVO.getPage() > 0 && livingRoomReqVO.getPageSize() <= 100, BizBaseErrorEnum.PARAM_ERROR);
         return WebResponseVO.success(livingRoomService.list(livingRoomReqVO));

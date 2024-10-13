@@ -18,7 +18,7 @@ spring:
   config:
     import:
       - optional:nacos:jiushi-live-im-router-provider.yaml
-
+      - optional:nacos:jiushi-live-common.yaml
 dubbo:
   consumer:
     cluster: imRouter

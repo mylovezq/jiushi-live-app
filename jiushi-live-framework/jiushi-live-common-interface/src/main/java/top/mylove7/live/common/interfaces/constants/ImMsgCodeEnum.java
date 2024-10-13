@@ -1,10 +1,13 @@
 package top.mylove7.live.common.interfaces.constants;
 
+import lombok.Getter;
+
 /**
  * @Author jiushi
  *
  * @Description
  */
+@Getter
 public enum ImMsgCodeEnum {
 
     IM_LOGIN_MSG(1001,"登录im消息包"),
@@ -19,13 +22,5 @@ public enum ImMsgCodeEnum {
     ImMsgCodeEnum(int code, String desc) {
         this.code = code;
         this.desc = desc;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getDesc() {
-        return desc;
     }
 }

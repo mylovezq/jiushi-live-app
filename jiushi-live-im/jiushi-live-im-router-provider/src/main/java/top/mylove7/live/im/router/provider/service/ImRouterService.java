@@ -2,7 +2,7 @@ package top.mylove7.live.im.router.provider.service;
 
 
 
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 
 import java.util.List;
 
@@ -17,15 +17,15 @@ public interface ImRouterService {
     /**
      * 发送消息
      *
-     * @param imMsgBody
+     * @param imMsgBodyInTcpWsDto
      * @return
      */
-    boolean sendMsg(ImMsgBody imMsgBody);
+    boolean sendMsg(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto);
 
     /**
      * 批量发送消息，群聊场景
      *
-     * @param imMsgBody
+     * @param imMsgBodyInTcpWsDto
      */
-    void batchSendMsg(List<ImMsgBody> imMsgBody);
+    void batchSendMsg(List<ImMsgBodyInTcpWsDto> imMsgBodyInTcpWsDto);
 }

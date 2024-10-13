@@ -1,6 +1,7 @@
 package top.mylove7.live.gateway.filter;
 
 
+import cn.hutool.core.collection.CollUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -49,6 +50,12 @@ public class WebSocketFilter implements GlobalFilter, Ordered {
         if (userIdByToken == null){
             return GatewayRespVO.bizErr("请先登录im", UNAUTHORIZED.value(),exchange);
         }
+        List<String> roomIdList = exchange.getRequest().getQueryParams().get("roomId");
+        if (CollUtil.isNotEmpty(roomIdList)){
+            String roomId = roomIdList.get(0);
+            userIdByToken.setRoomId(Long.valueOf(roomId));
+        }
+
 
         String redisIpAddr = stringRedisTemplate.opsForValue().get(IM_WS_BIND_IP_KEY + userIdByToken.getAppId() + ":" + userIdByToken.getUserId());
         if (redisIpAddr !=  null){

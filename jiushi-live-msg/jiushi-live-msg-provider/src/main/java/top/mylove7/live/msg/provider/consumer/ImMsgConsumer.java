@@ -2,13 +2,13 @@ package top.mylove7.live.msg.provider.consumer;
 
 import com.alibaba.fastjson.JSON;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
-import org.apache.rocketmq.common.message.MessageExt;
 import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerProperties;
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.msg.provider.consumer.handler.MessageHandler;
 import org.slf4j.Logger;
@@ -23,9 +23,9 @@ import org.springframework.stereotype.Component;
  * @Description
  */
 @Component
+@Slf4j
 public class ImMsgConsumer implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImMsgConsumer.class);
     @Resource
     private RocketMQConsumerProperties rocketMQConsumerProperties;
     @Resource
@@ -43,18 +43,24 @@ public class ImMsgConsumer implements InitializingBean {
         mqPushConsumer.setNamesrvAddr(rocketMQConsumerProperties.getNameSrv());
         mqPushConsumer.setConsumerGroup(rocketMQConsumerProperties.getGroupName() + "_" + ImMsgConsumer.class.getSimpleName());
         //一次从broker中拉取10条消息到本地内存当中进行消费
+        // 设置消费超时时间为10秒
+        mqPushConsumer.setConsumeTimeout(5000);
+        // 设置最大重试次数为3次
+        mqPushConsumer.setMaxReconsumeTimes(4);
         mqPushConsumer.setConsumeMessageBatchMaxSize(10);
         mqPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
         //监听im发送过来的业务消息topic
         mqPushConsumer.subscribe(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_BIZ_MSG_TOPIC, "");
         mqPushConsumer.setMessageListener((MessageListenerConcurrently) (msgs, context) -> {
-            for (MessageExt msg : msgs) {
-                ImMsgBody imMsgBody = JSON.parseObject(new String(msg.getBody()), ImMsgBody.class);
-                singleMessageHandler.onMsgReceive(imMsgBody);
-            }
+            log.info("业务消息触发接受");
+            msgs.parallelStream().forEach(msg -> {
+                ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(new String(msg.getBody()), ImMsgBodyInTcpWsDto.class);
+
+                singleMessageHandler.onMsgReceive(imMsgBodyInTcpWsDto);
+            });
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         mqPushConsumer.start();
-        LOGGER.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
+        log.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
     }
 }

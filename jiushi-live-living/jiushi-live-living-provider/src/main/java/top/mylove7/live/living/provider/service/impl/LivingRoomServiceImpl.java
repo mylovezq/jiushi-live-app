@@ -4,8 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.qiyu.live.im.core.server.interfaces.dto.ImOfflineDTO;
-import org.qiyu.live.im.core.server.interfaces.dto.ImOnlineDTO;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
-import top.mylove7.live.common.interfaces.dto.ImMsgBody;
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
@@ -71,8 +71,8 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         Cursor<Object> cursor = redisTemplate.opsForSet().scan(cacheKey, ScanOptions.scanOptions().match("*").count(100).build());
         List<Long> userIdList = new ArrayList<>();
         while (cursor.hasNext()) {
-            Integer userId = (Integer) cursor.next();
-            userIdList.add(Long.valueOf(userId));
+            Long userId = (Long) cursor.next();
+            userIdList.add(userId);
         }
         return userIdList;
     }
@@ -218,13 +218,13 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     }
 
     private void batchSendImMsg(List<Long> userIdList, int bizCode, JSONObject jsonObject) {
-        List<ImMsgBody> imMsgBodies = userIdList.stream().map(userId -> {
-            ImMsgBody imMsgBody = new ImMsgBody();
-            imMsgBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-            imMsgBody.setBizCode(bizCode);
-            imMsgBody.setUserId(userId);
-            imMsgBody.setData(jsonObject.toJSONString());
-            return imMsgBody;
+        List<ImMsgBodyInTcpWsDto> imMsgBodies = userIdList.stream().map(userId -> {
+            ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
+            imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+            imMsgBodyInTcpWsDto.setBizCode(bizCode);
+            imMsgBodyInTcpWsDto.setUserId(userId);
+            imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
+            return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());
         imRouterRpc.batchSendMsg(imMsgBodies);
     }

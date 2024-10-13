@@ -6,3 +6,5 @@ top.mylove7.jiushi.live.framework.redis.starter.key.ImCoreServerProviderCacheKey
 top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder
 top.mylove7.jiushi.live.framework.redis.starter.key.GiftProviderCacheKeyBuilder
 top.mylove7.jiushi.live.framework.redis.starter.key.BankProviderCacheKeyBuilder
+top.mylove7.jiushi.live.framework.redis.starter.config.RedissonLockService
+top.mylove7.jiushi.live.framework.redis.starter.config.RedisConfigureProperties
