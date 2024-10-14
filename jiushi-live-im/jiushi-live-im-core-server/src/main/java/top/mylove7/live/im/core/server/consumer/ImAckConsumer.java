@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class ImAckConsumer implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImAckConsumer.class);
 
     @Resource
     private RocketMQConsumerProperties rocketMQConsumerProperties;

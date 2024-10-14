@@ -46,6 +46,7 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
         if(this.sendMsgToClient(imMsgBodyInTcpWsDto)) {
             //当im服务器推送了消息给到客户端，然后我们需要记录下ack
             msgAckCheckService.recordMsgAck(imMsgBodyInTcpWsDto, 1);
+            //延迟检查是否确认消息收到了
             msgAckCheckService.sendDelayMsg(imMsgBodyInTcpWsDto);
         }
     }

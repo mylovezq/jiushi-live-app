@@ -7,7 +7,7 @@ spring:
       maximum-pool-size: 200
     driver-class-name: com.mysql.cj.jdbc.Driver
     #访问主库
-    url: jdbc:mysql://192.168.1.20:3306/qiyu_live_gift?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://192.168.1.20:3306/jiushi_live_gift?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
   data:

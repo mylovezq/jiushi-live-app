@@ -48,6 +48,10 @@
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-framework-mq-starter</artifactId>
         </dependency>

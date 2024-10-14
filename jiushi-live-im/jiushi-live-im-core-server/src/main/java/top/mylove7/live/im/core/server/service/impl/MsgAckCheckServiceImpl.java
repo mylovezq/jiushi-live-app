@@ -106,6 +106,9 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
             log.info("第一次存入确认消息结果{}",result);
             if (result){
                 redisTemplate.expire(key,60, TimeUnit.MINUTES);
+            }else {
+                Object laserTimes = redisTemplate.opsForHash().get(key, imMsgBodyInTcpWsDto.getMsgId());
+                log.info("第一次存入确认消息失败{}，消息可能已经确认收到{}",key + imMsgBodyInTcpWsDto.getMsgId(),laserTimes);
             }
             return;
         }
@@ -119,7 +122,7 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
             redisTemplate.expire(key,60, TimeUnit.MINUTES);
         }else {
             Object laserTimes = redisTemplate.opsForHash().get(key, imMsgBodyInTcpWsDto.getMsgId());
-            log.info("更新失败，消息已被确认收到{}",laserTimes);
+            log.info("更新失败，消息已被确认收到{}",key + imMsgBodyInTcpWsDto.getMsgId(),laserTimes,laserTimes);
 
         }
     }
@@ -131,7 +134,7 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
         message.setBody(json.getBytes());
         message.setTopic(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_ACK_MSG_TOPIC);
         //等级1 -> 1s，等级2 -> 5s
-        message.setDelayTimeLevel(1);
+        message.setDelayTimeLevel(2);
         try {
             SendResult sendResult = mqProducer.send(message);
             LOGGER.info("[MsgAckCheckServiceImpl] msg is {},sendResult is {}", json, sendResult);
