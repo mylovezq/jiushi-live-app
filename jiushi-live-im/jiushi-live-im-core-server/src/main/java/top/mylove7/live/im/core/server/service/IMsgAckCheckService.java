@@ -39,5 +39,7 @@ public interface IMsgAckCheckService {
      * @param appId
      * @return
      */
-    int getMsgAckTimes(String msgId,Long userId,Long appId);
+    Integer getMsgAckTimes(String msgId,Long userId,Long appId);
+
+    boolean hadMsgAck(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) ;
 }

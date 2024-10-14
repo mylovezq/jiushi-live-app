@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @Component
@@ -44,20 +43,27 @@ public class ImMsgConsumer implements InitializingBean {
         mqPushConsumer.setConsumerGroup(rocketMQConsumerProperties.getGroupName() + "_" + ImMsgConsumer.class.getSimpleName());
         //一次从broker中拉取10条消息到本地内存当中进行消费
         // 设置消费超时时间为10秒
-        mqPushConsumer.setConsumeTimeout(5000);
+        mqPushConsumer.setConsumeTimeout(10000);
         // 设置最大重试次数为3次
-        mqPushConsumer.setMaxReconsumeTimes(4);
+        mqPushConsumer.setMaxReconsumeTimes(3);
         mqPushConsumer.setConsumeMessageBatchMaxSize(10);
         mqPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
         //监听im发送过来的业务消息topic
         mqPushConsumer.subscribe(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_BIZ_MSG_TOPIC, "");
         mqPushConsumer.setMessageListener((MessageListenerConcurrently) (msgs, context) -> {
-            log.info("业务消息触发接受");
-            msgs.parallelStream().forEach(msg -> {
-                ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(new String(msg.getBody()), ImMsgBodyInTcpWsDto.class);
+            log.info("mq业务消息触发接受");
 
-                singleMessageHandler.onMsgReceive(imMsgBodyInTcpWsDto);
-            });
+            try {
+                msgs.parallelStream().forEach(msg -> {
+                    ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(new String(msg.getBody()), ImMsgBodyInTcpWsDto.class);
+                    singleMessageHandler.onMsgReceive(imMsgBodyInTcpWsDto);
+                    log.info("mq业务消息触发接受处理成功");
+                });
+            } catch (Exception e) {
+                log.error("mq业务消息发送失败", e);
+                return ConsumeConcurrentlyStatus.RECONSUME_LATER;
+            }
+
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         mqPushConsumer.start();

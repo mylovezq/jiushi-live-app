@@ -39,12 +39,11 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
     private RedissonClient redissonClient;
     @Resource
     private ImCoreServerProviderCacheKeyBuilder cacheKeyBuilder;
-
     @Override
     public void onReceive(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
 
         //需要进行消息通知的userid
-        if(sendMsgToClient(imMsgBodyInTcpWsDto)) {
+        if(this.sendMsgToClient(imMsgBodyInTcpWsDto)) {
             //当im服务器推送了消息给到客户端，然后我们需要记录下ack
             msgAckCheckService.recordMsgAck(imMsgBodyInTcpWsDto, 1);
             msgAckCheckService.sendDelayMsg(imMsgBodyInTcpWsDto);
@@ -54,42 +53,15 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
     @Override
     @SneakyThrows
     public boolean sendMsgToClient(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
-        String hadSendMsgKey = cacheKeyBuilder.buildHadSendMsgKey(imMsgBodyInTcpWsDto.getAppId(), imMsgBodyInTcpWsDto.getMsgId());
-        RLock redissonLock = null;
-        try {
-            redissonLock = redissonClient.getLock(hadSendMsgKey + ":" + imMsgBodyInTcpWsDto.getUserId());
-
-            if (redissonLock.tryLock(5, 15, TimeUnit.SECONDS)) {
-                return this.sendMsgToClinetSingle(imMsgBodyInTcpWsDto, hadSendMsgKey);
-            } else {
-                log.warn("获取锁或者持有锁超时{}", hadSendMsgKey + ":" + imMsgBodyInTcpWsDto.getUserId());
-                return false;
-            }
-
-        } catch (Exception e) {
-            log.error("获取分布式锁异常，或者发送消息异常", e);
-            return false;
-        } finally {
-            if (null != redissonLock && redissonLock.isHeldByCurrentThread()) {
-                redissonLock.unlock();
-            }
-        }
-    }
-
-    private boolean sendMsgToClinetSingle(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto, String hadSendMsgKey) {
-        Boolean hadSendMsgTag = redisTemplate.opsForSet().isMember(hadSendMsgKey, imMsgBodyInTcpWsDto.getUserId());
+        boolean hadSendMsgTag = msgAckCheckService.hadMsgAck(imMsgBodyInTcpWsDto);
         if (hadSendMsgTag) {
-            log.info("该用户{}的该条mq消息的im信息已经发送{}", imMsgBodyInTcpWsDto.getUserId(), imMsgBodyInTcpWsDto.getMsgId());
-            return true;
+            log.info("该用户{}的该条mq消息的im信息已经发送,并且已经确认{}", imMsgBodyInTcpWsDto.getUserId(), imMsgBodyInTcpWsDto.getMsgId());
+            return false;
         }
         Long userId = imMsgBodyInTcpWsDto.getUserId();
         ChannelHandlerContext ctx = ChannelHandlerContextCache.get(userId);
         if (ctx != null) {
-            String msgId = UUID.randomUUID().toString();
-            imMsgBodyInTcpWsDto.setMsgId(msgId);
             ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_BIZ_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
-            redisTemplate.opsForSet().add(hadSendMsgKey, imMsgBodyInTcpWsDto.getUserId());
-            redisTemplate.expire(hadSendMsgKey,24, TimeUnit.HOURS);
             ctx.writeAndFlush(respMsg);
             return true;
         }

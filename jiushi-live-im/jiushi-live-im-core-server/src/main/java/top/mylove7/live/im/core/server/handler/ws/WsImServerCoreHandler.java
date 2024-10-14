@@ -8,6 +8,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.im.core.server.common.ImContextUtils;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.live.im.core.server.handler.ImHandlerFactory;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ChannelHandler.Sharable
+@Slf4j
 public class WsImServerCoreHandler extends SimpleChannelInboundHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WsImServerCoreHandler.class);
@@ -75,6 +77,7 @@ public class WsImServerCoreHandler extends SimpleChannelInboundHandler {
             imTcpWsDto.setLen(jsonObject.getInteger("len"));
             imTcpWsDto.setBody(jsonObject.getString("body").getBytes());
             imHandlerFactory.doMsgHandler(ctx, imTcpWsDto);
+
         } catch (Exception e) {
             LOGGER.error("[WebsocketCoreHandler] wsMsgHandler error is:", e);
         }

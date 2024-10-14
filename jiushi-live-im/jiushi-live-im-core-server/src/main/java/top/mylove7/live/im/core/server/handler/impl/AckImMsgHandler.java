@@ -3,6 +3,7 @@ package top.mylove7.live.im.core.server.handler.impl;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.im.core.server.common.ImContextUtils;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
  * @Description
  */
 @Component
+@Slf4j
 public class AckImMsgHandler implements SimplyHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AckImMsgHandler.class);

@@ -1,6 +1,7 @@
 package top.mylove7.live.msg.provider.consumer.handler.impl;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  * @Description
  */
 @Component
-
+@Slf4j
 public class SingleMessageHandlerImpl implements MessageHandler {
 
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SingleMessageHandlerImpl.class);
@@ -66,7 +67,9 @@ public class SingleMessageHandlerImpl implements MessageHandler {
                         return respMsg;
                     }).collect(Collectors.toList());
             //暂时不做过多的处理
+            log.info("开始批量发送消息，已封装完数据");
             routerRpc.batchSendMsg(imMsgInTcpWsBodies);
+            log.info("批量发送消息成功");
         }
     }
 }

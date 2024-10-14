@@ -2,6 +2,7 @@ package top.mylove7.live.im.core.server.consumer;
 
 import com.alibaba.fastjson.JSON;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
  * @Description
  */
 @Configuration
+@Slf4j
 public class ImAckConsumer implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImAckConsumer.class);
@@ -49,12 +51,13 @@ public class ImAckConsumer implements InitializingBean {
         mqPushConsumer.setMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             String json = new String(msgs.get(0).getBody());
             ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(json, ImMsgBodyInTcpWsDto.class);
-            int retryTimes = msgAckCheckService.getMsgAckTimes(imMsgBodyInTcpWsDto.getMsgId(), imMsgBodyInTcpWsDto.getUserId(), imMsgBodyInTcpWsDto.getAppId());
-            LOGGER.info("retryTimes is {},msgId is {}", retryTimes, imMsgBodyInTcpWsDto.getMsgId());
-            if (retryTimes < 0) {
+            Integer retryTimes = msgAckCheckService.getMsgAckTimes(imMsgBodyInTcpWsDto.getMsgId(), imMsgBodyInTcpWsDto.getUserId(), imMsgBodyInTcpWsDto.getAppId());
+            log.info("重试次数 is {},msgId is {}", retryTimes, imMsgBodyInTcpWsDto.getMsgId());
+            if (retryTimes == null || retryTimes == -1) {
+                log.info("该条消息不存在，或者已过期，或者已经确认消费了{}",imMsgBodyInTcpWsDto.getMsgId());
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
-            //只支持一次重发
+            //只支持1次重发
             if (retryTimes < 2) {
                 msgAckCheckService.recordMsgAck(imMsgBodyInTcpWsDto, retryTimes + 1);
                 msgAckCheckService.sendDelayMsg(imMsgBodyInTcpWsDto);
@@ -65,7 +68,7 @@ public class ImAckConsumer implements InitializingBean {
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         mqPushConsumer.start();
-        LOGGER.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
+        log.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
     }
 
 

@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -72,6 +73,12 @@ public class ImRouterServiceImpl implements ImRouterService {
         //将连接同一台ip地址的imMsgBody组装到同一个list集合中，然后进行统一的发送
         userIdMap.entrySet().parallelStream().forEach(userAndIp->{
             RpcContext.getContext().set("ip", userAndIp.getKey());
+
+            try {
+                TimeUnit.SECONDS.sleep(3L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             routerHandlerRpc.batchSendMsg(userAndIp.getValue());
         });
 
