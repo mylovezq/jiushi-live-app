@@ -9,7 +9,7 @@ import top.mylove7.live.bank.dto.AccountTradeRespDTO;
  *
  * @Description
  */
-public interface IQiyuCurrencyAccountService {
+public interface ICurrencyAccountService {
 
     /**
      * 新增账户

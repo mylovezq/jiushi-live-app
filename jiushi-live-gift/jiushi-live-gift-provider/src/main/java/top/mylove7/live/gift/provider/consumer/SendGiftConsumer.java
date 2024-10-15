@@ -70,7 +70,7 @@ public class SendGiftConsumer implements InitializingBean {
     @Resource
     private GiftProviderCacheKeyBuilder cacheKeyBuilder;
     @DubboReference
-    private ICurrencyAccountRpc jiushiCurrencyAccountRpc;
+    private ICurrencyAccountRpc currencyAccountRpc;
     @DubboReference
     private ILivingRoomRpc livingRoomRpc;
     @DubboReference
@@ -99,7 +99,7 @@ public class SendGiftConsumer implements InitializingBean {
                 AccountTradeReqDTO tradeReqDTO = new AccountTradeReqDTO();
                 tradeReqDTO.setUserId(sendGiftMq.getUserId());
                 tradeReqDTO.setNum(sendGiftMq.getPrice());
-                AccountTradeRespDTO tradeRespDTO = jiushiCurrencyAccountRpc.consumeForSendGift(tradeReqDTO);
+                AccountTradeRespDTO tradeRespDTO = currencyAccountRpc.consumeForSendGift(tradeReqDTO);
                 //如果余额扣减成功
                 Integer sendGiftType = sendGiftMq.getType();
                 JSONObject jsonObject = new JSONObject();

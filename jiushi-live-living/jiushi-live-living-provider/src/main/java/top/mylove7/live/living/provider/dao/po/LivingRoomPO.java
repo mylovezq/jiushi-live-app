@@ -15,7 +15,7 @@ import java.util.Date;
 @TableName("t_living_room")
 public class LivingRoomPO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long anchorId;
     private Integer type;

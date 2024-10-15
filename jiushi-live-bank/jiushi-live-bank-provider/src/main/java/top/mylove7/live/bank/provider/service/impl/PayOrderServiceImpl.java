@@ -42,9 +42,9 @@ public class PayOrderServiceImpl implements IPayOrderService {
     @Resource
     private MQProducer mqProducer;
     @Resource
-    private IQiyuCurrencyAccountService qiyuCurrencyAccountService;
+    private ICurrencyAccountService qiyuCurrencyAccountService;
     @Resource
-    private IQiyuCurrencyTradeService qiyuCurrencyTradeService;
+    private ICurrencyTradeService qiyuCurrencyTradeService;
 
     @Override
     public PayOrderPO queryByOrderId(String orderId) {

@@ -10,8 +10,8 @@ package top.mylove7.live.bank.constants;
  */
 public enum PaySourceEnum {
 
-    QIYU_LIVING_ROOM(1,"旗鱼直播间内支付"),
-    QIYU_USER_CENTER(2,"用户中心");
+    JIUSHI_LIVING_ROOM(1,"直播间内支付"),
+    JIUSHI_USER_CENTER(2,"用户中心");
 
     PaySourceEnum(int code, String desc) {
         this.code = code;

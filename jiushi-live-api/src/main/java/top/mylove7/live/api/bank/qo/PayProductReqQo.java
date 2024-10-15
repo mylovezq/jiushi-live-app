@@ -1,11 +1,16 @@
 package top.mylove7.live.api.bank.qo;
 
 
+import lombok.Data;
+import top.mylove7.live.bank.constants.PayChannelEnum;
+import top.mylove7.live.bank.constants.PaySourceEnum;
+
 /**
  * @Author jiushi
  *
  * @Description
  */
+@Data
 public class PayProductReqQo {
 
     /**
@@ -15,46 +20,15 @@ public class PayProductReqQo {
 
     /**
      * 支付来源 (直播间，个人中心，聊天页面，第三方宣传页面，广告弹窗引导)
-     * @see org.qiyu.live.bank.constants.PaySourceEnum
+     * @see PaySourceEnum
      */
     private Integer paySource;
 
     /**
      * 支付渠道
-     * @see org.qiyu.live.bank.constants.PayChannelEnum
+     * @see PayChannelEnum
      */
     private Integer payChannel;
 
-    public Integer getProductId() {
-        return productId;
-    }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
-    }
-
-    public Integer getPaySource() {
-        return paySource;
-    }
-
-    public void setPaySource(Integer paySource) {
-        this.paySource = paySource;
-    }
-
-    public Integer getPayChannel() {
-        return payChannel;
-    }
-
-    public void setPayChannel(Integer payChannel) {
-        this.payChannel = payChannel;
-    }
-
-    @Override
-    public String toString() {
-        return "PayProductReqQo{" +
-                "productId=" + productId +
-                ", payChannel=" + payChannel +
-                ", paySource=" + paySource +
-                '}';
-    }
 }

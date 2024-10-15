@@ -3,7 +3,7 @@ package top.mylove7.live.bank.provider.service.impl;
 import jakarta.annotation.Resource;
 import top.mylove7.live.bank.provider.dao.maper.IQiyuCurrencyTradeMapper;
 import top.mylove7.live.bank.provider.dao.po.CurrencyTradePO;
-import top.mylove7.live.bank.provider.service.IQiyuCurrencyTradeService;
+import top.mylove7.live.bank.provider.service.ICurrencyTradeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @Description
  */
 @Service
-public class JiushiCurrencyTradeServiceImpl implements IQiyuCurrencyTradeService {
+public class JiushiCurrencyTradeServiceImpl implements ICurrencyTradeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JiushiCurrencyTradeServiceImpl.class);
 

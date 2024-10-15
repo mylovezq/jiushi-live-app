@@ -13,7 +13,7 @@ import java.util.Date;
 @TableName("t_living_room_record")
 public class LivingRoomRecordPO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
     private Long anchorId;
     private Integer type;

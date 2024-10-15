@@ -1,14 +1,15 @@
 package top.mylove7.live.bank.provider.service.impl;
 
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import top.mylove7.jiushi.live.framework.redis.starter.key.BankProviderCacheKeyBuilder;
 import top.mylove7.live.bank.constants.TradeTypeEnum;
 import top.mylove7.live.bank.dto.AccountTradeReqDTO;
 import top.mylove7.live.bank.dto.AccountTradeRespDTO;
 import top.mylove7.live.bank.provider.dao.maper.IQiyuCurrencyAccountMapper;
 import top.mylove7.live.bank.provider.dao.po.CurrencyAccountPO;
-import top.mylove7.live.bank.provider.service.IQiyuCurrencyAccountService;
-import top.mylove7.live.bank.provider.service.IQiyuCurrencyTradeService;
+import top.mylove7.live.bank.provider.service.ICurrencyAccountService;
+import top.mylove7.live.bank.provider.service.ICurrencyTradeService;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @Description
  */
 @Service
-public class JiushiCurrencyAccountServiceImpl implements IQiyuCurrencyAccountService {
+public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService {
 
     @Resource
     private IQiyuCurrencyAccountMapper qiyuCurrencyAccountMapper;
@@ -33,7 +34,7 @@ public class JiushiCurrencyAccountServiceImpl implements IQiyuCurrencyAccountSer
     @Resource
     private BankProviderCacheKeyBuilder cacheKeyBuilder;
     @Resource
-    private IQiyuCurrencyTradeService currencyTradeService;
+    private ICurrencyTradeService currencyTradeService;
 
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 4, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1000));
 
@@ -49,10 +50,29 @@ public class JiushiCurrencyAccountServiceImpl implements IQiyuCurrencyAccountSer
         return false;
     }
 
+    private static final DefaultRedisScript<Boolean> INCREMENT_CUR_AND_EXPIRE = new DefaultRedisScript<>();
+
+    static {
+        INCREMENT_CUR_AND_EXPIRE.setScriptText(
+                "local cacheKey = KEYS[1]\n" +
+                        "local num = tonumber(ARGV[1])\n" +
+                        "if redis.call('exists', cacheKey) == 1 then\n" +
+                        "    redis.call('incrby', cacheKey, num)\n" +
+                        "    redis.call('expire', cacheKey, 300)\n" +
+                        "end"
+        );
+        INCREMENT_CUR_AND_EXPIRE.setResultType(Boolean.class);
+    }
+
     @Override
     public void incr(long userId, int num) {
         String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
         if (redisTemplate.hasKey(cacheKey)) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             redisTemplate.opsForValue().increment(cacheKey, num);
             redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
         }

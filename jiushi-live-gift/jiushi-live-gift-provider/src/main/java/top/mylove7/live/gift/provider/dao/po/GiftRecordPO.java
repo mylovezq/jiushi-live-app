@@ -14,7 +14,7 @@ import java.util.Date;
 @TableName("t_gift_record")
 public class GiftRecordPO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long userId;
     private Long objectId;

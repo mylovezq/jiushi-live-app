@@ -14,7 +14,7 @@ import java.util.Date;
 @TableName("t_user_phone")
 public class UserPhonePO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long userId;
     private String phone;

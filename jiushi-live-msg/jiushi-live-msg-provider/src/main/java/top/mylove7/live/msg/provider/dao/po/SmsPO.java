@@ -16,7 +16,7 @@ import java.util.Date;
 @TableName("t_sms")
 public class SmsPO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Integer code;
     private String phone;

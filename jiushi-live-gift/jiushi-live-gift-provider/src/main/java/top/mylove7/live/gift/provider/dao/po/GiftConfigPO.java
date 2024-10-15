@@ -14,7 +14,7 @@ import java.util.Date;
 @TableName("t_gift_config")
 public class GiftConfigPO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer giftId;
     private Integer price;
     private String giftName;

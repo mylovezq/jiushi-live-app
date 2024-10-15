@@ -3,7 +3,9 @@ package top.mylove7.live.bank.provider.dao.po;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -14,6 +16,7 @@ import java.util.Date;
  * @Description
  */
 @TableName("t_currency_account")
+@Data
 public class CurrencyAccountPO {
 
     @TableId(type = IdType.INPUT)
@@ -21,66 +24,7 @@ public class CurrencyAccountPO {
     private int currentBalance;
     private int totalCharged;
     private Integer status;
-    private Date createTime;
-    private Date updateTime;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Integer getCurrentBalance() {
-        return currentBalance;
-    }
-
-    public void setCurrentBalance(Integer currentBalance) {
-        this.currentBalance = currentBalance;
-    }
-
-    public Integer getTotalCharged() {
-        return totalCharged;
-    }
-
-    public void setTotalCharged(Integer totalCharged) {
-        this.totalCharged = totalCharged;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    @Override
-    public String toString() {
-        return "QiyuCurrencyAccount{" +
-                "userId=" + userId +
-                ", currentBalance=" + currentBalance +
-                ", totalCharged=" + totalCharged +
-                ", status=" + status +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                '}';
-    }
 }

@@ -5,7 +5,7 @@ package top.mylove7.live.bank.provider.service;
  *
  * @Description
  */
-public interface IQiyuCurrencyTradeService {
+public interface ICurrencyTradeService {
 
     /**
      * 插入一条流水记录
