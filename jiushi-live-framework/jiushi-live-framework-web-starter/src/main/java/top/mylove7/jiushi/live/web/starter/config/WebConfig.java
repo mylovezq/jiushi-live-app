@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     @Bean
-    public JiushiUserInfoInterceptor qiyuUserInfoInterceptor() {
+    public JiushiUserInfoInterceptor jiushiUserInfoInterceptor() {
         return new JiushiUserInfoInterceptor();
     }
 
@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(qiyuUserInfoInterceptor()).addPathPatterns("/**").excludePathPatterns("/error");
+        registry.addInterceptor(jiushiUserInfoInterceptor()).addPathPatterns("/**").excludePathPatterns("/error");
         registry.addInterceptor(requestLimitInterceptor()).addPathPatterns("/**").excludePathPatterns("/error");
     }
 
