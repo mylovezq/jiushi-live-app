@@ -2,7 +2,7 @@ package top.mylove7.live.bank.provider.dao.maper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import top.mylove7.live.bank.provider.dao.po.QiyuCurrencyTradePO;
+import top.mylove7.live.bank.provider.dao.po.CurrencyTradePO;
 
 /**
  * @Author jiushi
@@ -10,5 +10,5 @@ import top.mylove7.live.bank.provider.dao.po.QiyuCurrencyTradePO;
  * @Description
  */
 @Mapper
-public interface IQiyuCurrencyTradeMapper extends BaseMapper<QiyuCurrencyTradePO> {
+public interface IQiyuCurrencyTradeMapper extends BaseMapper<CurrencyTradePO> {
 }

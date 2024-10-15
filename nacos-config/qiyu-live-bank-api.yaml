@@ -6,8 +6,11 @@ dubbo:
     name: jiushi-live-bank-api
     qos-enable: false
   registry:
-    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=qiyu&&password=qiyu
-
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
+  consumer:
+    timeout: 50000
+    loadbalance: roundrobin
+    check: false
 server:
   port: 8201
   servlet:

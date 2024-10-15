@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import top.mylove7.live.bank.provider.dao.po.QiyuCurrencyAccountPO;
+import top.mylove7.live.bank.provider.dao.po.CurrencyAccountPO;
 
 /**
  * 虚拟币账户mapper
@@ -15,7 +15,7 @@ import top.mylove7.live.bank.provider.dao.po.QiyuCurrencyAccountPO;
  * @Description
  */
 @Mapper
-public interface IQiyuCurrencyAccountMapper extends BaseMapper<QiyuCurrencyAccountPO> {
+public interface IQiyuCurrencyAccountMapper extends BaseMapper<CurrencyAccountPO> {
 
     @Update("update t_qiyu_currency_account set current_balance = current_balance + #{num} where user_id = #{userId}")
     void incr(@Param("userId") long userId,@Param("num") int num);

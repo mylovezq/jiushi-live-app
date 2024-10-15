@@ -21,7 +21,7 @@ import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerP
 import top.mylove7.jiushi.live.framework.redis.starter.key.GiftProviderCacheKeyBuilder;
 import top.mylove7.live.bank.dto.AccountTradeReqDTO;
 import top.mylove7.live.bank.dto.AccountTradeRespDTO;
-import top.mylove7.live.bank.interfaces.IJiushiCurrencyAccountRpc;
+import top.mylove7.live.bank.interfaces.ICurrencyAccountRpc;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.dto.SendGiftMq;
@@ -70,7 +70,7 @@ public class SendGiftConsumer implements InitializingBean {
     @Resource
     private GiftProviderCacheKeyBuilder cacheKeyBuilder;
     @DubboReference
-    private IJiushiCurrencyAccountRpc jiushiCurrencyAccountRpc;
+    private ICurrencyAccountRpc jiushiCurrencyAccountRpc;
     @DubboReference
     private ILivingRoomRpc livingRoomRpc;
     @DubboReference

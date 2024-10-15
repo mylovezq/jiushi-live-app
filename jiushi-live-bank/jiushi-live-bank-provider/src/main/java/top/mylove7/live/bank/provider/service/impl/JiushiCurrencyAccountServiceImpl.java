@@ -6,7 +6,7 @@ import top.mylove7.live.bank.constants.TradeTypeEnum;
 import top.mylove7.live.bank.dto.AccountTradeReqDTO;
 import top.mylove7.live.bank.dto.AccountTradeRespDTO;
 import top.mylove7.live.bank.provider.dao.maper.IQiyuCurrencyAccountMapper;
-import top.mylove7.live.bank.provider.dao.po.QiyuCurrencyAccountPO;
+import top.mylove7.live.bank.provider.dao.po.CurrencyAccountPO;
 import top.mylove7.live.bank.provider.service.IQiyuCurrencyAccountService;
 import top.mylove7.live.bank.provider.service.IQiyuCurrencyTradeService;
 
@@ -40,7 +40,7 @@ public class JiushiCurrencyAccountServiceImpl implements IQiyuCurrencyAccountSer
     @Override
     public boolean insertOne(long userId) {
         try {
-            QiyuCurrencyAccountPO accountPO = new QiyuCurrencyAccountPO();
+            CurrencyAccountPO accountPO = new CurrencyAccountPO();
             accountPO.setUserId(userId);
             qiyuCurrencyAccountMapper.insert(accountPO);
             return true;

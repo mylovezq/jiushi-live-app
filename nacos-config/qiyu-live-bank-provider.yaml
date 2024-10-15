@@ -7,7 +7,7 @@ spring:
       maximum-pool-size: 200
     driver-class-name: com.mysql.cj.jdbc.Driver
     #访问主库
-    url: jdbc:mysql://192.168.1.20:3306/qiyu_live_bank?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://192.168.1.20:3306/jiushi_live_bank?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
 
@@ -27,20 +27,24 @@ dubbo:
     name: ${spring.application.name}
   registry:
     #docker启动的时候，注入host的配置
-    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=qiyu&&password=qiyu
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
   protocol:
     name: dubbo
-    port: 9096
+    port: 9090
     threadpool: fixed
     dispatcher: execution
     threads: 500
     accepts: 500
+  consumer:
+    timeout: 15000
+    loadbalance: roundrobin
+    check: false
 
-qiyu:
+jiushi:
   rmq:
     producer:
       nameSrv: 192.168.1.20:9876
       groupName: ${spring.application.name}
       applicationName: ${spring.application.name}
-      sendMsgTimeout: 3000
-      retryTimes: 2
+      sendMsgTimeout: 15000
+      retryTimes: 3
