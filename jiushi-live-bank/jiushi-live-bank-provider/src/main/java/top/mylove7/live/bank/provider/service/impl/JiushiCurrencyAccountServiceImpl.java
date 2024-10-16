@@ -52,24 +52,10 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
             currencyAccountMapper.insert(accountPO);
             return true;
         } catch (Exception e) {
-            log.info("账户余额插入数据失败", e);
-            throw new BizErrorException("账户余额插入数据失败");
+            log.info("账户余额插入初始化数据失败", e);
+            throw new BizErrorException("账户余额插入初始化数据失败");
         }
 
-    }
-
-    private static final DefaultRedisScript<Boolean> INCREMENT_CUR_AND_EXPIRE = new DefaultRedisScript<>();
-
-    static {
-        INCREMENT_CUR_AND_EXPIRE.setScriptText(
-                "local cacheKey = KEYS[1]\n" +
-                        "local num = tonumber(ARGV[1])\n" +
-                        "if redis.call('exists', cacheKey) == 1 then\n" +
-                        "    redis.call('incrby', cacheKey, num)\n" +
-                        "    redis.call('expire', cacheKey, 300)\n" +
-                        "end"
-        );
-        INCREMENT_CUR_AND_EXPIRE.setResultType(Boolean.class);
     }
 
     /**
@@ -78,10 +64,10 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
      * @param num
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void incr(long userId, int num) {
-        Assert.notNull(cacheKeyBuilder, "cacheKeyBuilder is null");
         String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
-        if (redisTemplate.hasKey(cacheKey)) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
             redisTemplate.opsForValue().increment(cacheKey, num);
             redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
         }
@@ -97,10 +83,11 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
      * @param num
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void decr(long userId, int num) {
         //扣减余额
         String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
-        if (redisTemplate.hasKey(cacheKey)) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
             //基于redis的扣减操作
             redisTemplate.opsForValue().decrement(cacheKey, num);
             redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
@@ -170,19 +157,20 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
         currencyTradeService.insertOne(userId, num, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void consumeDecrDBHandler(long userId, int num) {
+        //流水记录
+        currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
         CurrencyAccountPO currencyAccountUpdate = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
         Assert.notNull(currencyAccountUpdate, "账户不存在");
         Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
         Assert.isTrue(currencyAccountUpdate.getCurrentBalance() >= num, "余额不足");
+        //流水记录
         //更新db，插入db
         if (!currencyAccountMapper.decr(userId, num)) {
             log.info("扣减异常,可能使余额不足");
             throw new BizErrorException("扣减异常");
         }
-        //流水记录
-        currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
+
 
 
     }
