@@ -4,7 +4,7 @@
     <!-- 用于生成一个标识，防止多个Docker容器映射到同一台宿主机上出现目录名重复问题-->
     <define name="index" class="top.mylove7.live.common.interfaces.utils.IpLogConversionRule"/>
     <property name="LOG_HOME" value="/tmp/logs/${APP_NAME}/${index}"/>
-    <property name="LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p] %-40.40logger{39} :%msg%n"/>
+    <property name="LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p] [%thread] %class{39} %-40.40logger{39} :%msg%n"/>
 
     <!--  控制台标准继续输出内容  -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

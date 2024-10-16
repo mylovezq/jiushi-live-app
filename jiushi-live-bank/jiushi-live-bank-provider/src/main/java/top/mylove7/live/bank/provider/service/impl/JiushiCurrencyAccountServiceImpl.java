@@ -1,53 +1,61 @@
 package top.mylove7.live.bank.provider.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 import top.mylove7.jiushi.live.framework.redis.starter.key.BankProviderCacheKeyBuilder;
 import top.mylove7.live.bank.constants.TradeTypeEnum;
 import top.mylove7.live.bank.dto.AccountTradeReqDTO;
 import top.mylove7.live.bank.dto.AccountTradeRespDTO;
-import top.mylove7.live.bank.provider.dao.maper.IQiyuCurrencyAccountMapper;
+import top.mylove7.live.bank.provider.dao.maper.ICurrencyAccountMapper;
 import top.mylove7.live.bank.provider.dao.po.CurrencyAccountPO;
 import top.mylove7.live.bank.provider.service.ICurrencyAccountService;
 import top.mylove7.live.bank.provider.service.ICurrencyTradeService;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static top.mylove7.live.common.interfaces.utils.ExecutorConfig.IO_EXECUTOR;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @Service
+@Slf4j
 public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService {
 
     @Resource
-    private IQiyuCurrencyAccountMapper qiyuCurrencyAccountMapper;
+    private ICurrencyAccountMapper currencyAccountMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private BankProviderCacheKeyBuilder cacheKeyBuilder;
     @Resource
     private ICurrencyTradeService currencyTradeService;
-
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 4, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1000));
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     @Override
     public boolean insertOne(long userId) {
         try {
             CurrencyAccountPO accountPO = new CurrencyAccountPO();
             accountPO.setUserId(userId);
-            qiyuCurrencyAccountMapper.insert(accountPO);
+            currencyAccountMapper.insert(accountPO);
             return true;
         } catch (Exception e) {
+            log.info("账户余额插入数据失败", e);
+            throw new BizErrorException("账户余额插入数据失败");
         }
-        return false;
+
     }
 
     private static final DefaultRedisScript<Boolean> INCREMENT_CUR_AND_EXPIRE = new DefaultRedisScript<>();
@@ -64,29 +72,30 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
         INCREMENT_CUR_AND_EXPIRE.setResultType(Boolean.class);
     }
 
+    /**
+     * 充值的并发不会很高  可以直接走同步
+     * @param userId
+     * @param num
+     */
     @Override
     public void incr(long userId, int num) {
+        Assert.notNull(cacheKeyBuilder, "cacheKeyBuilder is null");
         String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
         if (redisTemplate.hasKey(cacheKey)) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             redisTemplate.opsForValue().increment(cacheKey, num);
             redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
         }
-        threadPoolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                //分布式架构下，cap理论，可用性和性能，强一致性，柔弱的一致性处理
-                //在异步线程池中完成数据库层的扣减和流水记录插入操作，带有事务
-                consumeIncrDBHandler(userId, num);
-            }
-        });
+        this.consumeIncrDBHandler(userId, num);
+        log.info("充值成功{}", num);
+
 
     }
 
+    /**
+     * 送礼物时，扣减余额，特别是送小礼物时，并发很高
+     * @param userId
+     * @param num
+     */
     @Override
     public void decr(long userId, int num) {
         //扣减余额
@@ -96,14 +105,13 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
             redisTemplate.opsForValue().decrement(cacheKey, num);
             redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
         }
-        threadPoolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                //分布式架构下，cap理论，可用性和性能，强一致性，柔弱的一致性处理
-                //在异步线程池中完成数据库层的扣减和流水记录插入操作，带有事务
-                consumeDecrDBHandler(userId, num);
-            }
-        });
+
+
+        //TODO 可以使用投递到mq里面。削峰
+        this.consumeDecrDBHandler(userId, num);
+        log.info("消费扣减成功{}", num);
+
+
     }
 
     @Override
@@ -116,12 +124,12 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
             }
             return (Integer) cacheBalance;
         }
-        Integer currentBalance = qiyuCurrencyAccountMapper.queryBalance(userId);
+        Integer currentBalance = currencyAccountMapper.queryBalance(userId);
         if (currentBalance == null) {
             redisTemplate.opsForValue().set(cacheKey, -1, 5, TimeUnit.MINUTES);
             return null;
         }
-        redisTemplate.opsForValue().set(cacheKey, currentBalance, 30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(cacheKey, currentBalance, 2, TimeUnit.MINUTES);
         return currentBalance;
     }
 
@@ -140,18 +148,43 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
 
     @Transactional(rollbackFor = Exception.class)
     public void consumeIncrDBHandler(long userId, int num) {
-        //更新db，插入db
-        qiyuCurrencyAccountMapper.incr(userId, num);
+        CurrencyAccountPO currencyAccountUpdate = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
+        if (currencyAccountUpdate == null) {
+            currencyAccountUpdate = new CurrencyAccountPO();
+            currencyAccountUpdate.setUserId(userId);
+            currencyAccountUpdate.setCurrentBalance(num);
+            currencyAccountUpdate.setTotalCharged(num);
+            currencyAccountUpdate.setStatus(1);
+            currencyAccountUpdate.setCreateTime(LocalDateTime.now());
+            currencyAccountUpdate.setUpdateTime(LocalDateTime.now());
+            currencyAccountMapper.insert(currencyAccountUpdate);
+        } else {
+            Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
+            //更新db，插入db
+            if (!currencyAccountMapper.incr(userId, num)) {
+                log.error("新增db异常，可能是账户状态异常");
+                throw new BizErrorException("充值异常");
+            }
+        }
         //流水记录
         currencyTradeService.insertOne(userId, num, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void consumeDecrDBHandler(long userId, int num) {
+        CurrencyAccountPO currencyAccountUpdate = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
+        Assert.notNull(currencyAccountUpdate, "账户不存在");
+        Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
+        Assert.isTrue(currencyAccountUpdate.getCurrentBalance() >= num, "余额不足");
         //更新db，插入db
-        qiyuCurrencyAccountMapper.decr(userId, num);
+        if (!currencyAccountMapper.decr(userId, num)) {
+            log.info("扣减异常,可能使余额不足");
+            throw new BizErrorException("扣减异常");
+        }
         //流水记录
         currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
+
+
     }
 
 

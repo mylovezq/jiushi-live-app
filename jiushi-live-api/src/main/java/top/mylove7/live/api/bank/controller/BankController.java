@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.mylove7.live.api.bank.qo.PayProductReqQo;
 import top.mylove7.live.api.bank.service.IBankService;
+import top.mylove7.live.bank.interfaces.ICurrencyAccountRpc;
+import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
 import top.mylove7.live.common.interfaces.error.ErrorAssert;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;
@@ -23,6 +25,10 @@ public class BankController {
     @Resource
     private IBankService bankService;
 
+    @Resource
+    private ICurrencyAccountRpc currencyAccountRpc;
+
+
     @PostMapping("/products")
     public WebResponseVO products(Integer type) {
         ErrorAssert.isNotNull(type, BizBaseErrorEnum.PARAM_ERROR);
@@ -38,6 +44,18 @@ public class BankController {
     @PostMapping("/payProduct")
     public WebResponseVO payProduct(PayProductReqQo payProductReqVO) {
         return WebResponseVO.success(bankService.payProduct(payProductReqVO));
+    }
+
+    @PostMapping("incr")
+    public WebResponseVO incr() {
+        currencyAccountRpc.incr(JiushiLoginRequestContext.getUserId(),2);
+        return WebResponseVO.success();
+    }
+
+    @PostMapping("decr")
+    public WebResponseVO decr() {
+        currencyAccountRpc.decr(JiushiLoginRequestContext.getUserId(),2);
+        return WebResponseVO.success();
     }
 
 }

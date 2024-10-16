@@ -46,6 +46,7 @@
         <sharding.jdbc.version>5.3.2</sharding.jdbc.version>
         <jiushi-live.version>1.0.0</jiushi-live.version>
         <calcite-core.version>1.32.0</calcite-core.version>
+        <transmittable-thread-local.version>2.14.2</transmittable-thread-local.version>
 
 
     </properties>
@@ -137,6 +138,22 @@
                 <artifactId>jiushi-live-framework-mq-starter</artifactId>
                 <version>${jiushi-live.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>transmittable-thread-local</artifactId>
+                <version>${transmittable-thread-local.version}</version>
+            </dependency>
+
+
+
+
+
+
+
+
+
+
+
 
 
 

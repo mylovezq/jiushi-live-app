@@ -10,5 +10,5 @@ import top.mylove7.live.bank.provider.dao.po.CurrencyTradePO;
  * @Description
  */
 @Mapper
-public interface IQiyuCurrencyTradeMapper extends BaseMapper<CurrencyTradePO> {
+public interface ICurrencyTradeMapper extends BaseMapper<CurrencyTradePO> {
 }

@@ -19,6 +19,5 @@
     <modules>
         <module>jiushi-live-bank-provider</module>
         <module>jiushi-live-bank-interface</module>
-        <module>jiushi-live-bank-api</module>
     </modules>
 </project>

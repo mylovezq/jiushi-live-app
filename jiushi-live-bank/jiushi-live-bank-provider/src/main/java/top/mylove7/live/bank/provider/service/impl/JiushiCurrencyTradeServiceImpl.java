@@ -1,7 +1,7 @@
 package top.mylove7.live.bank.provider.service.impl;
 
 import jakarta.annotation.Resource;
-import top.mylove7.live.bank.provider.dao.maper.IQiyuCurrencyTradeMapper;
+import top.mylove7.live.bank.provider.dao.maper.ICurrencyTradeMapper;
 import top.mylove7.live.bank.provider.dao.po.CurrencyTradePO;
 import top.mylove7.live.bank.provider.service.ICurrencyTradeService;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ public class JiushiCurrencyTradeServiceImpl implements ICurrencyTradeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JiushiCurrencyTradeServiceImpl.class);
 
     @Resource
-    private IQiyuCurrencyTradeMapper qiyuCurrencyTradeMapper;
+    private ICurrencyTradeMapper qiyuCurrencyTradeMapper;
 
     @Override
     public boolean insertOne(long userId, int num, int type) {

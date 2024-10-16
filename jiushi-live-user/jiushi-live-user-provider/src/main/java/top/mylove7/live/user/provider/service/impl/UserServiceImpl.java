@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import static top.mylove7.live.common.interfaces.utils.ExecutorConfig.IO_EXECUTOR;
+
 
 /**
  * @Author jiushi
@@ -49,8 +51,6 @@ public class UserServiceImpl implements IUserService {
     private UserProviderCacheKeyBuilder cacheKeyBuilder;
     @Resource
     private MQProducer mqProducer;
-    @Resource
-    private ExecutorService executorService;
 
     @Override
     public UserDTO getByUserId(Long userId) {
@@ -141,7 +141,7 @@ public class UserServiceImpl implements IUserService {
                 log.info("dbQueryResult:{}", userPOS);
                 dbQueryResult.addAll(ConvertBeanUtils.convertList(userPOS, UserDTO.class));
                 return true;
-            },executorService);
+            },IO_EXECUTOR);
             dbQueryResultCompletableFuture.add(booleanCompletableFuture);
         });
 
