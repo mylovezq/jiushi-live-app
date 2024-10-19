@@ -41,7 +41,7 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private ImMsgMongoService imMsgMongoService;
+    private ImCoreServerProviderCacheKeyBuilder cacheKeyBuilder;
     @Resource
     private RedissonClient redissonClient;
 
@@ -73,22 +73,7 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
 
     @Override
     public RLock getImMsgSendLock(ImMsgBodyInTcpWsDto inTcpDto) {
-        Long roomId;
-        ImMsgMongoDo imMsgMongoDo = imMsgMongoService.lambdaQuery().eq(ImMsgMongoDo::getId, inTcpDto.getMsgId()).one();
-        if (imMsgMongoDo != null){
-            inTcpDto.setAppId(imMsgMongoDo.getAppId());
-            inTcpDto.setFromUserId(imMsgMongoDo.getFromUserId());
-            inTcpDto.setToUserId(imMsgMongoDo.getToUserId());
-            roomId = imMsgMongoDo.getRoomId();
-        }else {
-            JSONObject jsonObject = JSON.parseObject(inTcpDto.getData());
-            roomId = jsonObject.getLong("roomId");
-        }
-        return redissonClient.getLock((inTcpDto.getAppId()
-                + inTcpDto.getFromUserId()
-                + inTcpDto.getToUserId()
-                + roomId
-                + inTcpDto.getMsgId()));
+
     }
 
 

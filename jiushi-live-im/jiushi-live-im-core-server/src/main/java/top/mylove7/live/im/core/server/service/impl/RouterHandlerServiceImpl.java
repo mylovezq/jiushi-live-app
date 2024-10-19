@@ -17,6 +17,7 @@ import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.im.core.server.common.ChannelHandlerContextCache;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.live.im.core.server.dao.ImMsgMongoDo;
+import top.mylove7.live.im.core.server.interfaces.dto.ImAckDto;
 import top.mylove7.live.im.core.server.service.IMsgAckCheckService;
 import top.mylove7.live.im.core.server.service.IRouterHandlerService;
 import org.springframework.stereotype.Service;
@@ -53,23 +54,14 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
     }
 
     @Override
-    @Transactional(rollbackFor =Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public boolean sendMsgToClient(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
 
-        redisTemplate.opsForZSet().add("", imMsgBodyInTcpWsDto, System.currentTimeMillis());
-
-        RLock imMsgSendLock = null;
         try {
-            imMsgSendLock = msgAckCheckService.getImMsgSendLock(imMsgBodyInTcpWsDto);
-            boolean tryLock = imMsgSendLock.tryLock(10, 10, TimeUnit.SECONDS);
-            if (!tryLock) {
-                log.error("等待锁时 获取锁失败");
-                throw new BizErrorException("等待锁时 获取锁失败");
-            }
-            imMsgBodyInTcpWsDto.setMsgId(IdWorker.getId()+"");
+            imMsgBodyInTcpWsDto.setMsgId(IdWorker.getId() + "");
             boolean isGoOnSend = this.checkOrAddImMsgRecord(imMsgBodyInTcpWsDto);
 
-            if (!isGoOnSend){
+            if (!isGoOnSend) {
                 log.info("该消息已发送并确认，或者达到最大发送次数");
                 return false;
             }
@@ -82,64 +74,47 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
                 ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_BIZ_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
 
                 ctx.writeAndFlush(respMsg);
-                //记录消息到mongodb
+
                 return true;
             }
 
             log.error("客户端已下线");
             throw new BizErrorException("客户端已下线");
-
-
-
-        } catch (Exception e) {
-            log.error("发送消息给客户端异常", e);
-            throw new BizErrorException("发送消息给客户端异常");
-        } finally {
-            if (null != imMsgSendLock && imMsgSendLock.isHeldByCurrentThread()) {
-                imMsgSendLock.unlock();
-            }
+        } catch (BizErrorException e) {
+            throw new RuntimeException(e);
         }
 
 
     }
 
+    /**
+     * 由于是聊天室的聊天消息，直播间关闭，聊天消息不再重要，缓存到redis即可
+     * <p>
+     * 也不必考虑记录重复次数，因为本来就延迟了去重复，mq也延迟了消费，再由前端去重兜底显示即可
+     *
+     * @param imMsg
+     * @return
+     */
     private boolean checkOrAddImMsgRecord(ImMsgBodyInTcpWsDto imMsg) {
-        Long roomId =  JSON.parseObject(imMsg.getData()).getLong("roomId");
-
-        ImMsgMongoDo imMsgMongoDo = imMsgMongoService.lambdaQuery()
-                .eq(ImMsgMongoDo::getAppId, imMsg.getAppId())
-                .eq(ImMsgMongoDo::getFromUserId, imMsg.getFromUserId())
-                .eq(ImMsgMongoDo::getToUserId, imMsg.getToUserId())
-                .eq(ImMsgMongoDo::getRoomId, roomId )
-                .eq(ImMsgMongoDo::getMessageId, imMsg.getMsgId())
-                .one();
-        if (imMsgMongoDo == null){
-            ImMsgMongoDo imMsgMongoDoNew = new ImMsgMongoDo(imMsg.getAppId(), imMsg.getFromUserId(), imMsg.getToUserId(),roomId, imMsg.getMsgId(), imMsg.toByte());
-            imMsgMongoDoNew.setCreateTime(LocalDateTime.now());
-            imMsgMongoDoNew.setHadAck(false);
-            imMsgMongoDoNew.setRetryTime(0);
-            imMsgMongoDoNew.setId(Long.valueOf(imMsg.getMsgId()));
-            imMsgMongoService.save(imMsgMongoDoNew);
+        Long roomId = JSON.parseObject(imMsg.getData()).getLong("roomId");
+        String hadSendMsgKey = cacheKeyBuilder.buildHadSendMsgKey(imMsg.getAppId(), roomId, imMsg.getToUserId());
+        ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsg.getFromMsgId());
+        if (imAckDto != null && (imAckDto.getRetryTime() > 3 || imAckDto.getHadAck())) {
+            log.info("该消息已发送并确认，或者达到最大发送次数");
+            return false;
+        }
+        if (imAckDto == null) {
+            imAckDto = new ImAckDto();
+            imAckDto.setRetryTime(0);
+            imAckDto.setHadAck(false);
+            redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getFromMsgId(), imAckDto);
             return true;
         }
-        Boolean hadAck = imMsgMongoDo.getHadAck();
-        Integer retryTime = imMsgMongoDo.getRetryTime();
-        //未收到确认消息 且 重试次数小于3次
-        boolean canRetrySend = !hadAck && retryTime < 3;
-        if (canRetrySend){
-            //更新次数
-            boolean update = imMsgMongoService.lambdaUpdate()
-                    .set(ImMsgMongoDo::getRetryTime, retryTime + 1)
-                    .eq(ImMsgMongoDo::getId, imMsgMongoDo.getId()).update();
-            if (!update){
-                log.error("mongo数据更新消息记录失败 {}",imMsgMongoDo);
-            }
-        }
-
-        return canRetrySend;
+        imAckDto.setRetryTime(imAckDto.getRetryTime() + 1);
+        redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getFromMsgId(), imAckDto);
+        return true;
 
     }
-
 
 
 }

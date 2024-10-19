@@ -33,10 +33,11 @@ public class AckImMsgHandler implements SimplyHandler {
     public void handler(ChannelHandlerContext ctx, ImTcpWsDto imTcpWsDto) {
         Long userId = ImContextUtils.getUserId(ctx);
         Long appid = ImContextUtils.getAppId(ctx);
+        Long roomId = ImContextUtils.getRoomId(ctx);
         if (userId == null && appid == null) {
             ctx.close();
             throw new IllegalArgumentException("attr is error");
         }
-        msgAckCheckService.doMsgAck(JSON.parseObject(imTcpWsDto.getBody(), ImMsgBodyInTcpWsDto.class));
+        msgAckCheckService.doMsgAck(JSON.parseObject(imTcpWsDto.getBody(), ImMsgBodyInTcpWsDto.class),roomId);
     }
 }

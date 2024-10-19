@@ -30,8 +30,8 @@ public class ImCoreServerProviderCacheKeyBuilder extends RedisKeyBuilder {
         return super.getPrefix() + IM_ONLINE_ZSET + super.getSplitItem() + appId + super.getSplitItem() + userId % 10000;
     }
 
-    public String buildHadSendMsgKey(Long appId, String msgId) {
-        return super.getPrefix() + HAD_SEND_IM_MSG + super.getSplitItem() + appId + super.getSplitItem()  + msgId;
+    public String buildHadSendMsgKey(Long appId, Long roomId,Long toUserId) {
+        return super.getPrefix() + HAD_SEND_IM_MSG + super.getSplitItem() + appId + super.getSplitItem()  + roomId + super.getSplitItem() + toUserId;
     }
 
 }
