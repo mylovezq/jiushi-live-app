@@ -159,7 +159,6 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
 
     public void consumeDecrDBHandler(long userId, int num) {
         //流水记录
-        currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
         CurrencyAccountPO currencyAccountUpdate = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
         Assert.notNull(currencyAccountUpdate, "账户不存在");
         Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
@@ -170,6 +169,7 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
             log.info("扣减异常,可能使余额不足");
             throw new BizErrorException("扣减异常");
         }
+        currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
 
 
 

@@ -58,6 +58,11 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-spring-boot-starter</artifactId>
@@ -66,7 +71,11 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>com.gitee.anwena</groupId>
+            <artifactId>mongo-plus-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>top.mylove7</groupId>
@@ -99,7 +108,8 @@
                     <imageTags>
                         <imageTag>${jiushi-live.version}</imageTag>
                     </imageTags>
-                    <imageName>${docker.registry.address}/${docker.registry.namespace}/${project.build.finalName}</imageName>
+                    <imageName>${docker.registry.address}/${docker.registry.namespace}/${project.build.finalName}
+                    </imageName>
                     <!--指定Dockerfile文件的位置-->
                     <dockerDirectory>${project.basedir}/docker</dockerDirectory>
                     <!-- 指定jar包路径，这里对应Dockerfile中复制 jar 包到 docker 容器指定目录配置，也可以写到 Docokerfile 中 -->

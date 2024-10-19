@@ -50,7 +50,8 @@ public class BizImMsgHandler implements SimplyHandler {
             return;
         }
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSONUtil.toBean(new String(body), ImMsgBodyInTcpWsDto.class);
-        imMsgBodyInTcpWsDto.setMsgId(UUID.fastUUID().toString());
+        imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
+        imMsgBodyInTcpWsDto.setFromUserId(userId);
         Message message = new Message();
         message.setTopic(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_BIZ_MSG_TOPIC);
         message.setBody(imMsgBodyInTcpWsDto.toByte());

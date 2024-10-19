@@ -1,6 +1,7 @@
 package top.mylove7.live.common.interfaces.error;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -8,6 +9,7 @@ import lombok.ToString;
  *
  * @Description
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class BizErrorException extends RuntimeException{
 

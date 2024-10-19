@@ -34,7 +34,7 @@ public class ImRouterServiceImpl implements ImRouterService {
     @Override
     public boolean sendMsg(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
         //假设我们有100个userid -> 10台im服务器上 100个ip做分类 -> 最终ip的数量一定是<=10
-        String bindAddress = stringRedisTemplate.opsForValue().get(ImCoreServerConstants.IM_BIND_IP_KEY + imMsgBodyInTcpWsDto.getAppId() + ":" + imMsgBodyInTcpWsDto.getUserId());
+        String bindAddress = stringRedisTemplate.opsForValue().get(ImCoreServerConstants.IM_BIND_IP_KEY + imMsgBodyInTcpWsDto.getAppId() + ":" + imMsgBodyInTcpWsDto.getToUserId());
         if (StringUtils.isEmpty(bindAddress)) {
             return false;
         }
@@ -52,7 +52,7 @@ public class ImRouterServiceImpl implements ImRouterService {
                 = imMsgBodyInTcpWsDtoList
                 .parallelStream()
                 .collect(Collectors.toConcurrentMap(imMsgBodyInTcpWsDto-> {
-                    return ImCoreServerConstants.IM_BIND_IP_KEY + imMsgBodyInTcpWsDto.getAppId() + ":" + imMsgBodyInTcpWsDto.getUserId();
+                    return ImCoreServerConstants.IM_BIND_IP_KEY + imMsgBodyInTcpWsDto.getAppId() + ":" + imMsgBodyInTcpWsDto.getToUserId();
                 },x->x));
 
         //批量取出每个用户绑定的ip地址

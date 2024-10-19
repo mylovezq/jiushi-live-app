@@ -62,6 +62,7 @@ public class WsImServerCoreHandler extends SimpleChannelInboundHandler {
     }
 
     private void wsMsgHandler(ChannelHandlerContext ctx, WebSocketFrame msg) {
+
         //如果不是文本消息，统一后台不会处理
         if (!(msg instanceof TextWebSocketFrame)) {
             LOGGER.error(String.format("[WebsocketCoreHandler]  wsMsgHandler , %s msg types not supported", msg.getClass().getName()));

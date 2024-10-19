@@ -142,7 +142,7 @@ public class SendGiftConsumer implements InitializingBean {
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
         imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
         imMsgBodyInTcpWsDto.setBizCode(bizCode);
-        imMsgBodyInTcpWsDto.setUserId(userId);
+        imMsgBodyInTcpWsDto.setToUserId(userId);
         imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
         routerRpc.sendMsg(imMsgBodyInTcpWsDto);
     }
@@ -207,7 +207,7 @@ public class SendGiftConsumer implements InitializingBean {
             ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
             imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBodyInTcpWsDto.setBizCode(imMsgBizCodeEnum.getCode());
-            imMsgBodyInTcpWsDto.setUserId(userId);
+            imMsgBodyInTcpWsDto.setToUserId(userId);
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());

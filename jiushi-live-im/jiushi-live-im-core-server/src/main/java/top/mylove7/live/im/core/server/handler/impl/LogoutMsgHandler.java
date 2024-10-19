@@ -63,7 +63,7 @@ public class LogoutMsgHandler implements SimplyHandler {
     private void logoutMsgNotice(ChannelHandlerContext ctx, Long userId, Long appId) {
         ImMsgBodyInTcpWsDto respBody = new ImMsgBodyInTcpWsDto();
         respBody.setAppId(appId);
-        respBody.setUserId(userId);
+        respBody.setToUserId(userId);
         respBody.setData("true");
         ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_LOGOUT_MSG.getCode(), JSON.toJSONString(respBody));
         ctx.writeAndFlush(respMsg);

@@ -7,6 +7,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.*;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import top.mylove7.live.account.interfaces.im.ImTokenRpc;
 import top.mylove7.live.common.interfaces.dto.ImUserInfoTokenDto;
@@ -25,9 +26,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ChannelHandler.Sharable
+@Slf4j
 public class WsSharkHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsSharkHandler.class);
 
     //指定监听的端口
     @DubboReference

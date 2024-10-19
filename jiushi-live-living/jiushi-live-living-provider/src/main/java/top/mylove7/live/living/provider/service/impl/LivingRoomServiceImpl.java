@@ -222,7 +222,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
             imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBodyInTcpWsDto.setBizCode(bizCode);
-            imMsgBodyInTcpWsDto.setUserId(userId);
+            imMsgBodyInTcpWsDto.setToUserId(userId);
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());

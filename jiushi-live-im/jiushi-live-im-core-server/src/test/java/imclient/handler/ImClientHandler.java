@@ -70,7 +70,7 @@ public class ImClientHandler implements InitializingBean {
                     ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
                     imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
                     imMsgBodyInTcpWsDto.setToken(token);
-                    imMsgBodyInTcpWsDto.setUserId(userId);
+                    imMsgBodyInTcpWsDto.setToUserId(userId);
                     ImTcpWsDto loginMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_LOGIN_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
                     channel.writeAndFlush(loginMsg);
 
@@ -128,7 +128,7 @@ public class ImClientHandler implements InitializingBean {
                 }
                 ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
                 imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-                imMsgBodyInTcpWsDto.setUserId(userId);
+                imMsgBodyInTcpWsDto.setToUserId(userId);
                 ImTcpWsDto loginMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(imMsgBodyInTcpWsDto));
                 channel.writeAndFlush(loginMsg);
             }

@@ -22,7 +22,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             ImMsgBodyInTcpWsDto ackBody = new ImMsgBodyInTcpWsDto();
             ackBody.setMsgId(respBody.getMsgId());
             ackBody.setAppId(respBody.getAppId());
-            ackBody.setUserId(respBody.getUserId());
+            ackBody.setToUserId(respBody.getToUserId());
             ImTcpWsDto ackMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_ACK_MSG.getCode(), JSON.toJSONString(ackBody));
             ctx.writeAndFlush(ackMsg);
         }

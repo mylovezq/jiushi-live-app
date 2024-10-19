@@ -57,7 +57,7 @@ public class HeartBeatImMsgHandler implements SimplyHandler {
         //延长用户之前保存的ip绑定记录时间
         stringRedisTemplate.expire(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId, ImConstants.DEFAULT_HEART_BEAT_GAP * 2, TimeUnit.SECONDS);
         ImMsgBodyInTcpWsDto msgBody = new ImMsgBodyInTcpWsDto();
-        msgBody.setUserId(userId);
+        msgBody.setToUserId(userId);
         msgBody.setAppId(appId);
         msgBody.setData("心跳包处理成功");
         ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(msgBody));

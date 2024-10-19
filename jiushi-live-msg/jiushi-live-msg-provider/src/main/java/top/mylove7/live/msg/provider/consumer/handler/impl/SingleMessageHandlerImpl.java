@@ -48,25 +48,27 @@ public class SingleMessageHandlerImpl implements MessageHandler {
             // 根据roomId，appId 去调用rpc方法，获取对应的直播间内的userId
             // 创建一个list的imMsgBody对象，
             ChatRoomMessageDTO chatRoomMessageDTO = JSON.parseObject(imMsgBodyInTcpWsDto.getData(), ChatRoomMessageDTO.class);
-            Long roomId = chatRoomMessageDTO.getRoomId();
+            log.info("直播室的im消息{}", chatRoomMessageDTO);
+
             LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
-            reqDTO.setRoomId(roomId);
+            reqDTO.setRoomId(chatRoomMessageDTO.getRoomId());
             reqDTO.setAppId(imMsgBodyInTcpWsDto.getAppId());
+
             //自己不用发
             List<ImMsgBodyInTcpWsDto> imMsgInTcpWsBodies
                     = Optional.ofNullable(livingRoomRpc.queryUserIdByRoomId(reqDTO)).orElse(new ArrayList<>())
                     .parallelStream()
-                    .filter(userId -> !Objects.equals(imMsgBodyInTcpWsDto.getUserId(), userId))
-                    .map(userId -> {
+                    .filter(userId -> !Objects.equals(imMsgBodyInTcpWsDto.getFromUserId(), userId))
+                    .map(toUserId -> {
                         ImMsgBodyInTcpWsDto respMsg = new ImMsgBodyInTcpWsDto();
-                        respMsg.setMsgId(imMsgBodyInTcpWsDto.getMsgId());
-                        respMsg.setUserId(userId);
+                        respMsg.setFromMsgId(imMsgBodyInTcpWsDto.getFromMsgId());
+                        respMsg.setToUserId(toUserId);
+                        respMsg.setFromUserId(imMsgBodyInTcpWsDto.getFromUserId());
                         respMsg.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
                         respMsg.setBizCode(ImMsgBizCodeEnum.LIVING_ROOM_IM_CHAT_MSG_BIZ.getCode());
                         respMsg.setData(JSON.toJSONString(chatRoomMessageDTO));
                         return respMsg;
                     }).collect(Collectors.toList());
-            //暂时不做过多的处理
             routerRpc.batchSendMsg(imMsgInTcpWsBodies);
         }
     }

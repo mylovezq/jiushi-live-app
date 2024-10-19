@@ -60,7 +60,7 @@ public class LoginMsgHandler implements SimplyHandler {
             throw new IllegalArgumentException("body error");
         }
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(new String(body), ImMsgBodyInTcpWsDto.class);
-        Long userIdFromMsg = imMsgBodyInTcpWsDto.getUserId();
+        Long userIdFromMsg = imMsgBodyInTcpWsDto.getToUserId();
         Long appId = imMsgBodyInTcpWsDto.getAppId();
         String token = imMsgBodyInTcpWsDto.getToken();
         if (StringUtils.isEmpty(token) || userIdFromMsg < 10000 || appId < 10000) {
@@ -120,7 +120,7 @@ public class LoginMsgHandler implements SimplyHandler {
         //将im消息回写给客户端
         ImMsgBodyInTcpWsDto respBody = new ImMsgBodyInTcpWsDto();
         respBody.setAppId(appId);
-        respBody.setUserId(userId);
+        respBody.setToUserId(userId);
         respBody.setData("true");
         ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_LOGIN_MSG.getCode(), JSON.toJSONString(respBody));
         stringRedisTemplate.opsForValue().set(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId,

@@ -21,9 +21,9 @@ public class ImMsgBodyInTcpWsDto implements Serializable {
      */
     private Long appId;
     /**
-     * 用户id
+     * 发给用户id
      */
-    private Long userId;
+    private Long toUserId;
     /**
      * 从业务服务中获取，用于在im服务建立连接的时候使用
      */
@@ -39,6 +39,10 @@ public class ImMsgBodyInTcpWsDto implements Serializable {
      */
     private String msgId;
 
+    /**
+     * 来源用户
+     */
+    private Long fromUserId;
     /**
      * 来源的消息id唯一
      */
