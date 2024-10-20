@@ -1,12 +1,14 @@
 package top.mylove7.live.bank.provider.service.impl;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.bank.provider.dao.maper.ICurrencyTradeMapper;
 import top.mylove7.live.bank.provider.dao.po.CurrencyTradePO;
 import top.mylove7.live.bank.provider.service.ICurrencyTradeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 
 /**
  * @Author jiushi
@@ -14,12 +16,12 @@ import org.springframework.stereotype.Service;
  * @Description
  */
 @Service
+@Slf4j
 public class JiushiCurrencyTradeServiceImpl implements ICurrencyTradeService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JiushiCurrencyTradeServiceImpl.class);
 
     @Resource
-    private ICurrencyTradeMapper qiyuCurrencyTradeMapper;
+    private ICurrencyTradeMapper currencyTradeMapper;
 
     @Override
     public boolean insertOne(long userId, int num, int type) {
@@ -28,11 +30,11 @@ public class JiushiCurrencyTradeServiceImpl implements ICurrencyTradeService {
             tradePO.setUserId(userId);
             tradePO.setNum(num);
             tradePO.setType(type);
-            qiyuCurrencyTradeMapper.insert(tradePO);
+            currencyTradeMapper.insert(tradePO);
             return true;
         } catch (Exception e) {
-            LOGGER.error("[JiushiCurrencyTradeServiceImpl] insert error is:", e);
+            log.error("[JiushiCurrencyTradeServiceImpl] insert error is:", e);
+            throw new BizErrorException("记录流水失败");
         }
-        return false;
     }
 }

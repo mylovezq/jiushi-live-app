@@ -1,4 +1,4 @@
-package top.mylove7.live.api.gift.vo;
+package top.mylove7.live.api.gift.qo;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import lombok.Data;
  * @Description
  */
 @Data
-public class GiftReqVO {
+public class GiftReqQo {
 
     private int giftId;
     private Long roomId;

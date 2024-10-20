@@ -3,6 +3,7 @@ package top.mylove7.live.gift.provider.consumer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -41,10 +42,10 @@ import java.util.stream.Collectors;
  * 发送礼物消费者
  *
  * @Author jiushi
- *
  * @Description
  */
 @Configuration
+@Slf4j
 public class SendGiftConsumer implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendGiftConsumer.class);
@@ -83,47 +84,56 @@ public class SendGiftConsumer implements InitializingBean {
         mqPushConsumer.setVipChannelEnabled(false);
         mqPushConsumer.setNamesrvAddr(rocketMQConsumerProperties.getNameSrv());
         mqPushConsumer.setConsumerGroup(rocketMQConsumerProperties.getGroupName() + "_" + SendGiftConsumer.class.getSimpleName());
-        mqPushConsumer.setConsumeMessageBatchMaxSize(10);
+        // 设置消费超时时间为10秒
+        mqPushConsumer.setConsumeTimeout(10000);
+        mqPushConsumer.setConsumeMessageBatchMaxSize(1);
         mqPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
         //监听礼物缓存数据更新的行为
         mqPushConsumer.subscribe(GiftProviderTopicNames.SEND_GIFT, "");
         mqPushConsumer.setMessageListener((MessageListenerConcurrently) (msgs, context) -> {
-            for (MessageExt msg : msgs) {
-                SendGiftMq sendGiftMq = JSON.parseObject(new String(msg.getBody()), SendGiftMq.class);
-                String mqConsumerKey = cacheKeyBuilder.buildGiftConsumeKey(sendGiftMq.getUuid());
-                boolean lockStatus = redisTemplate.opsForValue().setIfAbsent(mqConsumerKey, -1, 5, TimeUnit.MINUTES);
-                if (!lockStatus) {
-                    //代表曾经消费过
-                    continue;
-                }
-                AccountTradeReqDTO tradeReqDTO = new AccountTradeReqDTO();
-                tradeReqDTO.setUserId(sendGiftMq.getUserId());
-                tradeReqDTO.setNum(sendGiftMq.getPrice());
-                AccountTradeRespDTO tradeRespDTO = currencyAccountRpc.consumeForSendGift(tradeReqDTO);
-                //如果余额扣减成功
-                Integer sendGiftType = sendGiftMq.getType();
-                JSONObject jsonObject = new JSONObject();
-                //改成全直播间可见
-                if (tradeRespDTO.isSuccess()) {
-                    Long receiverId = sendGiftMq.getReceiverId();
-                    if (SendGiftTypeEnum.DEFAULT_SEND_GIFT.getCode().equals(sendGiftType)) {
-                        //触发礼物特效推送功能
-                        jsonObject.put("url", sendGiftMq.getUrl());
-                        LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
-                        reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-                        reqDTO.setRoomId(sendGiftMq.getRoomId());
-                        List<Long> userIdList = livingRoomRpc.queryUserIdByRoomId(reqDTO);
-                        this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_SEND_GIFT_SUCCESS, jsonObject);
-                    } else if (SendGiftTypeEnum.PK_SEND_GIFT.getCode().equals(sendGiftType)) {
-                        this.pkImMsgSend(jsonObject, sendGiftMq, receiverId);
-                    }
-                } else {
-                    //利用im将发送失败的消息告知用户
-                    jsonObject.put("msg", tradeRespDTO.getMsg());
-                    this.sendImMsgSingleton(sendGiftMq.getUserId(), ImMsgBizCodeEnum.LIVING_ROOM_SEND_GIFT_FAIL.getCode(), jsonObject);
-                }
-//                LOGGER.info("[SendGiftConsumer] msg is {}", msg);
+
+            MessageExt messageExt = msgs.get(0);
+
+            SendGiftMq sendGiftMq = JSON.parseObject(new String(messageExt.getBody()), SendGiftMq.class);
+            String mqConsumerKey = cacheKeyBuilder.buildGiftConsumeKey(sendGiftMq.getUuid());
+            boolean lockStatus = redisTemplate.opsForValue().setIfAbsent(mqConsumerKey, -1, 30, TimeUnit.MINUTES);
+            if (!lockStatus) {
+                //代表曾经消费过 并且成功过
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
+
+            try {
+                 currencyAccountRpc.decr(sendGiftMq.getUserId(),sendGiftMq.getPrice());
+            } catch (Exception e) {
+                log.error("扣减库存失败", e);
+                redisTemplate.delete(mqConsumerKey);
+                return ConsumeConcurrentlyStatus.RECONSUME_LATER;
+
+            }
+//            //如果余额扣减成功
+//            Integer sendGiftType = sendGiftMq.getType();
+//            JSONObject jsonObject = new JSONObject();
+//            //改成全直播间可见
+//            if (tradeRespDTO.isSuccess()) {
+//                Long receiverId = sendGiftMq.getReceiverId();
+//                if (SendGiftTypeEnum.DEFAULT_SEND_GIFT.getCode().equals(sendGiftType)) {
+//                    //触发礼物特效推送功能
+//                    jsonObject.put("url", sendGiftMq.getUrl());
+//                    LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
+//                    reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+//                    reqDTO.setRoomId(sendGiftMq.getRoomId());
+//                    List<Long> userIdList = livingRoomRpc.queryUserIdByRoomId(reqDTO);
+//                    this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_SEND_GIFT_SUCCESS, jsonObject);
+//                } else if (SendGiftTypeEnum.PK_SEND_GIFT.getCode().equals(sendGiftType)) {
+//                    this.pkImMsgSend(jsonObject, sendGiftMq, receiverId);
+//                }
+//            } else {
+//                //利用im将发送失败的消息告知用户
+//                jsonObject.put("msg", tradeRespDTO.getMsg());
+//                this.sendImMsgSingleton(sendGiftMq.getUserId(), ImMsgBizCodeEnum.LIVING_ROOM_SEND_GIFT_FAIL.getCode(), jsonObject);
+//            }
+            log.info("[SendGiftConsumer] msg is {}", msgs);
+
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         mqPushConsumer.start();
@@ -180,7 +190,7 @@ public class SendGiftConsumer implements InitializingBean {
             Integer moveStep = sendGiftMq.getPrice() / 10 * -1;
             pkNum = this.redisTemplate.execute(redisScript, Collections.singletonList(pkNumKey), PK_INIT_NUM, PK_MAX_NUM, PK_MIN_NUM, moveStep);
             if (PK_MIN_NUM >= pkNum) {
-                this.redisTemplate.opsForValue().set(cacheKeyBuilder.buildLivingPkIsOver(roomId),-1);
+                this.redisTemplate.opsForValue().set(cacheKeyBuilder.buildLivingPkIsOver(roomId), -1);
                 jsonObject.put("winnerId", pkObjId);
             }
         }

@@ -1,5 +1,7 @@
 package top.mylove7.live.bank.dto;
 
+import lombok.Data;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -8,6 +10,7 @@ import java.io.Serializable;
  *
  * @Description
  */
+@Data
 public class AccountTradeReqDTO implements Serializable {
 
     @Serial
@@ -15,27 +18,4 @@ public class AccountTradeReqDTO implements Serializable {
     private long userId;
     private int num;
 
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public int getNum() {
-        return num;
-    }
-
-    public void setNum(int num) {
-        this.num = num;
-    }
-
-    @Override
-    public String toString() {
-        return "AccountTradeReqDTO{" +
-                "userId=" + userId +
-                ", num=" + num +
-                '}';
-    }
 }

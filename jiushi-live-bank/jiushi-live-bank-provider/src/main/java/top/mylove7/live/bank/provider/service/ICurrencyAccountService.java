@@ -43,13 +43,6 @@ public interface ICurrencyAccountService {
     Integer getBalance(long userId);
 
     /**
-     * 专门给送礼业务调用的扣减余额逻辑
-     *
-     * @param accountTradeReqDTO
-     */
-    AccountTradeRespDTO consumeForSendGift(AccountTradeReqDTO accountTradeReqDTO);
-
-    /**
      * 底层需要判断用户余额是否充足，充足则扣减，不足则拦截
      *
      * @param accountTradeReqDTO

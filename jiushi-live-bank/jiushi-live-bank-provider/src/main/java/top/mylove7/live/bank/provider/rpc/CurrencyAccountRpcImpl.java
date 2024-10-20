@@ -33,9 +33,5 @@ public class CurrencyAccountRpcImpl implements ICurrencyAccountRpc {
         return currencyAccountService.getBalance(userId);
     }
 
-    @Override
-    public AccountTradeRespDTO consumeForSendGift(AccountTradeReqDTO accountTradeReqDTO) {
-        return currencyAccountService.consumeForSendGift(accountTradeReqDTO);
-    }
 
 }

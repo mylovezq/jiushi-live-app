@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import top.mylove7.live.bank.constants.OrderStatusEnum;
 import top.mylove7.live.bank.constants.PayProductTypeEnum;
@@ -20,8 +21,10 @@ import top.mylove7.live.bank.provider.dao.maper.IPayOrderMapper;
 import top.mylove7.live.bank.provider.dao.po.PayOrderPO;
 import top.mylove7.live.bank.provider.dao.po.PayTopicPO;
 import top.mylove7.live.bank.provider.service.*;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author jiushi
@@ -42,9 +45,11 @@ public class PayOrderServiceImpl implements IPayOrderService {
     @Resource
     private MQProducer mqProducer;
     @Resource
-    private ICurrencyAccountService qiyuCurrencyAccountService;
+    private ICurrencyAccountService currencyAccountService;
     @Resource
-    private ICurrencyTradeService qiyuCurrencyTradeService;
+    private ICurrencyTradeService currencyTradeService;
+    @Resource
+    private RedisTemplate redisTemplate;
 
     @Override
     public PayOrderPO queryByOrderId(String orderId) {
@@ -125,7 +130,18 @@ public class PayOrderServiceImpl implements IPayOrderService {
             Long userId = payOrderPO.getUserId();
             JSONObject jsonObject = JSON.parseObject(payProductDTO.getExtra());
             Integer num = jsonObject.getInteger("coin");
-            qiyuCurrencyAccountService.incr(userId,num);
+            boolean lockStatus = redisTemplate.opsForValue().setIfAbsent(payOrderPO.getId(), -1, 12, TimeUnit.HOURS);
+            if (!lockStatus) {
+                log.info("[payNotifyHandler] 该笔订单已经充值, orderId is {}", payOrderPO.getId());
+                return;
+            }
+            try {
+                currencyAccountService.incr(userId,num);
+            } catch (Exception e) {
+                log.error("[payNotifyHandler] error is 充值失败 ", e);
+                redisTemplate.delete(payOrderPO.getId());
+                throw new BizErrorException("充值失败");
+            }
         }
     }
 }

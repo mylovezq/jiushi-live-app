@@ -69,7 +69,7 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
         String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
         if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
             redisTemplate.opsForValue().increment(cacheKey, num);
-            redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
+            redisTemplate.expire(cacheKey, 12, TimeUnit.HOURS);
         }
         this.consumeIncrDBHandler(userId, num);
         log.info("充值成功{}", num);
@@ -83,22 +83,9 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
      * @param num
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void decr(long userId, int num) {
-        //扣减余额
-        String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
-            //基于redis的扣减操作
-            redisTemplate.opsForValue().decrement(cacheKey, num);
-            redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
-        }
-
-
-        //TODO 可以使用投递到mq里面。削峰
         this.consumeDecrDBHandler(userId, num);
         log.info("消费扣减成功{}", num);
-
-
     }
 
     @Override
@@ -113,25 +100,14 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
         }
         Integer currentBalance = currencyAccountMapper.queryBalance(userId);
         if (currentBalance == null) {
+            //创建账户
             redisTemplate.opsForValue().set(cacheKey, -1, 5, TimeUnit.MINUTES);
             return null;
         }
-        redisTemplate.opsForValue().set(cacheKey, currentBalance, 2, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(cacheKey, currentBalance, 12, TimeUnit.HOURS);
         return currentBalance;
     }
 
-    @Override
-    public AccountTradeRespDTO consumeForSendGift(AccountTradeReqDTO accountTradeReqDTO) {
-        //余额判断
-        long userId = accountTradeReqDTO.getUserId();
-        int num = accountTradeReqDTO.getNum();
-        Integer balance = this.getBalance(userId);
-        if (balance == null || balance < num) {
-            return AccountTradeRespDTO.buildFail(userId, "账户余额不足", 1);
-        }
-        this.decr(userId, num);
-        return AccountTradeRespDTO.buildSuccess(userId, "消费成功");
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public void consumeIncrDBHandler(long userId, int num) {
@@ -159,7 +135,8 @@ public class JiushiCurrencyAccountServiceImpl implements ICurrencyAccountService
 
     public void consumeDecrDBHandler(long userId, int num) {
         //流水记录
-        CurrencyAccountPO currencyAccountUpdate = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
+        CurrencyAccountPO currencyAccountUpdate
+                = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
         Assert.notNull(currencyAccountUpdate, "账户不存在");
         Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
         Assert.isTrue(currencyAccountUpdate.getCurrentBalance() >= num, "余额不足");

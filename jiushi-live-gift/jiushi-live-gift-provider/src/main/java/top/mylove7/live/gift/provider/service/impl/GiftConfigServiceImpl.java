@@ -1,7 +1,9 @@
 package top.mylove7.live.gift.provider.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -87,17 +89,20 @@ public class GiftConfigServiceImpl implements IGiftConfigService {
         if (!CollectionUtils.isEmpty(cacheList)) {
             //不是空list缓存
             if (cacheList.get(0).getGiftId() != null) {
-                redisTemplate.expire(cacheKey, 60, TimeUnit.MINUTES);
+                redisTemplate.expire(cacheKey, 1, TimeUnit.MINUTES);
                 return cacheList;
             }
             return Collections.emptyList();
         }
         //如果为空：一种是空值缓存（放了一个空的list集合），另一种是缓存过期了
         //list集合去进行存放
-        LambdaQueryWrapper<GiftConfigPO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GiftConfigPO::getStatus, CommonStatusEum.VALID_STATUS.getCode());
-        List<GiftConfigPO> giftConfigPOList = giftConfigMapper.selectList(queryWrapper);
-        if (!CollectionUtils.isEmpty(giftConfigPOList)) {
+
+        List<GiftConfigPO> giftConfigPOList
+                = giftConfigMapper.selectList(new LambdaQueryWrapper<GiftConfigPO>()
+                .eq(GiftConfigPO::getStatus, CommonStatusEum.VALID_STATUS.getCode()));
+
+
+        if (CollUtil.isNotEmpty(giftConfigPOList)) {
             List<GiftConfigDTO> resultList = ConvertBeanUtils.convertList(giftConfigPOList, GiftConfigDTO.class);
             boolean trySetToRedis = redisTemplate.opsForValue().setIfAbsent(cacheKeyBuilder.buildGiftListLockCacheKey(),1,3,TimeUnit.SECONDS);
             if(trySetToRedis) {
@@ -109,7 +114,7 @@ public class GiftConfigServiceImpl implements IGiftConfigService {
         }
         //存入一个空的list进入redis中
         redisTemplate.opsForList().leftPush(cacheKey, new GiftConfigDTO());
-        redisTemplate.expire(cacheKey, 5, TimeUnit.MINUTES);
+        redisTemplate.expire(cacheKey, 30, TimeUnit.SECONDS);
         return Collections.emptyList();
     }
 

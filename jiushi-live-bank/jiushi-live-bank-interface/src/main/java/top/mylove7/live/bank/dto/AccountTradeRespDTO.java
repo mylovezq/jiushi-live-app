@@ -1,5 +1,7 @@
 package top.mylove7.live.bank.dto;
 
+import lombok.Data;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -8,6 +10,7 @@ import java.io.Serializable;
  *
  * @Description
  */
+@Data
 public class AccountTradeRespDTO implements Serializable {
 
     @Serial
@@ -17,37 +20,6 @@ public class AccountTradeRespDTO implements Serializable {
     private boolean isSuccess;
     private String msg;
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public boolean isSuccess() {
-        return isSuccess;
-    }
-
-    public void setSuccess(boolean success) {
-        isSuccess = success;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 
     public static AccountTradeRespDTO buildFail(long userId, String msg,int code) {
         AccountTradeRespDTO tradeRespDTO = new AccountTradeRespDTO();
@@ -66,12 +38,4 @@ public class AccountTradeRespDTO implements Serializable {
         return tradeRespDTO;
     }
 
-    @Override
-    public String toString() {
-        return "AccountTradeRespDTO{" +
-                "userId=" + userId +
-                ", isSuccess=" + isSuccess +
-                ", msg='" + msg + '\'' +
-                '}';
-    }
 }
