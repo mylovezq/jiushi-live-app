@@ -53,10 +53,10 @@ public class SingleMessageHandlerImpl implements MessageHandler {
             LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
             reqDTO.setRoomId(chatRoomMessageDTO.getRoomId());
             reqDTO.setAppId(imMsgBodyInTcpWsDto.getAppId());
-
+            List<Long> roodIds = Optional.ofNullable(livingRoomRpc.queryUserIdByRoomId(reqDTO)).orElse(new ArrayList<>());
             //自己不用发
             List<ImMsgBodyInTcpWsDto> imMsgInTcpWsBodies
-                    = Optional.ofNullable(livingRoomRpc.queryUserIdByRoomId(reqDTO)).orElse(new ArrayList<>())
+                    = roodIds
                     .parallelStream()
                     .filter(userId -> !Objects.equals(imMsgBodyInTcpWsDto.getFromUserId(), userId))
                     .map(toUserId -> {
@@ -69,6 +69,10 @@ public class SingleMessageHandlerImpl implements MessageHandler {
                         respMsg.setData(JSON.toJSONString(chatRoomMessageDTO));
                         return respMsg;
                     }).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(imMsgInTcpWsBodies)) {
+                log.info("没有查询到对应的直播间信息{}",reqDTO);
+                throw new RuntimeException("没有查询到对应的直播间信息");
+            }
             routerRpc.batchSendMsg(imMsgInTcpWsBodies);
         }
     }

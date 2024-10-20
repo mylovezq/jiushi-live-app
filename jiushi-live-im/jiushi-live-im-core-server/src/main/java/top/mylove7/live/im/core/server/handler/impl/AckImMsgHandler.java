@@ -38,6 +38,8 @@ public class AckImMsgHandler implements SimplyHandler {
             ctx.close();
             throw new IllegalArgumentException("attr is error");
         }
-        msgAckCheckService.doMsgAck(JSON.parseObject(imTcpWsDto.getBody(), ImMsgBodyInTcpWsDto.class),roomId);
+        ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(imTcpWsDto.getBody(), ImMsgBodyInTcpWsDto.class);
+        imMsgBodyInTcpWsDto.setToUserId(userId);
+        msgAckCheckService.doMsgAck(imMsgBodyInTcpWsDto,roomId);
     }
 }

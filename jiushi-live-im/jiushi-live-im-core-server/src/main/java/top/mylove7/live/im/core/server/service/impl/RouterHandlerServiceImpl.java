@@ -58,11 +58,9 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
     public boolean sendMsgToClient(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
 
         try {
-            imMsgBodyInTcpWsDto.setMsgId(IdWorker.getId() + "");
             boolean isGoOnSend = this.checkOrAddImMsgRecord(imMsgBodyInTcpWsDto);
 
             if (!isGoOnSend) {
-                log.info("该消息已发送并确认，或者达到最大发送次数");
                 return false;
             }
 
@@ -99,8 +97,13 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
         Long roomId = JSON.parseObject(imMsg.getData()).getLong("roomId");
         String hadSendMsgKey = cacheKeyBuilder.buildHadSendMsgKey(imMsg.getAppId(), roomId, imMsg.getToUserId());
         ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsg.getFromMsgId());
-        if (imAckDto != null && (imAckDto.getRetryTime() > 3 || imAckDto.getHadAck())) {
-            log.info("该消息已发送并确认，或者达到最大发送次数");
+
+        if (imAckDto != null && imAckDto.getRetryTime() > 3 ) {
+            log.info("该消息达到最大发送次数");
+            return false;
+        }
+        if (imAckDto != null && imAckDto.getHadAck()) {
+            log.info("该消息已发送并确认到达");
             return false;
         }
         if (imAckDto == null) {
@@ -112,6 +115,7 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
         }
         imAckDto.setRetryTime(imAckDto.getRetryTime() + 1);
         redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getFromMsgId(), imAckDto);
+        redisTemplate.expire(hadSendMsgKey, 12, TimeUnit.HOURS);
         return true;
 
     }

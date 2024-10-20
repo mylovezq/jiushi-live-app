@@ -1,7 +1,6 @@
 package top.mylove7.live.im.core.server.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.MQProducer;
@@ -9,22 +8,18 @@ import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.util.Assert;
 import top.mylove7.jiushi.live.framework.redis.starter.key.ImCoreServerProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.im.core.server.dao.ImMsgMongoDo;
+import top.mylove7.live.im.core.server.interfaces.dto.ImAckDto;
 import top.mylove7.live.im.core.server.service.IMsgAckCheckService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import top.mylove7.live.im.core.server.service.ImMsgMongoService;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,35 +41,19 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
     private RedissonClient redissonClient;
 
     @Override
-    public void doMsgAck(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
-        RLock imMsgSendLock = this.getImMsgSendLock(imMsgBodyInTcpWsDto);
-        try {
-            if (!imMsgSendLock.tryLock(10, 10, TimeUnit.SECONDS)) {
-                log.error("等待锁时 获取锁失败");
-                throw new BizErrorException("等待锁时 获取锁失败");
-            }
-            boolean imMsgMongoUpdate = imMsgMongoService.lambdaUpdate()
-                    .eq(ImMsgMongoDo::getId, imMsgBodyInTcpWsDto.getMsgId())
-                    .set(ImMsgMongoDo::getHadAck, true)
-                    .set(ImMsgMongoDo::getUpdateTime, LocalDateTime.now())
-                    .update();
-            //一般不会失败，数据是存好了才发消息给客户端
-            if (!imMsgMongoUpdate){
-                log.error("更新im确认消息异常{}",imMsgBodyInTcpWsDto);
-            }
-
-        } catch (Exception e) {
-            log.error("获取锁，更新im确认消息异常", e);
-            throw new BizErrorException("im确认消息异常");
+    public void doMsgAck(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto, Long roomId) {
+        String hadSendMsgKey = cacheKeyBuilder.buildHadSendMsgKey(imMsgBodyInTcpWsDto.getAppId(), roomId, imMsgBodyInTcpWsDto.getToUserId());
+        Assert.notNull(imMsgBodyInTcpWsDto.getFromMsgId(), "参数异常 fromMsgId is null");
+        ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsgBodyInTcpWsDto.getFromMsgId());
+        if (imAckDto == null){
+            log.error("没有该消息{}",hadSendMsgKey+":"+imMsgBodyInTcpWsDto.getMsgId());
+            return;
         }
+        imAckDto.setHadAck(true);
+        redisTemplate.opsForHash().put(hadSendMsgKey, imMsgBodyInTcpWsDto.getFromMsgId(), imAckDto);
 
     }
 
-
-    @Override
-    public RLock getImMsgSendLock(ImMsgBodyInTcpWsDto inTcpDto) {
-
-    }
 
 
     @Override
