@@ -1,4 +1,4 @@
-package top.mylove7.live.api.bank.qo;
+package top.mylove7.live.api.bank;
 
 
 import lombok.Data;

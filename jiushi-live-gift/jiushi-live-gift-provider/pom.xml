@@ -52,7 +52,11 @@
             <artifactId>fastjson</artifactId>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.6.2</version>
+        </dependency>
 
         <dependency>
             <groupId>top.mylove7</groupId>

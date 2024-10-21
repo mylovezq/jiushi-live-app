@@ -1,6 +1,6 @@
 package top.mylove7.live.api.gift.service;
 
-import top.mylove7.live.api.gift.qo.GiftReqQo;
+import org.qiyu.live.gift.qo.GiftReqQo;
 import top.mylove7.live.api.gift.vo.GiftConfigVO;
 
 
@@ -26,5 +26,5 @@ public interface IGiftService {
      * @param giftReqQo
      * @return
      */
-    boolean send(GiftReqQo giftReqQo);
+    void send(GiftReqQo giftReqQo);
 }

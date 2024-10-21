@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
 import top.mylove7.live.api.gift.service.IGiftService;
-import top.mylove7.live.api.gift.qo.GiftReqQo;
+import org.qiyu.live.gift.qo.GiftReqQo;
 import top.mylove7.live.api.gift.vo.GiftConfigVO;
+import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 
 import java.util.List;
@@ -45,7 +46,9 @@ public class GiftController {
     @PostMapping("/send")
     @RequestLimit(limit = 3, second = 5, msg = "请勿频繁发送礼物")
     public WebResponseVO send(GiftReqQo giftReqQo) {
-        return WebResponseVO.success(giftService.send(giftReqQo));
+        giftReqQo.setSenderUserId(JiushiLoginRequestContext.getUserId());
+        giftService.send(giftReqQo);
+        return WebResponseVO.success();
     }
 
 }

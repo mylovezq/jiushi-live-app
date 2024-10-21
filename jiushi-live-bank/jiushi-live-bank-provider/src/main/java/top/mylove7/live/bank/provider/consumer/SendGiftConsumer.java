@@ -1,4 +1,4 @@
-package top.mylove7.live.gift.provider.consumer;
+package top.mylove7.live.bank.provider.consumer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -10,19 +10,14 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.MessageExt;
-import org.qiyu.live.gift.constants.SendGiftTypeEnum;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerProperties;
-import top.mylove7.jiushi.live.framework.redis.starter.key.GiftProviderCacheKeyBuilder;
-import top.mylove7.live.bank.dto.AccountTradeReqDTO;
-import top.mylove7.live.bank.dto.AccountTradeRespDTO;
-import top.mylove7.live.bank.interfaces.ICurrencyAccountRpc;
+import top.mylove7.jiushi.live.framework.redis.starter.key.BankProviderCacheKeyBuilder;
+import top.mylove7.live.bank.provider.service.IMyCurrencyAccountService;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.dto.SendGiftMq;
@@ -48,7 +43,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SendGiftConsumer implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendGiftConsumer.class);
 
     private static final Long PK_INIT_NUM = 50L;
     private static final Long PK_MAX_NUM = 100L;
@@ -69,9 +63,9 @@ public class SendGiftConsumer implements InitializingBean {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private GiftProviderCacheKeyBuilder cacheKeyBuilder;
-    @DubboReference
-    private ICurrencyAccountRpc currencyAccountRpc;
+    private BankProviderCacheKeyBuilder cacheKeyBuilder;
+    @Resource
+    private IMyCurrencyAccountService myCurrencyAccountService;
     @DubboReference
     private ILivingRoomRpc livingRoomRpc;
     @DubboReference
@@ -103,7 +97,7 @@ public class SendGiftConsumer implements InitializingBean {
             }
 
             try {
-                 currencyAccountRpc.decr(sendGiftMq.getUserId(),sendGiftMq.getPrice());
+                myCurrencyAccountService.decr(sendGiftMq.getUserId(),sendGiftMq.getPrice());
             } catch (Exception e) {
                 log.error("扣减库存失败", e);
                 redisTemplate.delete(mqConsumerKey);
@@ -137,7 +131,7 @@ public class SendGiftConsumer implements InitializingBean {
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         });
         mqPushConsumer.start();
-        LOGGER.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
+        log.info("mq消费者启动成功,namesrv is {}", rocketMQConsumerProperties.getNameSrv());
     }
 
 

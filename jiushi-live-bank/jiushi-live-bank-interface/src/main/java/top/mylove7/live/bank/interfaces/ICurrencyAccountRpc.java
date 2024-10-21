@@ -24,7 +24,7 @@ public interface ICurrencyAccountRpc {
      * @param userId
      * @param num
      */
-    void decr(long userId,int num);
+    void decrByRedis(Long userId,int num);
 
     /**
      * 查询余额

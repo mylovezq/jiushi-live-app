@@ -45,7 +45,7 @@ public class PayOrderServiceImpl implements IPayOrderService {
     @Resource
     private MQProducer mqProducer;
     @Resource
-    private ICurrencyAccountService currencyAccountService;
+    private IMyCurrencyAccountService myCurrencyAccountService;
     @Resource
     private ICurrencyTradeService currencyTradeService;
     @Resource
@@ -136,7 +136,7 @@ public class PayOrderServiceImpl implements IPayOrderService {
                 return;
             }
             try {
-                currencyAccountService.incr(userId,num);
+                myCurrencyAccountService.incr(userId,num);
             } catch (Exception e) {
                 log.error("[payNotifyHandler] error is 充值失败 ", e);
                 redisTemplate.delete(payOrderPO.getId());

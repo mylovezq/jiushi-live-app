@@ -1,10 +1,11 @@
 package top.mylove7.live.api.bank.controller;
 
 import jakarta.annotation.Resource;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import top.mylove7.live.api.bank.qo.PayProductReqQo;
+import top.mylove7.live.api.bank.PayProductReqQo;
 import top.mylove7.live.api.bank.service.IBankService;
 import top.mylove7.live.bank.interfaces.ICurrencyAccountRpc;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
@@ -25,7 +26,7 @@ public class BankController {
     @Resource
     private IBankService bankService;
 
-    @Resource
+    @DubboReference
     private ICurrencyAccountRpc currencyAccountRpc;
 
 
@@ -52,10 +53,5 @@ public class BankController {
         return WebResponseVO.success();
     }
 
-    @PostMapping("decr")
-    public WebResponseVO decr() {
-        currencyAccountRpc.decr(JiushiLoginRequestContext.getUserId(),2);
-        return WebResponseVO.success();
-    }
 
 }

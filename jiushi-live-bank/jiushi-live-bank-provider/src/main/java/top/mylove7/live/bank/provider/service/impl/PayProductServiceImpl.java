@@ -32,11 +32,11 @@ public class PayProductServiceImpl implements IPayProductService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private BankProviderCacheKeyBuilder cacheKeyBuilder;
+    private BankProviderCacheKeyBuilder bankProviderCacheKeyBuilder;
 
     @Override
     public List<PayProductDTO> products(Integer type) {
-        String cacheKey = cacheKeyBuilder.buildPayProductCache(type);
+        String cacheKey = bankProviderCacheKeyBuilder.buildPayProductCache(type);
         List<PayProductDTO> cacheList = redisTemplate.opsForList().range(cacheKey, 0, 30).stream().map(x -> {
             return (PayProductDTO) x;
         }).collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class PayProductServiceImpl implements IPayProductService {
     @Override
     public PayProductDTO getByProductId(Integer productId) {
         //不用type参数，但是要多存一个redis对象
-        String cacheKey = cacheKeyBuilder.buildPayProductItemCache(productId);
+        String cacheKey = bankProviderCacheKeyBuilder.buildPayProductItemCache(productId);
         PayProductDTO payProductDTO = (PayProductDTO) redisTemplate.opsForValue().get(cacheKey);
         if (payProductDTO != null) {
             //空值缓存

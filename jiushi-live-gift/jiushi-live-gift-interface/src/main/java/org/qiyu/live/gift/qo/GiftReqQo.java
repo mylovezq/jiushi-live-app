@@ -1,4 +1,4 @@
-package top.mylove7.live.api.gift.qo;
+package org.qiyu.live.gift.qo;
 
 import lombok.Data;
 

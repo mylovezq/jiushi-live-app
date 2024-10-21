@@ -1,6 +1,6 @@
 package top.mylove7.live.api.bank.service;
 
-import top.mylove7.live.api.bank.qo.PayProductReqQo;
+import top.mylove7.live.api.bank.PayProductReqQo;
 import top.mylove7.live.api.bank.vo.PayProductRespVO;
 import top.mylove7.live.api.bank.vo.PayProductVO;
 

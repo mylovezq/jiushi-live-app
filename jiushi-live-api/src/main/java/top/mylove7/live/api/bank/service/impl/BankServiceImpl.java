@@ -4,11 +4,10 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import top.mylove7.live.api.bank.qo.PayProductReqQo;
+import top.mylove7.live.api.bank.PayProductReqQo;
 import top.mylove7.live.api.bank.service.IBankService;
 import top.mylove7.live.api.bank.vo.PayProductItemVO;
 import top.mylove7.live.api.bank.vo.PayProductRespVO;
@@ -24,7 +23,10 @@ import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
 import top.mylove7.live.common.interfaces.error.ErrorAssert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author jiushi
