@@ -1,5 +1,6 @@
 package top.mylove7.live.gift.provider.rpc;
 
+import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -32,7 +33,6 @@ import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -57,6 +57,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
         GiftConfigDTO giftConfigDTO = giftConfigService.getByGiftId(giftId);
         ErrorAssert.isNotNull(giftConfigDTO, ApiErrorEnum.GIFT_CONFIG_ERROR);
         ErrorAssert.isTure(!giftReqQo.getReceiverId().equals(giftReqQo.getSenderUserId()), ApiErrorEnum.NOT_SEND_TO_YOURSELF);
+
 
         currencyAccountRpc.decrByRedis(giftReqQo.getSenderUserId(), giftConfigDTO.getPrice());
 
@@ -113,7 +114,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
         sendGiftMq.setType(giftReqQo.getType());
         sendGiftMq.setPrice(giftConfigDTO.getPrice());
         //避免重复消费
-        sendGiftMq.setUuid(UUID.randomUUID().toString());
+        sendGiftMq.setUuid(UUID.fastUUID().toString());
         Message message = new Message();
         message.setTopic(GiftProviderTopicNames.SEND_GIFT);
         message.setBody(JSON.toJSONBytes(sendGiftMq));
@@ -126,7 +127,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
             imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBodyInTcpWsDto.setBizCode(imMsgBizCodeEnum.getCode());
             imMsgBodyInTcpWsDto.setToUserId(userId);
-            imMsgBodyInTcpWsDto.setFromMsgId(cn.hutool.core.lang.UUID.fastUUID().toString());
+            imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());
@@ -136,6 +137,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
         imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
         imMsgBodyInTcpWsDto.setBizCode(bizCode);
+        imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
         imMsgBodyInTcpWsDto.setToUserId(userId);
         imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
         routerRpc.sendMsg(imMsgBodyInTcpWsDto);

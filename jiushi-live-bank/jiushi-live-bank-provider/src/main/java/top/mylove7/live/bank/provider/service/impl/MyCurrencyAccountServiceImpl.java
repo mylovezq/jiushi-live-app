@@ -53,7 +53,7 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
         Assert.isTrue(cacheBalance != null && cacheBalance, "账户异常");
 
         redisTemplate.opsForValue().increment(cacheKey, num);
-        redisTemplate.expire(cacheKey, 1, TimeUnit.MINUTES);
+        redisTemplate.expire(cacheKey, 12, TimeUnit.HOURS);
 
         this.consumeIncrDBHandler(userId, num);
         log.info("充值成功{}", num);
@@ -78,6 +78,7 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
         String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
         Object cacheBalance = redisTemplate.opsForValue().get(cacheKey);
         if (cacheBalance != null) {
+            redisTemplate.expire(cacheKey, 12, TimeUnit.HOURS);
             return (Integer) cacheBalance;
         }
 
@@ -91,10 +92,10 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
             currencyAccountUpdate.setCreateTime(LocalDateTime.now());
             currencyAccountUpdate.setUpdateTime(LocalDateTime.now());
             currencyAccountMapper.insert(currencyAccountUpdate);
-            redisTemplate.opsForValue().set(cacheKey, 0, 1, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(cacheKey, 0, 12, TimeUnit.HOURS);
             return 0;
         } else {
-            redisTemplate.opsForValue().set(cacheKey, currentBalance, 1, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(cacheKey, currentBalance, 12, TimeUnit.HOURS);
             return currentBalance;
         }
 

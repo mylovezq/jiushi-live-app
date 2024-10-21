@@ -67,7 +67,7 @@ public class CurrencyAccountRpcImpl implements ICurrencyAccountRpc {
         RedisScript<String> deductionOfBalanceScript = new DefaultRedisScript<>(deductionOfBalance, String.class);
         String cacheKey = bankProviderCacheKeyBuilder.buildUserBalance(userId);
         // 执行 Lua 脚本
-        String deductionOfBalanceResult = stringRedisTemplate.execute(deductionOfBalanceScript, Collections.singletonList(cacheKey), Arrays.asList(num+"", 60 +"").toArray());
+        String deductionOfBalanceResult = stringRedisTemplate.execute(deductionOfBalanceScript, Collections.singletonList(cacheKey), Arrays.asList(num+"", (60 * 60  * 12) +"").toArray());
         Assert.isTrue("成功".equals(deductionOfBalanceResult), deductionOfBalanceResult);
 
     }
