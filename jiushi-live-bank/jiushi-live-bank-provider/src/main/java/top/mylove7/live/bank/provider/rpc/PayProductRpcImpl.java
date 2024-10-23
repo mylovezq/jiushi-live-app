@@ -6,6 +6,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import top.mylove7.live.bank.dto.PayProductDTO;
 import top.mylove7.live.bank.interfaces.IPayProductRpc;
 import top.mylove7.live.bank.provider.service.IPayProductService;
+import top.mylove7.live.bank.vo.PayProductVO;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class PayProductRpcImpl implements IPayProductRpc {
     private IPayProductService payProductService;
 
     @Override
-    public List<PayProductDTO> products(Integer type) {
+    public PayProductVO products(Integer type) {
         return payProductService.products(type);
     }
 

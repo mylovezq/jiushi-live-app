@@ -97,6 +97,7 @@ public class SendGiftConsumer implements InitializingBean {
             }
 
             try {
+                log.error("开始扣减库存sendGiftMq{}",sendGiftMq);
                 myCurrencyAccountService.decr(sendGiftMq.getUserId(),sendGiftMq.getPrice());
             } catch (Exception e) {
                 log.error("扣减库存失败", e);

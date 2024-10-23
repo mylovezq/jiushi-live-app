@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import top.mylove7.live.api.bank.PayProductReqQo;
 import top.mylove7.live.api.bank.service.IBankService;
-import top.mylove7.live.api.bank.vo.PayProductItemVO;
-import top.mylove7.live.api.bank.vo.PayProductRespVO;
-import top.mylove7.live.api.bank.vo.PayProductVO;
+import top.mylove7.live.bank.vo.PayProductItemVO;
+import top.mylove7.live.bank.vo.PayProductRespVO;
+import top.mylove7.live.bank.vo.PayProductVO;
 import top.mylove7.live.bank.constants.OrderStatusEnum;
 import top.mylove7.live.bank.constants.PaySourceEnum;
 import top.mylove7.live.bank.dto.PayOrderDTO;
@@ -47,19 +47,10 @@ public class BankServiceImpl implements IBankService {
 
     @Override
     public PayProductVO products(Integer type) {
-        List<PayProductDTO> payProductDTOS = payProductRpc.products(type);
-        PayProductVO payProductVO = new PayProductVO();
-        List<PayProductItemVO> itemList = new ArrayList<>();
-        for (PayProductDTO payProductDTO : payProductDTOS) {
-            PayProductItemVO itemVO = new PayProductItemVO();
-            itemVO.setName(payProductDTO.getName());
-            itemVO.setId(payProductDTO.getId());
-            itemVO.setCoinNum(JSON.parseObject(payProductDTO.getExtra()).getInteger("coin"));
-            itemList.add(itemVO);
-        }
-        payProductVO.setPayProductItemVOList(itemList);
-        payProductVO.setCurrentBalance(Optional.ofNullable(currencyAccountRpc.getBalance(JiushiLoginRequestContext.getUserId())).orElse(0));
-        return payProductVO;
+        PayProductVO products = payProductRpc.products(type);
+        Integer balance = currencyAccountRpc.getBalance(JiushiLoginRequestContext.getUserId());
+        products.setCurrentBalance(balance);
+        return products;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package top.mylove7.live.api.bank.vo;
+package top.mylove7.live.bank.vo;
 
 /**
  * @Author jiushi

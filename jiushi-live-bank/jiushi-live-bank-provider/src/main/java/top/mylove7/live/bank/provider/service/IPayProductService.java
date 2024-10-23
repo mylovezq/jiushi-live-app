@@ -3,6 +3,7 @@ package top.mylove7.live.bank.provider.service;
 
 
 import top.mylove7.live.bank.dto.PayProductDTO;
+import top.mylove7.live.bank.vo.PayProductVO;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface IPayProductService {
      *
      * @param type 不同的业务场景所使用的产品
      */
-    List<PayProductDTO> products(Integer type);
+    PayProductVO products(Integer type);
 
     /**
      * 根据产品id检索

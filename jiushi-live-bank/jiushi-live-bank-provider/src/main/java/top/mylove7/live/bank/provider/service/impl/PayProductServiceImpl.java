@@ -1,27 +1,28 @@
 package top.mylove7.live.bank.provider.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import top.mylove7.jiushi.live.framework.redis.starter.key.BankProviderCacheKeyBuilder;
 import top.mylove7.live.bank.dto.PayProductDTO;
 import top.mylove7.live.bank.provider.dao.maper.IPayProductMapper;
 import top.mylove7.live.bank.provider.dao.po.PayProductPO;
 import top.mylove7.live.bank.provider.service.IPayProductService;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import top.mylove7.live.bank.vo.PayProductItemVO;
+import top.mylove7.live.bank.vo.PayProductVO;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @Service
@@ -30,36 +31,38 @@ public class PayProductServiceImpl implements IPayProductService {
     @Resource
     private IPayProductMapper payProductMapper;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate redisTemplate;
     @Resource
     private BankProviderCacheKeyBuilder bankProviderCacheKeyBuilder;
+    @Resource
+    private MyCurrencyAccountServiceImpl myCurrencyAccountService;
 
     @Override
-    public List<PayProductDTO> products(Integer type) {
+    public PayProductVO products(Integer type) {
+        PayProductVO payProductVO = new PayProductVO();
         String cacheKey = bankProviderCacheKeyBuilder.buildPayProductCache(type);
-        List<PayProductDTO> cacheList = redisTemplate.opsForList().range(cacheKey, 0, 30).stream().map(x -> {
-            return (PayProductDTO) x;
-        }).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(cacheList)) {
-            //空值缓存
-            if (cacheList.get(0).getId() == null) {
-                return Collections.emptyList();
-            }
-            return cacheList;
+        List  productsList = redisTemplate.opsForList().range(cacheKey, 0, 30);
+
+        if (CollUtil.isNotEmpty(productsList)) {
+            payProductVO.setPayProductItemVOList(productsList);
+            return payProductVO;
         }
-        LambdaQueryWrapper<PayProductPO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PayProductPO::getType, type);
-        queryWrapper.eq(PayProductPO::getValidStatus, CommonStatusEum.VALID_STATUS.getCode());
-        queryWrapper.orderByDesc(PayProductPO::getPrice);
-        List<PayProductDTO> payProductDTOS = ConvertBeanUtils.convertList(payProductMapper.selectList(queryWrapper), PayProductDTO.class);
-        if (CollectionUtils.isEmpty(payProductDTOS)) {
-            redisTemplate.opsForList().leftPush(cacheKey, new PayProductDTO());
-            redisTemplate.expire(cacheKey, 3, TimeUnit.MINUTES);
-            return Collections.emptyList();
+
+
+        List<PayProductPO> payProductPOS = payProductMapper.selectList(new LambdaQueryWrapper<PayProductPO>()
+                .eq(PayProductPO::getType, type)
+                .eq(PayProductPO::getValidStatus, CommonStatusEum.VALID_STATUS.getCode())
+                .orderByDesc(PayProductPO::getPrice));
+        if (CollectionUtils.isEmpty(payProductPOS)) {
+            throw new BizErrorException("没有配置商品");
         }
-        redisTemplate.opsForList().leftPushAll(cacheKey, payProductDTOS.toArray());
-        redisTemplate.expire(cacheKey, 30, TimeUnit.MINUTES);
-        return payProductDTOS;
+
+        List<PayProductItemVO> payProductItemVOS = payProductPOS.parallelStream().map(product -> BeanUtil.copyProperties(product, PayProductItemVO.class)).toList();
+        redisTemplate.opsForList().leftPushAll(cacheKey, payProductItemVOS);
+        redisTemplate.expire(cacheKey, 60, TimeUnit.MINUTES);
+        payProductVO.setPayProductItemVOList(payProductItemVOS);
+        return payProductVO;
+
     }
 
     @Override

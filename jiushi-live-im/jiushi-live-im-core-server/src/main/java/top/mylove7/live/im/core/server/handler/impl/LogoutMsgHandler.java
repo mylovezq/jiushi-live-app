@@ -3,6 +3,7 @@ package top.mylove7.live.im.core.server.handler.impl;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
@@ -29,9 +30,9 @@ import org.springframework.stereotype.Component;
  * @Description
  */
 @Component
+@Slf4j
 public class LogoutMsgHandler implements SimplyHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogoutMsgHandler.class);
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -43,7 +44,7 @@ public class LogoutMsgHandler implements SimplyHandler {
         Long userId = ImContextUtils.getUserId(ctx);
         Long appId = ImContextUtils.getAppId(ctx);
         if (userId == null || appId == null) {
-            LOGGER.error("attr error,imTcpWsDto is {}", imTcpWsDto);
+            log.error("attr error,imTcpWsDto is {}", imTcpWsDto);
             //有可能是错误的消息包导致，直接放弃连接
             ctx.close();
             throw new IllegalArgumentException("attr is error");
@@ -78,7 +79,7 @@ public class LogoutMsgHandler implements SimplyHandler {
      * @param appId
      */
     public void logoutHandler(ChannelHandlerContext ctx, Long userId, Long appId) {
-        LOGGER.info("[LogoutMsgHandler] logout success,userId is {},appId is {}", userId, appId);
+        log.info("[LogoutMsgHandler] logout success,userId is {},appId is {}", userId, appId);
         //理想情况下，客户端断线的时候，会发送一个断线消息包
         ChannelHandlerContextCache.remove(userId);
         stringRedisTemplate.delete(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId);
@@ -105,9 +106,9 @@ public class LogoutMsgHandler implements SimplyHandler {
         message.setBody(JSON.toJSONString(imOfflineDTO).getBytes());
         try {
             SendResult sendResult = mqProducer.send(message);
-            LOGGER.error("[sendLogoutMQ] result im_offline_topic is {}", sendResult);
+            log.error("[sendLogoutMQ] result im_offline_topic is {}", sendResult);
         } catch (Exception e) {
-            LOGGER.error("[sendLogoutMQ] error im_offline_topic is: ", e);
+            log.error("[sendLogoutMQ] error im_offline_topic is: ", e);
         }
     }
 }

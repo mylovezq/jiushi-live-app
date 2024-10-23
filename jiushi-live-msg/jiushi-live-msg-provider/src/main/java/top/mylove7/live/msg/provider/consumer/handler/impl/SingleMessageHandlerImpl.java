@@ -54,6 +54,7 @@ public class SingleMessageHandlerImpl implements MessageHandler {
             reqDTO.setRoomId(chatRoomMessageDTO.getRoomId());
             reqDTO.setAppId(imMsgBodyInTcpWsDto.getAppId());
             List<Long> roodIds = Optional.ofNullable(livingRoomRpc.queryUserIdByRoomId(reqDTO)).orElse(new ArrayList<>());
+            log.info("发送im消息的直播室{}", roodIds);
             //自己不用发
             List<ImMsgBodyInTcpWsDto> imMsgInTcpWsBodies
                     = roodIds

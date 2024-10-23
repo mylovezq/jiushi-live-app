@@ -3,6 +3,7 @@ package top.mylove7.live.im.core.server.handler.impl;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.jiushi.live.framework.redis.starter.key.ImCoreServerProviderCacheKeyBuilder;
@@ -27,9 +28,9 @@ import java.util.concurrent.TimeUnit;
  * @Description
  */
 @Component
+@Slf4j
 public class HeartBeatImMsgHandler implements SimplyHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatImMsgHandler.class);
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -44,7 +45,7 @@ public class HeartBeatImMsgHandler implements SimplyHandler {
         Long userId = ImContextUtils.getUserId(ctx);
         Long appId = ImContextUtils.getAppId(ctx);
         if (userId == null || appId == null) {
-            LOGGER.error("attr error,imTcpWsDto is {}", imTcpWsDto);
+            log.error("attr error,imTcpWsDto is {}", imTcpWsDto);
             //有可能是错误的消息包导致，直接放弃连接
             ctx.close();
             throw new IllegalArgumentException("attr is error");
@@ -61,7 +62,7 @@ public class HeartBeatImMsgHandler implements SimplyHandler {
         msgBody.setAppId(appId);
         msgBody.setData("心跳包处理成功");
         ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(msgBody));
-        //LOGGER.info("[HeartBeatImMsgHandler] imTcpWsDto is {}", imTcpWsDto.toJson());
+        //log.info("[HeartBeatImMsgHandler] imTcpWsDto is {}", imTcpWsDto.toJson());
         ctx.writeAndFlush(respMsg);
     }
 

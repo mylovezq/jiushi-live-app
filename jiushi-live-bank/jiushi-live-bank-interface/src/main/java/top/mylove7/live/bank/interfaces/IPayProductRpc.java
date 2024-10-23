@@ -1,6 +1,7 @@
 package top.mylove7.live.bank.interfaces;
 
 import top.mylove7.live.bank.dto.PayProductDTO;
+import top.mylove7.live.bank.vo.PayProductVO;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface IPayProductRpc {
      *
      * @param type 不同的业务场景所使用的产品
      */
-    List<PayProductDTO> products(Integer type);
+    PayProductVO products(Integer type);
 
 
     /**

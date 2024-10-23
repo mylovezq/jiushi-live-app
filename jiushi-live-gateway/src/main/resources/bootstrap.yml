@@ -22,11 +22,4 @@ spring:
   config:
     import:
       - optional:nacos:jiushi-live-gateway.yaml
-
-
-  main:
-    allow-bean-definition-overriding: true
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    reactor.netty.http.client: DEBUG
+      - optional:nacos:jiushi-live-common.yaml
