@@ -1,4 +1,4 @@
-package top.mylove7.live.im.router.interfaces.constants;
+package top.mylove7.live.msg.constants;
 
 /**
  * @Author jiushi

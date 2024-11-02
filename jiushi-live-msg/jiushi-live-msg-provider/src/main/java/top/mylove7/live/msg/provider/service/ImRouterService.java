@@ -1,4 +1,4 @@
-package top.mylove7.live.im.router.provider.service;
+package top.mylove7.live.msg.provider.service;
 
 
 

@@ -7,9 +7,9 @@ import top.mylove7.live.api.user.vo.UserLoginVO;
 import org.apache.dubbo.config.annotation.DubboReference;
 import top.mylove7.live.account.interfaces.user.IAccountTokenRPC;
 
-import org.qiyu.live.msg.dto.MsgCheckDTO;
-import org.qiyu.live.msg.enums.MsgSendResultEnum;
-import org.qiyu.live.msg.interfaces.ISmsRpc;
+import top.mylove7.live.msg.dto.MsgCheckDTO;
+import top.mylove7.live.msg.enums.MsgSendResultEnum;
+import top.mylove7.live.msg.interfaces.ISmsRpc;
 import top.mylove7.live.common.interfaces.error.ErrorAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

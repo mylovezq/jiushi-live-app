@@ -1,4 +1,4 @@
-package org.qiyu.live.msg.enums;
+package top.mylove7.live.msg.enums;
 
 /**
  * @Author jiushi

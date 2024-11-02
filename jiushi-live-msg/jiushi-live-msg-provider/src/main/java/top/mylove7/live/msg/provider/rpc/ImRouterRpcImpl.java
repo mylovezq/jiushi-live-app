@@ -1,10 +1,11 @@
-package top.mylove7.live.im.router.provider.rpc;
+package top.mylove7.live.msg.provider.rpc;
 
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
+import top.mylove7.live.msg.interfaces.ImRouterRpc;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
-import top.mylove7.live.im.router.interfaces.rpc.ImRouterRpc;
-import top.mylove7.live.im.router.provider.service.ImRouterService;
+import top.mylove7.live.msg.provider.service.ImRouterService;
+
 
 import java.util.List;
 

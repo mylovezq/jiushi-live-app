@@ -20,8 +20,6 @@
     <modules>
         <module>jiushi-live-im-core-server</module>
         <module>jiushi-live-im-core-server-interfaces</module>
-        <module>jiushi-live-im-router-interface</module>
-        <module>jiushi-live-im-router-provider</module>
     </modules>
 
 </project>

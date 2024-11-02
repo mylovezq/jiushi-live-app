@@ -6,9 +6,9 @@ import org.apache.dubbo.config.annotation.DubboReference;
 
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
-import top.mylove7.live.im.router.interfaces.rpc.ImRouterRpc;
-import org.qiyu.live.msg.dto.ChatRoomMessageDTO;
-import top.mylove7.live.im.router.interfaces.constants.ImMsgBizCodeEnum;
+import top.mylove7.live.msg.interfaces.ImRouterRpc;
+import top.mylove7.live.msg.dto.ChatRoomMessageDTO;
+import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
 import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
 import top.mylove7.live.msg.provider.consumer.handler.MessageHandler;

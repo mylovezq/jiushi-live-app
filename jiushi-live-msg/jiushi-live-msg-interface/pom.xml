@@ -8,6 +8,12 @@
     </parent>
     <artifactId>jiushi-live-msg-interface</artifactId>
     <description>消息服务接口管理模块</description>
+    <dependencies>
+        <dependency>
+            <groupId>top.mylove7</groupId>
+            <artifactId>jiushi-live-common-interface</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

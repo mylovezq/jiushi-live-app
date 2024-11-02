@@ -22,11 +22,11 @@ import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.dto.SendGiftMq;
 import top.mylove7.live.common.interfaces.topic.GiftProviderTopicNames;
-import top.mylove7.live.im.router.interfaces.constants.ImMsgBizCodeEnum;
-import top.mylove7.live.im.router.interfaces.rpc.ImRouterRpc;
 import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.dto.LivingRoomRespDTO;
 import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
+import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
+import top.mylove7.live.msg.interfaces.ImRouterRpc;
 
 import java.util.Collections;
 import java.util.List;

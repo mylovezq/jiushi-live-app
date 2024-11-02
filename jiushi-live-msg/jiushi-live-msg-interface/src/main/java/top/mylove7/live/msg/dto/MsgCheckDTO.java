@@ -1,4 +1,4 @@
-package org.qiyu.live.msg.dto;
+package top.mylove7.live.msg.dto;
 
 import java.io.Serial;
 import java.io.Serializable;

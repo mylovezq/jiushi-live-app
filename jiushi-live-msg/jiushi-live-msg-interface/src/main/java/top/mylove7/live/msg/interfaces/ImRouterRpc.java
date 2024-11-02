@@ -1,4 +1,6 @@
-package top.mylove7.live.im.router.interfaces.rpc;
+package top.mylove7.live.msg.interfaces;
+
+
 
 
 

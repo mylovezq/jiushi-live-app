@@ -1,7 +1,7 @@
 package top.mylove7.live.msg.provider.service;
 
-import org.qiyu.live.msg.dto.MsgCheckDTO;
-import org.qiyu.live.msg.enums.MsgSendResultEnum;
+import top.mylove7.live.msg.dto.MsgCheckDTO;
+import top.mylove7.live.msg.enums.MsgSendResultEnum;
 
 /**
  * @Author jiushi

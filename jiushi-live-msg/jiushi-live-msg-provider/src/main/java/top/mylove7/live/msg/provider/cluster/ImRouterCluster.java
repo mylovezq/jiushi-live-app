@@ -1,4 +1,4 @@
-package top.mylove7.live.im.router.provider.cluster;
+package top.mylove7.live.msg.provider.cluster;
 
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.RpcException;
