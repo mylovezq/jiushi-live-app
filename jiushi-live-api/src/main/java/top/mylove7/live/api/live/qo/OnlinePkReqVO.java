@@ -1,26 +1,17 @@
 package top.mylove7.live.api.live.qo;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
 /**
  * @Author jiushi
  *
  * @Description
  */
+@Data
 public class OnlinePkReqVO {
 
-    private Integer roomId;
+    @NotNull(message = "房间id不能为空")
+    private Long roomId;
 
-    public Integer getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Integer roomId) {
-        this.roomId = roomId;
-    }
-
-    @Override
-    public String toString() {
-        return "OnlinePkReqVO{" +
-                "roomId=" + roomId +
-                '}';
-    }
 }

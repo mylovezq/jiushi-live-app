@@ -30,7 +30,6 @@ public class LivingRoomController {
 
     @PostMapping("/list")
     public WebResponseVO list(@RequestBody @Validated LivingRoomReqQo livingRoomReqQo) {
-        ErrorAssert.isTure(livingRoomReqQo != null && livingRoomReqQo.getType() != null, BizBaseErrorEnum.PARAM_ERROR);
         ErrorAssert.isTure(livingRoomReqQo.getPage() > 0 && livingRoomReqQo.getPageSize() <= 100, BizBaseErrorEnum.PARAM_ERROR);
         return WebResponseVO.success(livingRoomService.list(livingRoomReqQo));
     }
@@ -47,8 +46,7 @@ public class LivingRoomController {
 
     @PostMapping("/onlinePk")
     @RequestLimit(limit = 1,second = 3)
-    public WebResponseVO onlinePk(OnlinePkReqVO onlinePkReqVO) {
-        ErrorAssert.isNotNull(onlinePkReqVO.getRoomId(), BizBaseErrorEnum.PARAM_ERROR);
+    public WebResponseVO onlinePk(@RequestBody @Validated OnlinePkReqVO onlinePkReqVO) {
         return WebResponseVO.success(livingRoomService.onlinePk(onlinePkReqVO));
     }
 

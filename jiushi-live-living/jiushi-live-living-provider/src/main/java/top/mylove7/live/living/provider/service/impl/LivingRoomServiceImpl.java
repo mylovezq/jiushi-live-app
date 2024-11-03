@@ -1,5 +1,6 @@
 package top.mylove7.live.living.provider.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
@@ -201,10 +202,11 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             List<Long> userIdList = this.queryUserIdByRoomId(livingRoomReqDTO);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("pkObjId", livingRoomReqDTO.getPkObjId());
+            jsonObject.put("roomId", livingRoomReqDTO.getRoomId());
             jsonObject.put("pkObjAvatar", "https://picdm.sunbangyan.cn/2023/08/29/w2qq1k.jpeg");
-            batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_PK_ONLINE.getCode(), jsonObject);
+            this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_PK_ONLINE.getCode(), jsonObject,livingRoomReqDTO.getPkObjId());
             respDTO.setMsg("连线成功");
-            respDTO.setOnlineStatus(false);
+            respDTO.setOnlineStatus(true);
         } else {
             respDTO.setMsg("目前有人在线，请稍后再试");
         }
@@ -217,12 +219,13 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         return redisTemplate.delete(cacheKey);
     }
 
-    private void batchSendImMsg(List<Long> userIdList, int bizCode, JSONObject jsonObject) {
+    private void batchSendImMsg(List<Long> userIdList, int bizCode, JSONObject jsonObject, Long pkObjId) {
         List<ImMsgBodyInTcpWsDto> imMsgBodies = userIdList.stream().map(userId -> {
             ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
             imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBodyInTcpWsDto.setBizCode(bizCode);
             imMsgBodyInTcpWsDto.setToUserId(userId);
+            imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());

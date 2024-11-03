@@ -2,6 +2,7 @@ package top.mylove7.live.living.provider.config;
 
 import jakarta.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.living.interfaces.constants.LivingRoomTypeEnum;
 import top.mylove7.live.living.interfaces.dto.LivingRoomRespDTO;
@@ -25,9 +26,10 @@ import java.util.concurrent.TimeUnit;
  * @Description
  */
 @Configuration
+@Slf4j
 public class RefreshLivingRoomListJob implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RefreshLivingRoomListJob.class);
+
 
     @Resource
     private ILivingRoomService livingRoomService;
@@ -52,10 +54,10 @@ public class RefreshLivingRoomListJob implements InitializingBean {
             //这把锁等它自动过期
             boolean lockStatus = redisTemplate.opsForValue().setIfAbsent(cacheKey, 1, 1, TimeUnit.SECONDS);
             if (lockStatus) {
-                LOGGER.debug("[RefreshLivingRoomListJob] starting 加载db中记录的直播间进redis里");
+                log.debug("[RefreshLivingRoomListJob] starting 加载db中记录的直播间进redis里");
                 refreshDBToRedis(LivingRoomTypeEnum.DEFAULT_LIVING_ROOM.getCode());
                 refreshDBToRedis(LivingRoomTypeEnum.PK_LIVING_ROOM.getCode());
-                LOGGER.debug("[RefreshLivingRoomListJob] end 加载db中记录的直播间进redis里");
+                log.debug("[RefreshLivingRoomListJob] end 加载db中记录的直播间进redis里");
             }
         }
     }

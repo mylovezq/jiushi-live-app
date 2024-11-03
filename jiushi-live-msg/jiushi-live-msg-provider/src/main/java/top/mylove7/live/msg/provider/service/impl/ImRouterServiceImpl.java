@@ -1,5 +1,6 @@
 package top.mylove7.live.msg.provider.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.rpc.RpcContext;
@@ -45,6 +46,9 @@ public class ImRouterServiceImpl implements ImRouterService {
 
     @Override
     public void batchSendMsg(List<ImMsgBodyInTcpWsDto> imMsgBodyInTcpWsDtoList) {
+        if (CollUtil.isEmpty(imMsgBodyInTcpWsDtoList)){
+            throw new RuntimeException("直播间过期，请重新进入");
+        }
         Long appId = imMsgBodyInTcpWsDtoList.get(0).getAppId();
         //根据userId 将不同的userId的immsgbody分类存入map
         Map<String, ImMsgBodyInTcpWsDto> userIdMsgMap

@@ -1,5 +1,7 @@
 package top.mylove7.live.living.interfaces.dto;
 
+import lombok.Data;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -8,6 +10,7 @@ import java.io.Serializable;
  *
  * @Description
  */
+@Data
 public class LivingPkRespDTO implements Serializable {
 
     @Serial
@@ -15,19 +18,4 @@ public class LivingPkRespDTO implements Serializable {
     private boolean onlineStatus;
     private String msg;
 
-    public boolean isOnlineStatus() {
-        return onlineStatus;
-    }
-
-    public void setOnlineStatus(boolean onlineStatus) {
-        this.onlineStatus = onlineStatus;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 }

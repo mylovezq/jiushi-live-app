@@ -1,5 +1,6 @@
 package top.mylove7.live.api.live.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import top.mylove7.live.api.live.service.ILivingRoomService;
 import top.mylove7.live.common.interfaces.error.ApiErrorEnum;
 import top.mylove7.live.api.live.vo.LivingRoomInitVO;
@@ -65,7 +66,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
 
     @Override
     public boolean onlinePk(OnlinePkReqVO onlinePkReqVO) {
-        LivingRoomReqDTO reqDTO = ConvertBeanUtils.convert(onlinePkReqVO,LivingRoomReqDTO.class);
+        LivingRoomReqDTO reqDTO = BeanUtil.copyProperties(onlinePkReqVO, LivingRoomReqDTO.class);
         reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
         reqDTO.setPkObjId(JiushiLoginRequestContext.getUserId());
         LivingPkRespDTO tryOnlineStatus = livingRoomRpc.onlinePk(reqDTO);
@@ -103,6 +104,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             respVO.setAnchorId(respDTO.getAnchorId());
             respVO.setAnchor(respDTO.getAnchorId().equals(userId));
         }
+        //
         respVO.setDefaultBgImg("https://picst.sunbangyan.cn/2023/08/29/waxzj0.png");
         return respVO;
     }
