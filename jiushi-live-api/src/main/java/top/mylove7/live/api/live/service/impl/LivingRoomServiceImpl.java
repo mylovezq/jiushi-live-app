@@ -3,7 +3,7 @@ package top.mylove7.live.api.live.service.impl;
 import top.mylove7.live.api.live.service.ILivingRoomService;
 import top.mylove7.live.common.interfaces.error.ApiErrorEnum;
 import top.mylove7.live.api.live.vo.LivingRoomInitVO;
-import top.mylove7.live.api.live.qo.LivingRoomReqVO;
+import top.mylove7.live.api.live.qo.LivingRoomReqQo;
 import top.mylove7.live.api.live.qo.OnlinePkReqVO;
 import top.mylove7.live.api.live.vo.LivingRoomPageRespVO;
 import top.mylove7.live.api.live.vo.LivingRoomRespVO;
@@ -43,8 +43,8 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     private ILivingRoomRpc livingRoomRpc;
 
     @Override
-    public LivingRoomPageRespVO list(LivingRoomReqVO livingRoomReqVO) {
-        PageWrapper<LivingRoomRespDTO> resultPage = livingRoomRpc.list(ConvertBeanUtils.convert(livingRoomReqVO,LivingRoomReqDTO.class));
+    public LivingRoomPageRespVO list(LivingRoomReqQo livingRoomReqQo) {
+        PageWrapper<LivingRoomRespDTO> resultPage = livingRoomRpc.list(ConvertBeanUtils.convert(livingRoomReqQo,LivingRoomReqDTO.class));
         LivingRoomPageRespVO livingRoomPageRespVO = new LivingRoomPageRespVO();
         livingRoomPageRespVO.setList(ConvertBeanUtils.convertList(resultPage.getList(), LivingRoomRespVO.class));
         livingRoomPageRespVO.setHasNext(resultPage.isHasNext());

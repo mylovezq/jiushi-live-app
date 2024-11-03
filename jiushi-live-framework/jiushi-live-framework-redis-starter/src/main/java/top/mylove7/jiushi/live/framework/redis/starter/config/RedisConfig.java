@@ -5,6 +5,7 @@ import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +46,14 @@ public class RedisConfig {
             String redissonAddr = "redis://" + hostName + ":" + port;
             Config config = new Config();
             config.setCodec(new JsonJacksonCodec(new ObjectMapper()));
-            config.useSingleServer().setAddress(redissonAddr).setPassword(password);
+            SingleServerConfig singleServerConfig = config.useSingleServer()
+                    .setAddress(redissonAddr)
+                    .setPassword(password);
+            // 设置连接超时时间和命令执行超时时间
+            singleServerConfig.setTimeout(10000); // 连接超时时间，单位为毫秒
+            singleServerConfig.setConnectionPoolSize(50); // 连接池大小
+            singleServerConfig.setConnectionMinimumIdleSize(10); // 最小空闲连接数
+
             return Redisson.create(config);
 
         }

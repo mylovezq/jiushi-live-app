@@ -8,4 +8,10 @@
     </parent>
     <artifactId>jiushi-live-bank-interface</artifactId>
     <description>钱包体系相关interface</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+    </dependencies>
 </project>

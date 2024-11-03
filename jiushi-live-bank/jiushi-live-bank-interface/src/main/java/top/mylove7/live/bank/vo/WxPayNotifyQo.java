@@ -8,9 +8,9 @@ import lombok.Data;
  * @Description
  */
 @Data
-public class PayProductRespVO {
+public class WxPayNotifyQo {
 
     private String orderId;
-
-
+    private Long userId;
+    private Integer bizCode;
 }

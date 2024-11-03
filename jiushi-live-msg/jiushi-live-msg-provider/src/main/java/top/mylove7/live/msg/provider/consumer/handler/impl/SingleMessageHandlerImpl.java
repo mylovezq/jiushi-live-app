@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SingleMessageHandlerImpl implements MessageHandler {
 
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SingleMessageHandlerImpl.class);
 
     @DubboReference
     private ImRouterRpc routerRpc;
@@ -41,7 +40,7 @@ public class SingleMessageHandlerImpl implements MessageHandler {
     @Override
     public void onMsgReceive(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
         int bizCode = imMsgBodyInTcpWsDto.getBizCode();
-        LOGGER.info("im消息-msg-provider服务收到消息，消息内容：{}", imMsgBodyInTcpWsDto);
+        log.info("im消息-msg-provider服务收到消息，消息内容：{}", imMsgBodyInTcpWsDto);
         //直播间的聊天消息
         if (ImMsgBizCodeEnum.LIVING_ROOM_IM_CHAT_MSG_BIZ.getCode() == bizCode) {
             //一个人发送 n个人接收

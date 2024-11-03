@@ -2,6 +2,9 @@ package top.mylove7.live.bank.interfaces;
 
 
 import top.mylove7.live.bank.dto.PayOrderDTO;
+import top.mylove7.live.bank.qo.PayProductReqQo;
+import top.mylove7.live.bank.vo.PayProductRespVO;
+import top.mylove7.live.bank.vo.WxPayNotifyQo;
 
 /**
  * @Author jiushi
@@ -13,9 +16,9 @@ public interface IPayOrderRpc {
     /**
      * 插入订单
      *
-     * @param payOrderDTO
+     * @param payProductReqQo
      */
-    String insertOne(PayOrderDTO payOrderDTO);
+    PayProductRespVO payProduct(PayProductReqQo payProductReqQo);
 
 
     /**
@@ -38,8 +41,8 @@ public interface IPayOrderRpc {
     /**
      * 支付回调需要请求该接口
      *
-     * @param payOrderDTO
+     * @param wxPayNotifyQo
      * @return
      */
-    boolean payNotify(PayOrderDTO payOrderDTO);
+    boolean payNotify(WxPayNotifyQo wxPayNotifyQo);
 }

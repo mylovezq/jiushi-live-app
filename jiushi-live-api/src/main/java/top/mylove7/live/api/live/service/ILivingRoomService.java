@@ -1,7 +1,7 @@
 package top.mylove7.live.api.live.service;
 
 import top.mylove7.live.api.live.vo.LivingRoomInitVO;
-import top.mylove7.live.api.live.qo.LivingRoomReqVO;
+import top.mylove7.live.api.live.qo.LivingRoomReqQo;
 import top.mylove7.live.api.live.qo.OnlinePkReqVO;
 import top.mylove7.live.api.live.vo.LivingRoomPageRespVO;
 
@@ -15,10 +15,10 @@ public interface ILivingRoomService {
     /**
      * 直播间列表展示
      *
-     * @param livingRoomReqVO
+     * @param livingRoomReqQo
      * @return
      */
-    LivingRoomPageRespVO list(LivingRoomReqVO livingRoomReqVO);
+    LivingRoomPageRespVO list(LivingRoomReqQo livingRoomReqQo);
 
     /**
      * 开启直播间

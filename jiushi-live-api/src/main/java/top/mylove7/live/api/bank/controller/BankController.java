@@ -2,10 +2,9 @@ package top.mylove7.live.api.bank.controller;
 
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import top.mylove7.live.api.bank.PayProductReqQo;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import top.mylove7.live.bank.qo.PayProductReqQo;
 import top.mylove7.live.api.bank.service.IBankService;
 import top.mylove7.live.bank.interfaces.ICurrencyAccountRpc;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
@@ -31,8 +30,7 @@ public class BankController {
 
 
     @PostMapping("/products")
-    public WebResponseVO products(Integer type) {
-        ErrorAssert.isNotNull(type, BizBaseErrorEnum.PARAM_ERROR);
+    public WebResponseVO products(@RequestParam Integer type) {
         return WebResponseVO.success(bankService.products(type));
     }
 
@@ -43,7 +41,7 @@ public class BankController {
     // 可以根据业务标识去回调不同的业务服务（自定义参数组成中，塞入一个业务code，根据业务code去回调不同的业务服务）
 
     @PostMapping("/payProduct")
-    public WebResponseVO payProduct(PayProductReqQo payProductReqVO) {
+    public WebResponseVO payProduct(@RequestBody @Validated PayProductReqQo payProductReqVO) {
         return WebResponseVO.success(bankService.payProduct(payProductReqVO));
     }
 

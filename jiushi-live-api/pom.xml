@@ -75,7 +75,6 @@
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-bank-interface</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>

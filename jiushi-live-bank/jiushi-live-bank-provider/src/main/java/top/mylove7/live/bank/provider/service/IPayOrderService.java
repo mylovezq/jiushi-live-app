@@ -3,6 +3,9 @@ package top.mylove7.live.bank.provider.service;
 
 import top.mylove7.live.bank.dto.PayOrderDTO;
 import top.mylove7.live.bank.provider.dao.po.PayOrderPO;
+import top.mylove7.live.bank.qo.PayProductReqQo;
+import top.mylove7.live.bank.vo.PayProductRespVO;
+import top.mylove7.live.bank.vo.WxPayNotifyQo;
 
 /**
  * @Author jiushi
@@ -46,8 +49,10 @@ public interface IPayOrderService {
     /**
      * 支付回调需要请求该接口
      *
-     * @param payOrderDTO
+     * @param wxPayNotifyQo
      * @return
      */
-    boolean payNotify(PayOrderDTO payOrderDTO);
+    boolean payNotify(WxPayNotifyQo wxPayNotifyQo);
+
+    PayProductRespVO payProduct(PayProductReqQo payProductReqQo);
 }

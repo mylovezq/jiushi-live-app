@@ -1,5 +1,7 @@
 package top.mylove7.live.api.bank.service;
 
+import top.mylove7.live.bank.vo.WxPayNotifyQo;
+
 /**
  * @Author jiushi
  *
@@ -8,5 +10,5 @@ package top.mylove7.live.api.bank.service;
 public interface IPayNotifyService {
 
 
-    String notifyHandler(String paramJson);
+    String notifyHandler(WxPayNotifyQo wxPayNotifyQo);
 }

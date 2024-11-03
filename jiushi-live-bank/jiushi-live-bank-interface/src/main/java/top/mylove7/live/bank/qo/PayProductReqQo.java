@@ -1,6 +1,7 @@
-package top.mylove7.live.api.bank;
+package top.mylove7.live.bank.qo;
 
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import top.mylove7.live.bank.constants.PayChannelEnum;
 import top.mylove7.live.bank.constants.PaySourceEnum;
@@ -11,17 +12,20 @@ import top.mylove7.live.bank.constants.PaySourceEnum;
  * @Description
  */
 @Data
-public class PayProductReqQo {
+public class  PayProductReqQo {
 
     /**
      * 产品id
      */
+
+    @NotNull(message = "产品id不能为空")
     private Integer productId;
 
     /**
      * 支付来源 (直播间，个人中心，聊天页面，第三方宣传页面，广告弹窗引导)
      * @see PaySourceEnum
      */
+    @NotNull(message = "支付来源不能为空")
     private Integer paySource;
 
     /**
@@ -29,6 +33,8 @@ public class PayProductReqQo {
      * @see PayChannelEnum
      */
     private Integer payChannel;
+
+    private Long userId;
 
 
 }

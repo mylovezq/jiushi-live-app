@@ -1,9 +1,11 @@
 package top.mylove7.live.api.live.controller;
 
 import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import top.mylove7.live.api.live.service.ILivingRoomService;
 import top.mylove7.live.api.live.vo.LivingRoomInitVO;
-import top.mylove7.live.api.live.qo.LivingRoomReqVO;
+import top.mylove7.live.api.live.qo.LivingRoomReqQo;
 import top.mylove7.live.api.live.qo.OnlinePkReqVO;
 import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
 import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
@@ -27,10 +29,10 @@ public class LivingRoomController {
     private ILivingRoomService livingRoomService;
 
     @PostMapping("/list")
-    public WebResponseVO list(LivingRoomReqVO livingRoomReqVO) {
-        ErrorAssert.isTure(livingRoomReqVO != null && livingRoomReqVO.getType() != null, BizBaseErrorEnum.PARAM_ERROR);
-        ErrorAssert.isTure(livingRoomReqVO.getPage() > 0 && livingRoomReqVO.getPageSize() <= 100, BizBaseErrorEnum.PARAM_ERROR);
-        return WebResponseVO.success(livingRoomService.list(livingRoomReqVO));
+    public WebResponseVO list(@RequestBody @Validated LivingRoomReqQo livingRoomReqQo) {
+        ErrorAssert.isTure(livingRoomReqQo != null && livingRoomReqQo.getType() != null, BizBaseErrorEnum.PARAM_ERROR);
+        ErrorAssert.isTure(livingRoomReqQo.getPage() > 0 && livingRoomReqQo.getPageSize() <= 100, BizBaseErrorEnum.PARAM_ERROR);
+        return WebResponseVO.success(livingRoomService.list(livingRoomReqQo));
     }
 
     @RequestLimit(limit = 1, second = 10, msg = "开播请求过于频繁，请稍后再试")

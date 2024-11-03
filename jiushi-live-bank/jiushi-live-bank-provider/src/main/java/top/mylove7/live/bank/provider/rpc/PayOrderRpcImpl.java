@@ -7,6 +7,9 @@ import top.mylove7.live.bank.dto.PayOrderDTO;
 import top.mylove7.live.bank.interfaces.IPayOrderRpc;
 import top.mylove7.live.bank.provider.dao.po.PayOrderPO;
 import top.mylove7.live.bank.provider.service.IPayOrderService;
+import top.mylove7.live.bank.qo.PayProductReqQo;
+import top.mylove7.live.bank.vo.PayProductRespVO;
+import top.mylove7.live.bank.vo.WxPayNotifyQo;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
 
 /**
@@ -20,9 +23,10 @@ public class PayOrderRpcImpl implements IPayOrderRpc {
     @Resource
     private IPayOrderService payOrderService;
 
+
     @Override
-    public String insertOne(PayOrderDTO payOrderDTO) {
-        return payOrderService.insertOne(ConvertBeanUtils.convert(payOrderDTO, PayOrderPO.class));
+    public PayProductRespVO payProduct(PayProductReqQo payProductReqQo) {
+        return payOrderService.payProduct(payProductReqQo);
     }
 
     @Override
@@ -36,7 +40,7 @@ public class PayOrderRpcImpl implements IPayOrderRpc {
     }
 
     @Override
-    public boolean payNotify(PayOrderDTO payOrderDTO) {
-        return payOrderService.payNotify(payOrderDTO);
+    public boolean payNotify(WxPayNotifyQo wxPayNotifyQo) {
+        return payOrderService.payNotify(wxPayNotifyQo);
     }
 }
