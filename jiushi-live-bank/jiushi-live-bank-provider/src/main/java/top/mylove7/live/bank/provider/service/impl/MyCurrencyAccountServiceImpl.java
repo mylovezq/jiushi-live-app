@@ -68,6 +68,7 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
      * @param num
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void decr(long userId, int num) {
         this.consumeDecrDBHandler(userId, num);
         log.info("消费扣减成功{}", num);
@@ -126,7 +127,7 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
         //流水记录
         //更新db，插入db
         if (!currencyAccountMapper.decr(userId, num)) {
-            log.info("扣减异常,可能使余额不足");
+            log.info("扣减异常,可能余额不足");
             throw new BizErrorException("扣减异常");
         }
         currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
