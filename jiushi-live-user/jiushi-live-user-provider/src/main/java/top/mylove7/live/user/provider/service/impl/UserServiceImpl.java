@@ -1,5 +1,6 @@
 package top.mylove7.live.user.provider.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import jakarta.annotation.Resource;
@@ -62,11 +63,12 @@ public class UserServiceImpl implements IUserService {
         if (userDTO != null) {
             return userDTO;
         }
-        userDTO = ConvertBeanUtils.convert(userMapper.selectById(userId), UserDTO.class);
-        if (userDTO != null) {
+        UserPO userPO = userMapper.selectById(userId);
+        if (userPO != null) {
             redisTemplate.opsForValue().set(key, userDTO, 30, TimeUnit.MINUTES);
         }
-        return userDTO;
+        return BeanUtil.copyProperties(userPO, UserDTO.class);
+
     }
 
     @Override

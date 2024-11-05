@@ -10,11 +10,11 @@ import lombok.Data;
  * @Description
  */
 @Data
-public class WebResponseVO {
+public class WebResponseVO<T> {
 
     private int code;
     private String msg;
-    private Object data;
+    private T data;
 
 
     public static WebResponseVO bizError(String msg) {
@@ -66,7 +66,7 @@ public class WebResponseVO {
         return webResponseVO;
     }
 
-    public static WebResponseVO success(Object data) {
+    public static <T> WebResponseVO success(T data) {
         WebResponseVO webResponseVO = new WebResponseVO();
         webResponseVO.setData(data);
         webResponseVO.setCode(200);

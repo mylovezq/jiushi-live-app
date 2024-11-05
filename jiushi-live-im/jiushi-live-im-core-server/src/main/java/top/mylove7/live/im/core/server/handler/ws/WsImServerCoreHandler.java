@@ -30,8 +30,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class WsImServerCoreHandler extends SimpleChannelInboundHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsImServerCoreHandler.class);
-
     @Resource
     private ImHandlerFactory imHandlerFactory;
     @Resource
@@ -65,7 +63,7 @@ public class WsImServerCoreHandler extends SimpleChannelInboundHandler {
 
         //如果不是文本消息，统一后台不会处理
         if (!(msg instanceof TextWebSocketFrame)) {
-            LOGGER.error(String.format("[WebsocketCoreHandler]  wsMsgHandler , %s msg types not supported", msg.getClass().getName()));
+            log.error(String.format("[WebsocketCoreHandler]  wsMsgHandler , %s msg types not supported", msg.getClass().getName()));
             return;
         }
         try {
@@ -80,7 +78,7 @@ public class WsImServerCoreHandler extends SimpleChannelInboundHandler {
             imHandlerFactory.doMsgHandler(ctx, imTcpWsDto);
 
         } catch (Exception e) {
-            LOGGER.error("[WebsocketCoreHandler] wsMsgHandler error is:", e);
+            log.error("[WebsocketCoreHandler] wsMsgHandler error is:", e);
         }
 
     }

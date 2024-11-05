@@ -67,7 +67,7 @@ public class LivingRoomController {
      * @return
      */
     @PostMapping("/anchorConfig")
-    public WebResponseVO anchorConfig(Long roomId) {
+    public WebResponseVO<LivingRoomInitVO> anchorConfig(Long roomId) {
         return WebResponseVO.success(livingRoomService.anchorConfig(JiushiLoginRequestContext.getUserId(), roomId));
     }
 

@@ -96,7 +96,7 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
     private boolean checkOrAddImMsgRecord(ImMsgBodyInTcpWsDto imMsg) {
         Long roomId = JSON.parseObject(imMsg.getData()).getLong("roomId");
         String hadSendMsgKey = cacheKeyBuilder.buildHadSendMsgKey(imMsg.getAppId(), roomId, imMsg.getToUserId());
-        ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsg.getFromMsgId());
+        ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsg.getMsgId());
 
         if (imAckDto != null && imAckDto.getRetryTime() > 3 ) {
             log.info("该消息达到最大发送次数");
@@ -110,11 +110,11 @@ public class RouterHandlerServiceImpl implements IRouterHandlerService {
             imAckDto = new ImAckDto();
             imAckDto.setRetryTime(0);
             imAckDto.setHadAck(false);
-            redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getFromMsgId(), imAckDto);
+            redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getMsgId(), imAckDto);
             return true;
         }
         imAckDto.setRetryTime(imAckDto.getRetryTime() + 1);
-        redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getFromMsgId(), imAckDto);
+        redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getMsgId(), imAckDto);
         redisTemplate.expire(hadSendMsgKey, 12, TimeUnit.HOURS);
         return true;
 

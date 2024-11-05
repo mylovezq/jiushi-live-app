@@ -1,3 +1,4 @@
 top.mylove7.jiushi.live.web.starter.config.WebConfig
 top.mylove7.jiushi.live.web.starter.config.GlobalExceptionHandler
 top.mylove7.jiushi.live.web.starter.config.RestTemplateConfig
+top.mylove7.jiushi.live.web.starter.config.CustomJsonConfiguration

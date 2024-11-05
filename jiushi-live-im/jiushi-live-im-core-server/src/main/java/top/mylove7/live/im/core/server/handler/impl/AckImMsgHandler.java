@@ -40,6 +40,7 @@ public class AckImMsgHandler implements SimplyHandler {
         }
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSON.parseObject(imTcpWsDto.getBody(), ImMsgBodyInTcpWsDto.class);
         imMsgBodyInTcpWsDto.setToUserId(userId);
+
         msgAckCheckService.doMsgAck(imMsgBodyInTcpWsDto,roomId);
     }
 }

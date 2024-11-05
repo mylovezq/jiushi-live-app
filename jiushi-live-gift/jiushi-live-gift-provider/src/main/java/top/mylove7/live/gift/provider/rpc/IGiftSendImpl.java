@@ -77,8 +77,6 @@ public class IGiftSendImpl implements IGiftSendRpc {
     @Override
     public void sendGift(GiftReqQo giftReqQo) {
         int giftId = giftReqQo.getGiftId();
-        LivingRoomRespDTO livingRoomRespDTO = livingRoomRpc.queryByRoomId(giftReqQo.getRoomId());
-        giftReqQo.setReceiverId(livingRoomRespDTO.getId());
         GiftConfigDTO giftConfigDTO = giftConfigService.getByGiftId(giftId);
         ErrorAssert.isNotNull(giftConfigDTO, ApiErrorEnum.GIFT_CONFIG_ERROR);
         ErrorAssert.isTure(!giftReqQo.getReceiverId().equals(giftReqQo.getSenderUserId()), ApiErrorEnum.NOT_SEND_TO_YOURSELF);
@@ -178,6 +176,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
         jsonObject.put("receiverId", sendGiftMq.getReceiverId());
         jsonObject.put("sendGiftSeqNum", sendGiftSeqNum);
         jsonObject.put("pkNum", pkNum);
+        jsonObject.put("roomId", sendGiftMq.getRoomId());
         jsonObject.put("url", sendGiftMq.getUrl());
         LivingRoomReqDTO livingRoomReqDTO = new LivingRoomReqDTO();
         livingRoomReqDTO.setRoomId(roomId);
@@ -208,7 +207,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
             imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBodyInTcpWsDto.setBizCode(imMsgBizCodeEnum.getCode());
             imMsgBodyInTcpWsDto.setToUserId(userId);
-            imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
+            imMsgBodyInTcpWsDto.setMsgId(UUID.fastUUID().toString());
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());
@@ -218,7 +217,7 @@ public class IGiftSendImpl implements IGiftSendRpc {
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();
         imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
         imMsgBodyInTcpWsDto.setBizCode(bizCode);
-        imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
+        imMsgBodyInTcpWsDto.setMsgId(UUID.fastUUID().toString());
         imMsgBodyInTcpWsDto.setToUserId(userId);
         imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
         routerRpc.sendMsg(imMsgBodyInTcpWsDto);

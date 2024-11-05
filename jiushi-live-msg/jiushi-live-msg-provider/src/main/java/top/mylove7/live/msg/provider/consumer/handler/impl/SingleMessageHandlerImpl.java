@@ -61,7 +61,6 @@ public class SingleMessageHandlerImpl implements MessageHandler {
                     .filter(userId -> !Objects.equals(imMsgBodyInTcpWsDto.getFromUserId(), userId))
                     .map(toUserId -> {
                         ImMsgBodyInTcpWsDto respMsg = new ImMsgBodyInTcpWsDto();
-                        respMsg.setFromMsgId(imMsgBodyInTcpWsDto.getFromMsgId());
                         respMsg.setToUserId(toUserId);
                         respMsg.setFromUserId(imMsgBodyInTcpWsDto.getFromUserId());
                         respMsg.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());

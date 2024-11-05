@@ -32,6 +32,8 @@ import top.mylove7.live.living.provider.service.ILivingRoomService;
 import top.mylove7.live.living.provider.service.ILivingRoomTxService;
 import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
 import top.mylove7.live.msg.interfaces.ImRouterRpc;
+import top.mylove7.live.user.dto.UserDTO;
+import top.mylove7.live.user.interfaces.IUserRpc;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +64,8 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     private ILivingRoomTxService livingRoomTxService;
     @DubboReference
     private ImRouterRpc imRouterRpc;
+    @DubboReference
+    private IUserRpc userRpc;
 
     @Override
     public List<Long> queryUserIdByRoomId(LivingRoomReqDTO livingRoomReqDTO) {
@@ -184,7 +188,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     public Long queryOnlinePkUserId(Long roomId) {
         String cacheKey = cacheKeyBuilder.buildLivingOnlinePk(roomId);
         Object userId = redisTemplate.opsForValue().get(cacheKey);
-        return userId != null ? Long.valueOf((int) userId) : null;
+        return userId != null ? Long.valueOf(userId + "") : null;
     }
 
     @Override
@@ -201,9 +205,10 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         if (tryOnline) {
             List<Long> userIdList = this.queryUserIdByRoomId(livingRoomReqDTO);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("pkObjId", livingRoomReqDTO.getPkObjId());
+            UserDTO byUserId = userRpc.getByUserId(livingRoomReqDTO.getPkObjId());
+            jsonObject.put("pkObjId", livingRoomReqDTO.getPkObjId() + "");
             jsonObject.put("roomId", livingRoomReqDTO.getRoomId());
-            jsonObject.put("pkObjAvatar", "https://picdm.sunbangyan.cn/2023/08/29/w2qq1k.jpeg");
+            jsonObject.put("pkObjAvatar", byUserId.getAvatar());
             this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_PK_ONLINE.getCode(), jsonObject,livingRoomReqDTO.getPkObjId());
             respDTO.setMsg("连线成功");
             respDTO.setOnlineStatus(true);
@@ -225,7 +230,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             imMsgBodyInTcpWsDto.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBodyInTcpWsDto.setBizCode(bizCode);
             imMsgBodyInTcpWsDto.setToUserId(userId);
-            imMsgBodyInTcpWsDto.setFromMsgId(UUID.fastUUID().toString());
+            imMsgBodyInTcpWsDto.setMsgId(UUID.fastUUID().toString());
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());

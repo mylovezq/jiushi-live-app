@@ -43,14 +43,13 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
     @Override
     public void doMsgAck(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto, Long roomId) {
         String hadSendMsgKey = cacheKeyBuilder.buildHadSendMsgKey(imMsgBodyInTcpWsDto.getAppId(), roomId, imMsgBodyInTcpWsDto.getToUserId());
-        Assert.notNull(imMsgBodyInTcpWsDto.getFromMsgId(), "参数异常 fromMsgId is null");
-        ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsgBodyInTcpWsDto.getFromMsgId());
+        ImAckDto imAckDto = (ImAckDto) redisTemplate.opsForHash().get(hadSendMsgKey, imMsgBodyInTcpWsDto.getMsgId());
         if (imAckDto == null){
             log.error("没有该消息{}",hadSendMsgKey+":"+imMsgBodyInTcpWsDto.getMsgId());
             return;
         }
         imAckDto.setHadAck(true);
-        redisTemplate.opsForHash().put(hadSendMsgKey, imMsgBodyInTcpWsDto.getFromMsgId(), imAckDto);
+        redisTemplate.opsForHash().put(hadSendMsgKey, imMsgBodyInTcpWsDto.getMsgId(), imAckDto);
 
     }
 

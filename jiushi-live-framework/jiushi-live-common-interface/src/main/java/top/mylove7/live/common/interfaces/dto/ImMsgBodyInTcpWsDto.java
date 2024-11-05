@@ -43,10 +43,7 @@ public class ImMsgBodyInTcpWsDto implements Serializable {
      * 来源用户
      */
     private Long fromUserId;
-    /**
-     * 来源的消息id唯一
-     */
-    private String fromMsgId;
+
 
     /**
      * 和业务服务进行消息传递
