@@ -1,5 +1,6 @@
 package top.mylove7.live.im.core.server.starter;
 
+import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.nacos.api.PropertyKeyConst;
@@ -99,7 +100,7 @@ public class WsNettyImServerStarter implements InitializingBean {
         properties.setProperty(PropertyKeyConst.SERVER_ADDR, nacosDiscoveryProperties.getServerAddr());
         properties.setProperty(PropertyKeyConst.NAMESPACE, nacosDiscoveryProperties.getNamespace());
         NamingService namingService = NamingFactory.createNamingService(properties);
-        String hostAddress = InetAddress.getLocalHost().getHostAddress();
+        String hostAddress = NetUtil.getLocalhostStr();
         namingService.registerInstance(applicationName + "-ws",hostAddress, wsPort);
         ChannelHandlerContextCache.setWsIpAddress(hostAddress + ":" + wsPort);
 
@@ -109,8 +110,8 @@ public class WsNettyImServerStarter implements InitializingBean {
         //获取im的服务注册ip和暴露端口
         String registryIpEnv = environment.getProperty("DUBBO_IP_TO_REGISTRY");
         if (StrUtil.isBlank(registryIpEnv)){
-            InetAddress localHost = InetAddress.getLocalHost();
-            registryIpEnv = localHost.getHostAddress();
+
+            registryIpEnv = NetUtil.getLocalhostStr();
         }
         String registryPortEnv = environment.getProperty("DUBBO_PORT_TO_REGISTRY");
 

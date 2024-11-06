@@ -9,10 +9,9 @@ import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.msg.interfaces.ImRouterRpc;
 import top.mylove7.live.msg.dto.ChatRoomMessageDTO;
 import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
-import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
-import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
+import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
+import top.mylove7.live.living.interfaces.room.rpc.ILivingRoomRpc;
 import top.mylove7.live.msg.provider.consumer.handler.MessageHandler;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 

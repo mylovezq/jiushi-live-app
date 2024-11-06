@@ -4,8 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -33,13 +31,13 @@ import top.mylove7.live.common.interfaces.error.ErrorAssert;
 import top.mylove7.live.common.interfaces.topic.GiftProviderTopicNames;
 import top.mylove7.live.gift.provider.service.IGiftConfigService;
 
-import top.mylove7.live.living.interfaces.dto.LivingRoomReqDTO;
-import top.mylove7.live.living.interfaces.dto.LivingRoomRespDTO;
-import top.mylove7.live.living.interfaces.rpc.ILivingRoomRpc;
+import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
+import top.mylove7.live.living.interfaces.room.dto.LivingRoomRespDTO;
+import top.mylove7.live.living.interfaces.room.rpc.ILivingRoomRpc;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @DubboService
@@ -79,7 +77,12 @@ public class IGiftSendImpl implements IGiftSendRpc {
         int giftId = giftReqQo.getGiftId();
         GiftConfigDTO giftConfigDTO = giftConfigService.getByGiftId(giftId);
         ErrorAssert.isNotNull(giftConfigDTO, ApiErrorEnum.GIFT_CONFIG_ERROR);
-        ErrorAssert.isTure(!giftReqQo.getReceiverId().equals(giftReqQo.getSenderUserId()), ApiErrorEnum.NOT_SEND_TO_YOURSELF);
+        if (giftReqQo.getReceiverId() == null){
+            //为空默认送给直播间主播
+            LivingRoomRespDTO livingRoomRespDTO = livingRoomRpc.queryByRoomId(giftReqQo.getRoomId());
+            giftReqQo.setReceiverId(livingRoomRespDTO.getAnchorId());
+            Assert.isTrue(!Objects.equals(livingRoomRespDTO.getAnchorId(),giftReqQo.getSenderUserId()),"不能给自己送礼");
+        }
 
         LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
         reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());

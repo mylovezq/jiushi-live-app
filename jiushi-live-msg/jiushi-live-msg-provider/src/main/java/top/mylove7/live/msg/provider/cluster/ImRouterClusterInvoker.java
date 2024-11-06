@@ -5,6 +5,7 @@ import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 import org.springframework.util.StringUtils;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ImRouterClusterInvoker<T> extends AbstractClusterInvoker<T> {
             return serverIp.equals(ip);
         }).findFirst().orElse(null);
         if (matchInvoker == null) {
-            throw new RuntimeException("ip is invalid");
+            throw new BizErrorException("ip is invalid");
         }
         return matchInvoker.invoke(invocation);
     }
