@@ -4,7 +4,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #访问主库
-    url: jdbc:mysql://192.168.1.20:3306/qiyu_live_common?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://192.168.1.20:3306/jiushi_live_common?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
 
@@ -12,7 +12,7 @@ dubbo:
   application:
     name: ${spring.application.name}
   registry:
-    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=qiyu&&password=qiyu
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=jiushi&&password=jiushi
   protocol:
     name: dubbo
     port: 9092

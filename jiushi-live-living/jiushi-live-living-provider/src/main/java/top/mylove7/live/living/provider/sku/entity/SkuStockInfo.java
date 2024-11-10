@@ -7,6 +7,7 @@ import lombok.Data;
 
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -39,10 +40,10 @@ public class SkuStockInfo implements Serializable {
    
     private Long version;
 
-   
-    Date createTime;
 
-   
-    Date updateTime;
+    private LocalDateTime createTime;
+
+
+    private LocalDateTime updateTime;
 
 }

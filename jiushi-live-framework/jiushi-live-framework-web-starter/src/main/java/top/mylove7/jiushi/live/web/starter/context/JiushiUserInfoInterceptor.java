@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import static top.mylove7.live.common.interfaces.constants.RequestConstants.JIUSHI_USER_ID;
 
 /**
- * 旗鱼直播 用户信息拦截器
+ * 直播 用户信息拦截器
  *
  * @Author jiushi
  *

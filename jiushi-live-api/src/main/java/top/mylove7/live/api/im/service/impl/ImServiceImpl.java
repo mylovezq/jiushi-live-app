@@ -5,7 +5,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
-import top.mylove7.live.account.interfaces.im.ImTokenRpc;
+import top.mylove7.live.user.interfaces.auth.interfaces.im.ImTokenRpc;
 import top.mylove7.live.api.im.service.ImService;
 import top.mylove7.live.api.im.vo.ImConfigVO;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;

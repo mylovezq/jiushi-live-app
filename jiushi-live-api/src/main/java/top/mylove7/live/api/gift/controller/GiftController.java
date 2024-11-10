@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
 import top.mylove7.live.api.gift.service.IGiftService;
-import org.qiyu.live.gift.qo.GiftReqQo;
+import top.mylove7.live.living.interfaces.gift.qo.GiftReqQo;
 import top.mylove7.live.api.gift.vo.GiftConfigVO;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;

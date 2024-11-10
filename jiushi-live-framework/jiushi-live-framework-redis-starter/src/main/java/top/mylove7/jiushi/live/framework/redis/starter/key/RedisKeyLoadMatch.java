@@ -33,7 +33,7 @@ public class RedisKeyLoadMatch implements Condition {
             classNameField.setAccessible(true);
             String keyBuilderName = (String) classNameField.get(metadata);
             List<String> splitList = Arrays.asList(keyBuilderName.split("\\."));
-            //忽略大小写，统一用qiyulive开头命名
+            //忽略大小写，统一用jiushilive开头命名
             String classSimplyName = PREFIX + splitList.get(splitList.size() - 1).toLowerCase();
             boolean matchStatus = classSimplyName.contains(appName.replaceAll("-", ""));
             LOGGER.info("keyBuilderClass is {},matchStatus is {}", keyBuilderName, matchStatus);

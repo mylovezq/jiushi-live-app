@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
@@ -24,6 +24,6 @@ public class SkuOrderInfoReqDTO implements Serializable {
     private Long orderId;
     private Long userId;
     private Long roomId;
-    private Long status;
+    private Integer status;
     private List<Long> skuIdList;
 }

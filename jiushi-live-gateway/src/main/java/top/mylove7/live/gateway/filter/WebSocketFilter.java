@@ -6,7 +6,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 
-import top.mylove7.live.account.interfaces.im.ImTokenRpc;
 import top.mylove7.live.common.interfaces.dto.ImUserInfoTokenDto;
 import top.mylove7.live.common.interfaces.enums.GatewayHeaderEnum;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -15,11 +14,11 @@ import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import top.mylove7.live.gateway.vo.GatewayRespVO;
+import top.mylove7.live.user.interfaces.auth.interfaces.im.ImTokenRpc;
 
 import java.net.URI;
 import java.util.List;

@@ -2,10 +2,10 @@ package top.mylove7.live.api.gift.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.qiyu.live.gift.dto.GiftConfigDTO;
-import org.qiyu.live.gift.interfaces.IGiftConfigRpc;
-import org.qiyu.live.gift.interfaces.IGiftSendRpc;
-import org.qiyu.live.gift.qo.GiftReqQo;
+import top.mylove7.live.living.interfaces.gift.dto.GiftConfigDTO;
+import top.mylove7.live.living.interfaces.gift.interfaces.IGiftConfigRpc;
+import top.mylove7.live.living.interfaces.gift.interfaces.IGiftSendRpc;
+import top.mylove7.live.living.interfaces.gift.qo.GiftReqQo;
 import org.springframework.stereotype.Service;
 import top.mylove7.live.api.gift.service.IGiftService;
 import top.mylove7.live.api.gift.vo.GiftConfigVO;

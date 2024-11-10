@@ -1,6 +1,5 @@
 package top.mylove7.live.im.core.server.service;
 
-import org.redisson.api.RLock;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 
 /**

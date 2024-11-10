@@ -101,6 +101,18 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>top.mylove7</groupId>
+            <artifactId>jiushi-live-living-interface</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>top.mylove7</groupId>
+            <artifactId>jiushi-live-msg-interface</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>top.mylove7</groupId>
+            <artifactId>jiushi-live-framework-mq-starter</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

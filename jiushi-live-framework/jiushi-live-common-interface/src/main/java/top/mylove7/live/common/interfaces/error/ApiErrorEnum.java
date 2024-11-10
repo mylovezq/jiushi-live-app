@@ -1,6 +1,5 @@
 package top.mylove7.live.common.interfaces.error;
 
-import top.mylove7.live.common.interfaces.error.BaseError;
 import top.mylove7.live.common.interfaces.constants.ErrorAppIdEnum;
 
 /**

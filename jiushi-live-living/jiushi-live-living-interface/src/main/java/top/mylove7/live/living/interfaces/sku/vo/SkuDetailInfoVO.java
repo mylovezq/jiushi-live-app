@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *

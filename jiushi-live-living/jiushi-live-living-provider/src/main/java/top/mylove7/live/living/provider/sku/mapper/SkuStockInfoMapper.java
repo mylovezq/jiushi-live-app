@@ -16,10 +16,10 @@ import top.mylove7.live.living.provider.sku.entity.SkuStockInfo;
  */
 public interface SkuStockInfoMapper extends BaseMapper<SkuStockInfo> {
 
-    @Update("update t_sku_stock_info set stock_num =  #{stock_num} where skuId = #{skuId} and version = #{version}")
+    @Update("upLocalDateTimet_sku_stock_info set stock_num =  #{stock_num} where skuId = #{skuId} and version = #{version}")
     int updateStockNumBySkuId(@Param("skuId") Long skuId, @Param("num") Integer stock_num, @Param("version") Integer version);
 
-    @Update("update t_sku_stock_info set stock_num = stock_num - #{num} where skuId = #{skuId} and stock_num - #{num} > 0 and version = #{version}")
+    @Update("upLocalDateTimet_sku_stock_info set stock_num = stock_num - #{num} where skuId = #{skuId} and stock_num - #{num} > 0 and version = #{version}")
     int dcrStockNumBySkuId(@Param("skuId") Long skuId, @Param("num") Integer num, @Param("version") Integer version);
 
 }

@@ -28,7 +28,7 @@ public class NacosDriverURLProvider implements ShardingSphereDriverURLProvider {
 
     /**
      * @param url the driver url
-     * (jdbc:shardingsphere:nacos:192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=qiyu&&password=qiyu&&namespace=jiushiLive）
+     * (jdbc:shardingsphere:nacos:192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=jiushi&&password=jiushi&&namespace=jiushiLive）
      * @return
      */
     @Override
@@ -39,7 +39,7 @@ public class NacosDriverURLProvider implements ShardingSphereDriverURLProvider {
     /**
      * 从url中获取到nacos的连接配置信息
      *
-     * @param url （jdbc:shardingsphere:nacos:192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=qiyu&&password=qiyu&&namespace=jiushiLive）
+     * @param url （jdbc:shardingsphere:nacos:192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=jiushi&&password=jiushi&&namespace=jiushiLive）
      * @return
      */
     @Override
@@ -47,7 +47,7 @@ public class NacosDriverURLProvider implements ShardingSphereDriverURLProvider {
         if (StringUtils.isEmpty(url)) {
             return null;
         }
-        //得到例如：192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=qiyu&&password=qiyu&&namespace=jiushiLive 格式的url
+        //得到例如：192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=jiushi&&password=jiushi&&namespace=jiushiLive 格式的url
         String nacosUrl = url.substring(url.lastIndexOf(NACOS_TYPE) + NACOS_TYPE.length());
         /**
          * 得到三个字符串，分别是：
@@ -60,7 +60,7 @@ public class NacosDriverURLProvider implements ShardingSphereDriverURLProvider {
         /**
          * 得到两个字符串
          * jiushi-live-user-shardingjdbc.yaml
-         * username=qiyu&&password=qiyu&&namespace=jiushiLive
+         * username=jiushi&&password=jiushi&&namespace=jiushiLive
          */
         String nacosFileProp[] = nacosFileStr.split("\\?");
         String dataId = nacosFileProp[0];

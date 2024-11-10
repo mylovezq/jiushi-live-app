@@ -13,8 +13,6 @@ import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.im.core.server.common.ImContextUtils;
 import top.mylove7.live.im.core.server.handler.SimplyHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**

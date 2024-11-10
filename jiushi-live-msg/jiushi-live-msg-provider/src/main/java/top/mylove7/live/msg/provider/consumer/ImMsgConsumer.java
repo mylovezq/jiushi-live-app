@@ -11,8 +11,6 @@ import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerP
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.msg.provider.consumer.handler.MessageHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 

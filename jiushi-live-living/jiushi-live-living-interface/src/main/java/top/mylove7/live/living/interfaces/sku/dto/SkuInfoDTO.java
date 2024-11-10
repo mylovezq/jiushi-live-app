@@ -4,10 +4,11 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
@@ -41,7 +42,7 @@ public class SkuInfoDTO implements Serializable {
 
     private Long categoryId;
 
-    Date createTime;
+    LocalDateTime createTime;
 
-    Date updateTime;
+    LocalDateTime updateTime;
 }

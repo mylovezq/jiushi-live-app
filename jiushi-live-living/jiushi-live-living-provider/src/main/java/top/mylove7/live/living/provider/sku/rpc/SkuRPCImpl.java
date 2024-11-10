@@ -13,7 +13,7 @@ import top.mylove7.live.living.provider.sku.service.ISkuInfoService;
 import java.util.List;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *

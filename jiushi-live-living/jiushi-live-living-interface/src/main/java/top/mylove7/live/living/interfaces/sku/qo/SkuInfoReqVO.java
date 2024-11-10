@@ -3,7 +3,7 @@ package top.mylove7.live.living.interfaces.sku.qo;
 import lombok.Data;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *

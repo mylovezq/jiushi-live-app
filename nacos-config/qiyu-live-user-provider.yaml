@@ -21,11 +21,11 @@ spring:
           min-idle: 10
           max-active: 100
           max-idle: 10
-qiyu:
+jiushi:
   rmq:
     consumer:
       nameSrv: 192.168.1.20:9876
-      groupName: qiyuLiveMqApplication
+      groupName: jiushiLiveMqApplication
     producer:
       nameSrv: 192.168.1.20:9876
       groupName: ${spring.application.name}

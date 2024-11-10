@@ -3,9 +3,11 @@ package top.mylove7.live.living.provider.sku.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Date;
  * @since 2024-08-14
  */
 @TableName("t_sku_order_info")
+@Data
 public class SkuOrderInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -33,90 +36,13 @@ public class SkuOrderInfo implements Serializable {
     private Long roomId;
 
    
-    private Long status;
+    private Integer status;
 
    
     private String extra;
 
-    Date createTime;
+    private LocalDateTime createTime;
 
-    Date updateTime;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getSkuIdList() {
-        return skuIdList;
-    }
-
-    public void setSkuIdList(String skuIdList) {
-        this.skuIdList = skuIdList;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
-    }
-
-    public Long getStatus() {
-        return status;
-    }
-
-    public void setStatus(Long status) {
-        this.status = status;
-    }
-
-    public String getExtra() {
-        return extra;
-    }
-
-    public void setExtra(String extra) {
-        this.extra = extra;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    @Override
-    public String toString() {
-        return "SkuOrderInfo{" +
-            "id = " + id +
-            ", skuIdList = " + skuIdList +
-            ", userId = " + userId +
-            ", roomId = " + roomId +
-            ", status = " + status +
-            ", extra = " + extra +
-            ", createTime = " + createTime +
-            ", updateTime = " + updateTime +
-        "}";
-    }
+    private LocalDateTime updateTime;
+    
 }

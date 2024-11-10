@@ -1,6 +1,6 @@
 package top.mylove7.live.api.gift.service;
 
-import org.qiyu.live.gift.qo.GiftReqQo;
+import top.mylove7.live.living.interfaces.gift.qo.GiftReqQo;
 import top.mylove7.live.api.gift.vo.GiftConfigVO;
 
 

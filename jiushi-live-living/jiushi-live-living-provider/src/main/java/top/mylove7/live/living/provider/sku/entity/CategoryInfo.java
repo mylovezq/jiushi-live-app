@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -36,11 +37,11 @@ public class CategoryInfo implements Serializable {
     private String categoryName;
 
    
-    private Byte status;
+    private Integer status;
 
-   
-    Date createTime;
 
-   
-    Date updateTime;
+    private LocalDateTime createTime;
+
+
+    private LocalDateTime updateTime;
 }

@@ -15,5 +15,6 @@
         <module>jiushi-live-framework-redis-starter</module>
         <module>jiushi-live-framework-web-starter</module>
         <module>jiushi-live-framework-mq-starter</module>
+        <module>jiushi-live-dubbo</module>
     </modules>
 </project>

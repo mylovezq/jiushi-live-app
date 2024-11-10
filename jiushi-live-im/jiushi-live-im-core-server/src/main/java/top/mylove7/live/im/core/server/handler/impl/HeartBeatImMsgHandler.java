@@ -12,8 +12,6 @@ import top.mylove7.live.common.interfaces.constants.ImMsgCodeEnum;
 import top.mylove7.live.im.core.server.common.ImContextUtils;
 import top.mylove7.live.im.core.server.handler.SimplyHandler;
 import top.mylove7.live.common.interfaces.constants.ImCoreServerConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

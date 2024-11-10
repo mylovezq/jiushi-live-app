@@ -9,14 +9,12 @@ import io.netty.handler.codec.http.websocketx.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import top.mylove7.live.account.interfaces.im.ImTokenRpc;
 import top.mylove7.live.common.interfaces.dto.ImUserInfoTokenDto;
 import top.mylove7.live.common.interfaces.enums.GatewayHeaderEnum;
 import top.mylove7.live.im.core.server.common.ChannelHandlerContextCache;
 import top.mylove7.live.im.core.server.handler.impl.LoginMsgHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import top.mylove7.live.user.interfaces.auth.interfaces.im.ImTokenRpc;
 
 /**
  * ws的握手连接处理器
@@ -37,7 +35,6 @@ public class WsSharkHandler extends ChannelInboundHandlerAdapter {
     private LoginMsgHandler loginMsgHandler;
 
     private WebSocketServerHandshaker webSocketServerHandshaker;
-    private static Logger logger = LoggerFactory.getLogger(WsSharkHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -81,27 +78,7 @@ public class WsSharkHandler extends ChannelInboundHandlerAdapter {
             Long appId = imUserInfo.getAppId();
             Long roomId = imUserInfo.getRoomId();
             loginMsgHandler.loginSuccessHandler(ctx, userId, appId, roomId);
-            logger.info("[WebsocketSharkHandler] channel is connect!");
-        }
-    }
-
-    enum ParamCodeEnum {
-        LIVING_ROOM_LOGIN(1001, "直播间登录");
-
-        int code;
-        String desc;
-
-        ParamCodeEnum(int code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public String getDesc() {
-            return desc;
+            log.info("[WebsocketSharkHandler] channel is connect!");
         }
     }
 }

@@ -1,7 +1,7 @@
 package top.mylove7.live.living.interfaces.sku.vo;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *

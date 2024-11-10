@@ -15,7 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @Author jiushi
@@ -47,7 +47,7 @@ public class LivingRoomTxServiceImpl implements ILivingRoomTxService {
             return false;
         }
         LivingRoomRecordPO livingRoomRecordPO = ConvertBeanUtils.convert(livingRoomRespDTO, LivingRoomRecordPO.class);
-        livingRoomRecordPO.setEndTime(new Date());
+        livingRoomRecordPO.setEndTime(LocalDateTime.now());
         livingRoomRecordPO.setStatus(CommonStatusEum.INVALID_STATUS.getCode());
         livingRoomRecordMapper.insert(livingRoomRecordPO);
         livingRoomMapper.deleteById(livingRoomRecordPO.getId());

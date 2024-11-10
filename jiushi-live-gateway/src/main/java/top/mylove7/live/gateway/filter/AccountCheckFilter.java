@@ -1,45 +1,29 @@
 package top.mylove7.live.gateway.filter;
 
 import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.web.ErrorResponse;
-import org.springframework.web.ErrorResponseException;
-import org.springframework.web.reactive.function.server.ServerResponse;
-import top.mylove7.live.account.interfaces.user.IAccountTokenRPC;
-import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.gateway.properties.GatewayApplicationProperties;
 import top.mylove7.live.common.interfaces.enums.GatewayHeaderEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.PathMatcher;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.mylove7.live.gateway.vo.GatewayRespVO;
+import top.mylove7.live.user.interfaces.auth.interfaces.user.IAccountTokenRPC;
 
 import java.util.List;
 
-import static io.netty.handler.codec.http.cookie.CookieHeaderNames.MAX_AGE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.web.cors.CorsConfiguration.ALL;
 
 /**
  * @Author jiushi

@@ -7,6 +7,16 @@
         <version>1.0.0</version>
     </parent>
     <artifactId>jiushi-live-user-interface</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>top.mylove7</groupId>
+            <artifactId>jiushi-live-common-interface</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

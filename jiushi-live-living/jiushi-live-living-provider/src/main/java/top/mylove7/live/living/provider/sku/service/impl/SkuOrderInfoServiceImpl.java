@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import top.mylove7.jiushi.live.framework.redis.starter.key.SkuProviderCacheKeyBuilder;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
 import top.mylove7.live.living.interfaces.sku.dto.SkuOrderInfoReqDTO;
 import top.mylove7.live.living.interfaces.sku.dto.SkuOrderInfoRespDTO;
@@ -34,7 +34,7 @@ public class SkuOrderInfoServiceImpl extends ServiceImpl<SkuOrderInfoMapper, Sku
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private SkuProviderCacheKeyBuilder keyBuilder;
+    private LivingProviderCacheKeyBuilder keyBuilder;
 
     @Override
     public SkuOrderInfoRespDTO querySkuOrderInfo(Long userId, Long roomId) {

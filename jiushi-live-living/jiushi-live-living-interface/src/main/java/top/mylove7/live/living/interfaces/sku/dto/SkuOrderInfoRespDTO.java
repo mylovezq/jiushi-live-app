@@ -4,10 +4,11 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
@@ -28,12 +29,12 @@ public class SkuOrderInfoRespDTO implements Serializable {
 
     private Long roomId;
 
-    private Long status;
+    private Integer status;
 
     private String extra;
 
-    Date createTime;
+    private LocalDateTime createTime;
 
-    Date updateTime;
+    private LocalDateTime updateTime;
 
 }

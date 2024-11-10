@@ -8,7 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
-import top.mylove7.jiushi.live.framework.redis.starter.key.SkuProviderCacheKeyBuilder;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
 import top.mylove7.live.living.interfaces.sku.dto.SkuStockInfoDTO;
 import top.mylove7.live.living.interfaces.sku.dto.UpdateStockNumDto;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
@@ -42,7 +42,7 @@ public class SkuStockInfoRPCImpl implements ISkuStockInfoRPC {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private SkuProviderCacheKeyBuilder keyBuilder;
+    private LivingProviderCacheKeyBuilder keyBuilder;
 
     private static final int MAX_RETRY_TIMES = 3;
 

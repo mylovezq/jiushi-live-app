@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import top.mylove7.jiushi.live.framework.redis.starter.key.SkuProviderCacheKeyBuilder;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
 import top.mylove7.live.living.provider.sku.entity.SkuInfo;
 import top.mylove7.live.living.provider.sku.mapper.SkuInfoMapper;
@@ -31,7 +31,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private SkuProviderCacheKeyBuilder keyBuilder;
+    private LivingProviderCacheKeyBuilder keyBuilder;
 
 
     @Override

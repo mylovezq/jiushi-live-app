@@ -7,9 +7,8 @@ import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
-import top.mylove7.jiushi.live.framework.redis.starter.key.SkuProviderCacheKeyBuilder;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
-import top.mylove7.live.living.interfaces.sku.constants.OrderStatusEnum;
 import top.mylove7.live.living.interfaces.sku.dto.RockBackInfoDTO;
 import top.mylove7.live.living.interfaces.sku.dto.SkuOrderInfoReqDTO;
 import top.mylove7.live.living.interfaces.sku.dto.SkuOrderInfoRespDTO;
@@ -18,6 +17,7 @@ import top.mylove7.live.living.provider.sku.entity.SkuStockInfo;
 import top.mylove7.live.living.provider.sku.mapper.SkuStockInfoMapper;
 import top.mylove7.live.living.provider.sku.service.ISkuOrderInfoService;
 import top.mylove7.live.living.provider.sku.service.ISkuStockInfoService;
+import top.mylove7.live.user.interfaces.bank.constants.OrderStatusEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +39,7 @@ public class SkuStockInfoServiceImpl extends ServiceImpl<SkuStockInfoMapper, Sku
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private SkuProviderCacheKeyBuilder keyBuilder;
+    private LivingProviderCacheKeyBuilder keyBuilder;
     @Resource
     private ISkuOrderInfoService skuOrderInfoService;
 
@@ -143,7 +143,7 @@ public class SkuStockInfoServiceImpl extends ServiceImpl<SkuStockInfoMapper, Sku
         }
         SkuOrderInfoReqDTO skuOrderInfoReqDTO = new SkuOrderInfoReqDTO();
         skuOrderInfoReqDTO.setUserId(rockBackInfoDTO.getUserId());
-        skuOrderInfoReqDTO.setStatus((long) OrderStatusEnum.END.getCode());
+        skuOrderInfoReqDTO.setStatus(OrderStatusEnum.IN_VALID.getCode());
         skuOrderInfoService.updateStatus(skuOrderInfoReqDTO);
         //因为我们的直播带货场景比较特别，每件商品只能买一件
         List<Long> skuIdList = Arrays.stream(skuOrderInfoRespDTO.getSkuIdList().split(",")).toList().stream().map(Long::valueOf).toList();

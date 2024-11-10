@@ -5,10 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
-import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
-import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
-import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.Cursor;
@@ -18,9 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
+import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
 import top.mylove7.live.living.interfaces.room.constants.LivingRoomTypeEnum;
 import top.mylove7.live.living.interfaces.room.dto.LivingPkRespDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
@@ -32,19 +31,18 @@ import top.mylove7.live.living.provider.room.service.ILivingRoomService;
 import top.mylove7.live.living.provider.room.service.ILivingRoomTxService;
 import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
 import top.mylove7.live.msg.interfaces.ImRouterRpc;
-import top.mylove7.live.user.dto.UserDTO;
-import top.mylove7.live.user.interfaces.IUserRpc;
+import top.mylove7.live.user.user.dto.UserDTO;
+import top.mylove7.live.user.user.interfaces.IUserRpc;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @Service
@@ -175,7 +173,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     public Long startLivingRoom(LivingRoomReqDTO livingRoomReqDTO) {
         LivingRoomPO livingRoomPO = ConvertBeanUtils.convert(livingRoomReqDTO, LivingRoomPO.class);
         livingRoomPO.setStatus(CommonStatusEum.VALID_STATUS.getCode());
-        livingRoomPO.setStartTime(new Date());
+        livingRoomPO.setStartTime(LocalDateTime.now());
         livingRoomMapper.insert(livingRoomPO);
         String cacheKey = cacheKeyBuilder.buildLivingRoomObj(livingRoomPO.getId());
         //防止之前有空值缓存，这里做移除操作
@@ -209,7 +207,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             jsonObject.put("pkObjId", livingRoomReqDTO.getPkObjId() + "");
             jsonObject.put("roomId", livingRoomReqDTO.getRoomId());
             jsonObject.put("pkObjAvatar", byUserId.getAvatar());
-            this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_PK_ONLINE.getCode(), jsonObject,livingRoomReqDTO.getPkObjId());
+            this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_PK_ONLINE.getCode(), jsonObject, livingRoomReqDTO.getPkObjId());
             respDTO.setMsg("连线成功");
             respDTO.setOnlineStatus(true);
         } else {

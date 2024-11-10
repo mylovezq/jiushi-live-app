@@ -3,12 +3,10 @@ package top.mylove7.live.living.provider.sku.config;
 import jakarta.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
-import top.mylove7.jiushi.live.framework.redis.starter.key.SkuProviderCacheKeyBuilder;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.living.interfaces.sku.rpc.ISkuStockInfoRPC;
 import top.mylove7.live.living.provider.sku.service.IAnchorShopInfoService;
 
@@ -34,7 +32,7 @@ public class RefreshSkuStockNumJob implements InitializingBean {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private SkuProviderCacheKeyBuilder keyBuilder;
+    private LivingProviderCacheKeyBuilder keyBuilder;
 
     private final ScheduledThreadPoolExecutor schedulePool = new ScheduledThreadPoolExecutor(1);
 

@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -18,7 +16,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 对于重复请求，要有专门的拦截器去处理

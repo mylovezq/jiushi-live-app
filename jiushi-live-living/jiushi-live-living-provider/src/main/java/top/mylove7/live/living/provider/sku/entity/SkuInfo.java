@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -54,10 +55,10 @@ public class SkuInfo implements Serializable {
    
     private Long categoryId;
 
-   
-    Date createTime;
 
-   
-    Date updateTime;
+    private LocalDateTime createTime;
+
+
+    private LocalDateTime updateTime;
 
 }

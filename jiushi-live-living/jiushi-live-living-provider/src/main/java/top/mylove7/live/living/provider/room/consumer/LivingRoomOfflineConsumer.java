@@ -11,8 +11,6 @@ import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
 import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerProperties;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.living.provider.room.service.ILivingRoomService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 

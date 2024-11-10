@@ -27,7 +27,7 @@ server:
     max-threads: 500 #最大工作线程数量
     min-spare-threads: 20 #最小工作线程数量
     max-connections: 500 #一瞬间最大支持的并发的连接数
-qiyu:
+jiushi:
   rmq:
     producer:
       nameSrv: 192.168.1.20:9876

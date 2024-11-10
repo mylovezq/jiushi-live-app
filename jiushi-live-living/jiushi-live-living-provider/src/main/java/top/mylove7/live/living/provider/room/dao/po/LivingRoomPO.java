@@ -5,11 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
  * @Author linhao
- * @Date created in 9:07 下午 2023/1/2
+ * @LocalDateTimecreated in 9:07 下午 2023/1/2
  */
 @Data
 @TableName("t_living_room")
@@ -24,7 +25,7 @@ public class LivingRoomPO {
     private Integer status;
     private Integer watchNum;
     private Integer goodNum;
-    private Date startTime;
-    private Date updateTime;
+    private LocalDateTime startTime;
+    private LocalDateTime updateTime;
 
 }

@@ -11,7 +11,6 @@ import org.apache.rocketmq.common.message.Message;
 
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
-import top.mylove7.live.account.interfaces.im.ImTokenRpc;
 import top.mylove7.live.common.interfaces.dto.ImUserInfoTokenDto;
 import top.mylove7.live.common.interfaces.constants.ImConstants;
 import top.mylove7.live.common.interfaces.constants.ImMsgCodeEnum;
@@ -26,6 +25,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import top.mylove7.live.user.interfaces.auth.interfaces.im.ImTokenRpc;
 
 import java.util.concurrent.TimeUnit;
 

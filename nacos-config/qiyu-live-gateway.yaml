@@ -22,7 +22,7 @@ logging:
     org.springframework.cloud.gateway: INFO
     reactor.netty.http.client: INFO
 
-qiyu:
+jiushi:
   gateway:
     notCheckUrlList:
       - /live/api/userLogin/

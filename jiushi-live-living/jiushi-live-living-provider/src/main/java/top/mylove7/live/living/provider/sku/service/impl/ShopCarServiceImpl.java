@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
-import top.mylove7.jiushi.live.framework.redis.starter.key.SkuProviderCacheKeyBuilder;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
 import top.mylove7.live.living.interfaces.sku.dto.ShopCarItemRespDTO;
 import top.mylove7.live.living.interfaces.sku.dto.ShopCarReqDTO;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
@@ -35,7 +35,7 @@ public class ShopCarServiceImpl implements IShopCarService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private SkuProviderCacheKeyBuilder keyBuilder;
+    private LivingProviderCacheKeyBuilder keyBuilder;
     @Resource
     private ISkuInfoService skuInfoService;
 

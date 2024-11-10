@@ -7,20 +7,13 @@ import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
-import org.redisson.api.RLock;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.jiushi.live.framework.mq.starter.properties.RocketMQConsumerProperties;
-import top.mylove7.live.im.core.server.service.IMsgAckCheckService;
 import top.mylove7.live.im.core.server.service.IRouterHandlerService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
-import top.mylove7.live.im.core.server.service.ImMsgMongoService;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author jiushi

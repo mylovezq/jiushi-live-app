@@ -8,7 +8,7 @@ import top.mylove7.live.living.interfaces.sku.rpc.IShopCarRPC;
 import top.mylove7.live.living.provider.sku.service.IShopCarService;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *

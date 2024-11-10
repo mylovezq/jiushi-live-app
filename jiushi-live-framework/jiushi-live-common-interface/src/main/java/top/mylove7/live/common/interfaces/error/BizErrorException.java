@@ -2,7 +2,6 @@ package top.mylove7.live.common.interfaces.error;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * @Author jiushi
@@ -34,4 +33,8 @@ public class BizErrorException extends RuntimeException{
         this.errorMsg = errorMsg;
     }
 
+    @Override
+    public String toString() {
+        return this.errorMsg;
+    }
 }

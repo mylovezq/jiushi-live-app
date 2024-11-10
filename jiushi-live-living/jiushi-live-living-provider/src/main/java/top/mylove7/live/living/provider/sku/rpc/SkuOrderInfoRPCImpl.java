@@ -2,17 +2,17 @@ package top.mylove7.live.living.provider.sku.rpc;
 
 import com.alibaba.fastjson.JSON;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.common.message.Message;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import top.mylove7.live.bank.interfaces.ICurrencyAccountRpc;
+
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.topic.SkuProviderTopicNames;
-import top.mylove7.live.living.interfaces.sku.constants.OrderStatusEnum;
+
 import top.mylove7.live.living.interfaces.sku.dto.*;
 import top.mylove7.live.living.interfaces.sku.rpc.ISkuOrderInfoRPC;
 import top.mylove7.live.living.provider.sku.entity.SkuInfo;
@@ -21,24 +21,22 @@ import top.mylove7.live.living.provider.sku.service.IShopCarService;
 import top.mylove7.live.living.provider.sku.service.ISkuInfoService;
 import top.mylove7.live.living.provider.sku.service.ISkuOrderInfoService;
 import top.mylove7.live.living.provider.sku.service.ISkuStockInfoService;
+import top.mylove7.live.user.interfaces.bank.constants.OrderStatusEnum;
+import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * @Program: qiyu-live-app
- *
+ * @Program: jiushi-live-app
  * @Description:
- *
  * @Author: tangfh
- *
  * @Create: 2024-08-16 13:53
  */
 @DubboService
+@Slf4j
 public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(SkuStockInfoRPCImpl.class);
 
     @Resource
     private ISkuOrderInfoService skuOrderInfoService;
@@ -51,7 +49,7 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
     @DubboReference
     private ICurrencyAccountRpc accountRpc;
     @Resource
-    MQProducer mqProducer;
+    private MQProducer mqProducer;
 
 
     @Override
@@ -90,7 +88,7 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
         skuOrderInfoReqDTO.setSkuIdList(skuIdList);
         skuOrderInfoReqDTO.setUserId(userId);
         skuOrderInfoReqDTO.setRoomId(reqDTO.getRoomId());
-        skuOrderInfoReqDTO.setStatus((long) OrderStatusEnum.PREPARE_PAY.getCode());
+        skuOrderInfoReqDTO.setStatus(OrderStatusEnum.WAITING_PAY.getCode());
         SkuOrderInfo skuOrderInfo = skuOrderInfoService.insertOne(skuOrderInfoReqDTO);
         if (skuOrderInfo == null) {
             return null;
@@ -117,57 +115,43 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    //TODO 后续 投递消息 削峰 或者整个方法做异步mq
     public boolean payNow(PayNowReqDTO payNowReqDTO) {
         SkuOrderInfoRespDTO skuOrderInfoRespDTO = skuOrderInfoService.querySkuOrderInfo(payNowReqDTO.getUserId(), payNowReqDTO.getRoomId());
-        if (OrderStatusEnum.PREPARE_PAY.getCode() != skuOrderInfoRespDTO.getStatus()) {
-            LOGGER.error("payNow 订单状态为：{}，不是待支付状态", skuOrderInfoRespDTO.getStatus());
-            return false;
-        }
+
         List<Long> skuIdList = Arrays.stream(skuOrderInfoRespDTO.getSkuIdList().split(",")).toList().stream().map(Long::valueOf).toList();
         List<SkuInfo> skuInfoList = skuInfoService.queryBySkuIds(skuIdList);
-        int num = 0;
-        for (SkuInfo skuInfo : skuInfoList) {
-            num += skuInfo.getSkuPrice();
-        }
-        Integer balance = accountRpc.getBalance(payNowReqDTO.getUserId());
-        if (balance - num < 0) {
-            LOGGER.error("payNow balance is no enough! balance = {}, num = {}", balance, num);
-            return false;
-        }
-
-        SkuOrderInfoReqDTO skuOrderInfoReqDTO = new SkuOrderInfoReqDTO();
-        skuOrderInfoReqDTO.setOrderId(skuOrderInfoRespDTO.getId());
-        skuOrderInfoReqDTO.setStatus((long) OrderStatusEnum.PAYED.getCode());
-        skuOrderInfoReqDTO.setUserId(skuOrderInfoRespDTO.getUserId());
-        skuOrderInfoReqDTO.setRoomId(skuOrderInfoRespDTO.getRoomId());
-
-        //扣减虚拟币
-        accountRpc.decrByRedis(skuOrderInfoRespDTO.getUserId(), num);
+        Long allSkuPrice = skuInfoList.parallelStream().map(SkuInfo::getSkuPrice).reduce(0L, Long::sum);
 
         //更新订单状态
-        boolean isSuccess = skuOrderInfoService.updateStatus(skuOrderInfoReqDTO);
-        if (!isSuccess) {
-            LOGGER.error("payNow skuOrderInfoService.updateStatus() isSuccess: {}", isSuccess);
-            return false;
+        boolean updatePay = skuOrderInfoService.lambdaUpdate()
+                .set(SkuOrderInfo::getStatus, OrderStatusEnum.PAYED.getCode())
+                .eq(SkuOrderInfo::getUserId, skuOrderInfoRespDTO.getUserId())
+                .eq(SkuOrderInfo::getStatus, OrderStatusEnum.WAITING_PAY.getCode())
+                .update();
+        if (!updatePay) {
+            log.error("payNow skuOrderInfoService.updateStatus() isSuccess: {}", updatePay);
+            throw new BizErrorException("订单状态发生变更，请刷新");
         }
+
         //删除缓存中的订单
-        isSuccess = skuOrderInfoService.clearCacheOrder(skuOrderInfoReqDTO.getUserId(), skuOrderInfoReqDTO.getRoomId());
-        if (!isSuccess) {
-            LOGGER.error("payNow skuOrderInfoService.clearCacheOrder() isSuccess: {}", isSuccess);
-        }
+        skuOrderInfoService.clearCacheOrder(skuOrderInfoRespDTO.getUserId(), skuOrderInfoRespDTO.getRoomId());
         //清空购物车
         ShopCarReqDTO shopCarReqDTO = new ShopCarReqDTO();
-        shopCarReqDTO.setUserId(skuOrderInfoReqDTO.getUserId());
-        shopCarReqDTO.setRoomId(skuOrderInfoReqDTO.getRoomId());
-        isSuccess = shopCarService.clearCar(shopCarReqDTO);
-        if (!isSuccess) {
-            LOGGER.error("payNow shopCarService.clearCar() isSuccess: {}", isSuccess);
-        }
+        shopCarReqDTO.setUserId(skuOrderInfoRespDTO.getUserId());
+        shopCarReqDTO.setRoomId(skuOrderInfoRespDTO.getRoomId());
+        shopCarService.clearCar(shopCarReqDTO);
+
+        //扣减虚拟币 当前可以用数据库承接 扣减失败就抛错   就事务回滚
+        accountRpc.decrByDBAndRedis(skuOrderInfoRespDTO.getUserId(), allSkuPrice);
+
         return true;
     }
 
     /**
      * 库存回滚的mq延迟消息发送
+     *
      * @param userId
      * @param orderId
      */

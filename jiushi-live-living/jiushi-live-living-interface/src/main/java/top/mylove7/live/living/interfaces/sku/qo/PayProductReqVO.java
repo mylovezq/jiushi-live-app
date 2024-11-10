@@ -18,13 +18,13 @@ public class PayProductReqVO {
 
     /**
      * 支付来源 (直播间，个人中心，聊天页面，第三方宣传页面，广告弹窗引导)
-     * @see org.qiyu.live.bank.constants.PaySourceEnum
+     * @see org.jiushi.live.bank.constants.PaySourceEnum
      */
     private Integer paySource;
 
     /**
      * 支付渠道
-     * @see org.qiyu.live.bank.constants.PayChannelEnum
+     * @see org.jiushi.live.bank.constants.PayChannelEnum
      */
     private Integer payChannel;
 

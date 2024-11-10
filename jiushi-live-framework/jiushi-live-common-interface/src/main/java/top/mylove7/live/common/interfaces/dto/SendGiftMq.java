@@ -12,7 +12,7 @@ public class SendGiftMq {
 
     private Long userId;
     private Integer giftId;
-    private Integer price;
+    private Long price;
     private Long receiverId;
     private Long roomId;
     private String url;

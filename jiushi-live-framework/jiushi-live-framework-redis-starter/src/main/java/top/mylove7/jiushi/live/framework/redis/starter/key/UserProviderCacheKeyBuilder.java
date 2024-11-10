@@ -18,6 +18,8 @@ public class UserProviderCacheKeyBuilder extends RedisKeyBuilder {
     private static String USER_PHONE_LIST_KEY = "userPhoneList";
     private static String USER_PHONE_OBJ_KEY = "userPhoneObj";
     private static String USER_LOGIN_TOKEN_KEY = "userLoginToken";
+    private static String ACCOUNT_TOKEN_KEY = "account";
+    private static String IM_LOGIN_TOKEN = "imLoginToken";
 
     public String buildUserInfoKey(Long userId) {
         return super.getPrefix() + USER_INFO_KEY + super.getSplitItem() + userId;
@@ -43,4 +45,47 @@ public class UserProviderCacheKeyBuilder extends RedisKeyBuilder {
         return super.getPrefix() + USER_LOGIN_TOKEN_KEY + super.getSplitItem() + tokenKey;
     }
 
+
+    public String buildImLoginTokenKey(String token) {
+        return super.getPrefix() + IM_LOGIN_TOKEN + super.getSplitItem() + token;
+    }
+
+
+
+
+
+
+    private static String BALANCE_CACHE = "balance_cache";
+    private static String GIFT_CONSUME_KEY = "gift_consume_key";
+    private static String PAY_PRODUCT_CACHE = "pay_product_cache";
+
+    private static String PAY_PRODUCT_ITEM_CACHE = "pay_product_item_cache";
+
+
+    public String buildPayProductItemCache(Integer productId) {
+        return super.getPrefix() + PAY_PRODUCT_ITEM_CACHE + super.getSplitItem() + productId;
+    }
+
+    /**
+     * 按照产品的类型来进行检索
+     *
+     * @param type
+     * @return
+     */
+    public String buildPayProductCache(Integer type) {
+        return super.getPrefix() + PAY_PRODUCT_CACHE + super.getSplitItem() + type;
+    }
+
+    /**
+     * 构建用户余额cache key
+     *
+     * @param userId
+     * @return
+     */
+    public String buildUserBalance(Long userId) {
+        return super.getPrefix() + BALANCE_CACHE + super.getSplitItem() + userId;
+    }
+    public String buildGiftConsumeKey(String uuid) {
+        return super.getPrefix() + GIFT_CONSUME_KEY + super.getSplitItem() + uuid;
+    }
 }

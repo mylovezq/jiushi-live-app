@@ -6,7 +6,7 @@ import top.mylove7.live.living.provider.room.dao.po.LivingRoomPO;
 
 /**
  * @Author linhao
- * @Date created in 8:57 上午 2023/1/13
+ * @LocalDateTimecreated in 8:57 上午 2023/1/13
  */
 @Mapper
 public interface LivingRoomMapper extends BaseMapper<LivingRoomPO> {
