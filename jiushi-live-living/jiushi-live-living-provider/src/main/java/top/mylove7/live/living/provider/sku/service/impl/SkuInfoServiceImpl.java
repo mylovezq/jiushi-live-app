@@ -1,5 +1,6 @@
 package top.mylove7.live.living.provider.sku.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -11,6 +12,7 @@ import top.mylove7.live.living.provider.sku.entity.SkuInfo;
 import top.mylove7.live.living.provider.sku.mapper.SkuInfoMapper;
 import top.mylove7.live.living.provider.sku.service.ISkuInfoService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +38,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
 
     @Override
     public List<SkuInfo> queryBySkuIds(List<Long> idsList) {
+        if (CollUtil.isEmpty(idsList)){
+            return new ArrayList<>();
+        }
         LambdaQueryWrapper<SkuInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SkuInfo::getSkuId, idsList);
         queryWrapper.eq(SkuInfo::getStatus, CommonStatusEum.VALID_STATUS.getCode());

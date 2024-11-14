@@ -3,20 +3,18 @@ package top.mylove7.live.msg.provider.service.impl;
 import com.cloopen.rest.sdk.BodyType;
 import com.cloopen.rest.sdk.CCPRestSmsSDK;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import top.mylove7.live.msg.dto.MsgCheckDTO;
 import top.mylove7.live.msg.enums.MsgSendResultEnum;
 import top.mylove7.jiushi.live.framework.redis.starter.key.MsgProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.utils.DESUtils;
-import top.mylove7.live.msg.provider.config.ApplicationProperties;
-import top.mylove7.live.msg.provider.config.SmsTemplateIDEnum;
-import top.mylove7.live.msg.provider.config.ThreadPoolManager;
+import top.mylove7.live.msg.provider.config.SmsApplicationProperties;
+import top.mylove7.live.msg.enums.SmsTemplateIDEnum;
 import top.mylove7.live.msg.provider.dao.mapper.SmsMapper;
 import top.mylove7.live.msg.provider.dao.po.SmsPO;
 import top.mylove7.live.msg.provider.service.ISmsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static top.mylove7.live.common.interfaces.utils.ExecutorConfig.IO_EXECUTOR;
+
 
 /**
  * @Author jiushi
@@ -33,9 +33,10 @@ import java.util.concurrent.TimeUnit;
  * @Description
  */
 @Service
+@Slf4j
 public class SmsServiceImpl implements ISmsService {
 
-    private static Logger logger = LoggerFactory.getLogger(SmsServiceImpl.class);
+
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -44,7 +45,7 @@ public class SmsServiceImpl implements ISmsService {
     @Resource
     private SmsMapper smsMapper;
     @Resource
-    private ApplicationProperties applicationProperties;
+    private SmsApplicationProperties applicationProperties;
     @Value("${spring.cloud.nacos.config.namespace}")
     private String namespace;
 
@@ -56,13 +57,12 @@ public class SmsServiceImpl implements ISmsService {
         //生成验证码，4位，6位（取它），有效期（30s，60s），同一个手机号不能重发，redis去存储验证码
         String codeCacheKey = msgProviderCacheKeyBuilder.buildSmsLoginCodeKey(phone);
         if (Boolean.TRUE.equals(redisTemplate.hasKey(codeCacheKey))) {
-            logger.warn("该手机号短信发送过于频繁，phone is {}", phone);
+            log.warn("该手机号短信发送过于频繁，phone is {}", phone);
             throw new RuntimeException("该手机号短信发送过于频繁");
         }
         int code = RandomUtils.nextInt(1000, 9999);
         redisTemplate.opsForValue().set(codeCacheKey, code, 30, TimeUnit.SECONDS);
-        //发送验证码
-        ThreadPoolManager.commonAsyncPool.execute(() -> {
+        IO_EXECUTOR.execute(()->{
             boolean sendStatus = sendSmsToCCP(phone, code);
             if (sendStatus) {
                 insertOne(phone, code);
@@ -106,7 +106,7 @@ public class SmsServiceImpl implements ISmsService {
      * @param code
      */
     private boolean sendSmsToCCP(String phone, Integer code) {
-        logger.info("phone is {},code is {}", phone, code);
+        log.info("phone is {},code is {}", phone, code);
         try {
             //生产环境请求地址：app.cloopen.com
             String serverIp = applicationProperties.getSmsServerIp();
@@ -138,16 +138,16 @@ public class SmsServiceImpl implements ISmsService {
                 Set<String> keySet = data.keySet();
                 for (String key : keySet) {
                     Object object = data.get(key);
-                    logger.info("key is {},object is {}", key, object);
+                    log.info("key is {},object is {}", key, object);
                 }
             } else {
                 //异常返回输出错误码和错误信息
-                logger.error("错误码:{},错误信息:{}", result.get("statusCode"), result.get("statusMsg"));
+                log.error("错误码:{},错误信息:{}", result.get("statusCode"), result.get("statusMsg"));
                 return false;
             }
             return true;
         } catch (Exception e) {
-            logger.error("[sendSmsToCCP] error is ", e);
+            log.error("[sendSmsToCCP] error is ", e);
             throw new RuntimeException(e);
         }
     }

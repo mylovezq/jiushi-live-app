@@ -5,7 +5,6 @@
         <groupId>top.mylove7</groupId>
         <artifactId>jiushi-live-app</artifactId>
         <version>1.0.0</version>
-
     </parent>
     <artifactId>jiushi-live-framework</artifactId>
     <packaging>pom</packaging>
@@ -14,7 +13,7 @@
         <module>jiushi-live-framework-datasource-starter</module>
         <module>jiushi-live-framework-redis-starter</module>
         <module>jiushi-live-framework-web-starter</module>
-        <module>jiushi-live-framework-mq-starter</module>
+        <module>jiushi-live-rocketmq-starter</module>
         <module>jiushi-live-dubbo</module>
     </modules>
 </project>

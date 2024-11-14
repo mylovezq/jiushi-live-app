@@ -11,6 +11,5 @@ import lombok.Data;
 public class WxPayNotifyQo {
 
     private String orderId;
-    private Long userId;
-    private Integer bizCode;
+    private Long tradeId;
 }

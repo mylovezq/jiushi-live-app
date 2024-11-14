@@ -5,9 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.rocketmq.client.producer.MQProducer;
+
 import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
+
 
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
@@ -25,6 +25,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import top.mylove7.live.living.interfaces.room.rpc.ILivingRoomRpc;
 import top.mylove7.live.user.interfaces.auth.interfaces.im.ImTokenRpc;
 
 import java.util.concurrent.TimeUnit;
@@ -44,8 +45,9 @@ public class LoginMsgHandler implements SimplyHandler {
     private ImTokenRpc imTokenRpc;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    @Resource
-    private MQProducer mqProducer;
+    
+    @DubboReference
+    private ILivingRoomRpc liveRoomRpc;
 
     @Override
     public void handler(ChannelHandlerContext ctx, ImTcpWsDto imTcpWsDto) {
@@ -91,16 +93,10 @@ public class LoginMsgHandler implements SimplyHandler {
         imOnlineDTO.setAppId(appId);
         imOnlineDTO.setRoomId(roomId);
         imOnlineDTO.setLoginTime(System.currentTimeMillis());
-        Message message = new Message();
-        message.setTopic(ImCoreServerProviderTopicNames.IM_ONLINE_TOPIC);
-        message.setBody(JSON.toJSONString(imOnlineDTO).getBytes());
-        try {
-            SendResult sendResult = mqProducer.send(message);
-            log.info("[sendLogin online MQ] sendResult is {}", sendResult);
-        } catch (Exception e) {
-            log.error("[sendLogin online MQ] error is: ", e);
-        }
+        liveRoomRpc.userOnlineHandler(imOnlineDTO);
+
     }
+
 
     /**
      * 如果用户登录成功则处理相关记录
@@ -125,11 +121,11 @@ public class LoginMsgHandler implements SimplyHandler {
         ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_LOGIN_MSG.getCode(), JSON.toJSONString(respBody));
         stringRedisTemplate.opsForValue().set(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId,
                 ChannelHandlerContextCache.getServerIpAddress() + "%" + userId,
-                ImConstants.DEFAULT_HEART_BEAT_GAP * 2, TimeUnit.SECONDS);
+                ImConstants.DEFAULT_HEART_BEAT_GAP * 3, TimeUnit.SECONDS);
 
         stringRedisTemplate.opsForValue().set(ImCoreServerConstants.IM_WS_BIND_IP_KEY + appId + ":" + userId,
                 ChannelHandlerContextCache.getWsIpAddress(),
-                ImConstants.DEFAULT_HEART_BEAT_GAP * 2, TimeUnit.SECONDS);
+                ImConstants.DEFAULT_HEART_BEAT_GAP * 3, TimeUnit.SECONDS);
         log.info("[LoginMsgHandler] login success,userId is {},appId is {}", userId, appId);
         ctx.writeAndFlush(respMsg);
         if (roomId != null){

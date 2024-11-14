@@ -4,24 +4,23 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
-import org.apache.rocketmq.client.producer.MQProducer;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
 
-import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
-import top.mylove7.live.living.interfaces.gift.dto.GiftConfigDTO;
-import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
-import top.mylove7.live.common.interfaces.topic.GiftProviderTopicNames;
-import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
-import top.mylove7.live.living.provider.gift.dao.mapper.GiftConfigMapper;
-import top.mylove7.live.living.provider.gift.dao.po.GiftConfigPO;
-import top.mylove7.live.living.provider.gift.service.IGiftConfigService;
-import top.mylove7.live.living.provider.gift.service.bo.GiftCacheRemoveBO;
+import org.apache.rocketmq.client.producer.SendResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
+import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
+import top.mylove7.live.common.interfaces.topic.GiftProviderTopicNames;
+import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
+import top.mylove7.live.living.interfaces.gift.dto.GiftConfigDTO;
+import top.mylove7.live.living.provider.gift.dao.mapper.GiftConfigMapper;
+import top.mylove7.live.living.provider.gift.dao.po.GiftConfigPO;
+import top.mylove7.live.living.provider.gift.service.IGiftConfigService;
+import top.mylove7.live.living.provider.gift.service.bo.GiftCacheRemoveBO;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @Service
@@ -44,21 +42,16 @@ public class GiftConfigServiceImpl implements IGiftConfigService {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private LivingProviderCacheKeyBuilder cacheKeyBuilder;
-    @Resource
-    private MQProducer mqProducer;
+    
 
     @Override
     public GiftConfigDTO getByGiftId(Integer giftId) {
         String cacheKey = cacheKeyBuilder.buildGiftConfigCacheKey(giftId);
         //使用缓存去抵挡对db层的访问压力
         GiftConfigDTO giftConfigDTO = (GiftConfigDTO) redisTemplate.opsForValue().get(cacheKey);
-        if (giftConfigDTO != null) {
-            if (giftConfigDTO.getGiftId() != null) {
-                redisTemplate.expire(cacheKey, 60, TimeUnit.MINUTES);
-                return giftConfigDTO;
-            }
-            //空值缓存
-            return null;
+        if (giftConfigDTO != null && giftConfigDTO.getGiftId() != null) {
+            redisTemplate.expire(cacheKey, 60, TimeUnit.MINUTES);
+            return giftConfigDTO;
         }
         //借助redis的string
         LambdaQueryWrapper<GiftConfigPO> queryWrapper = new LambdaQueryWrapper<>();
@@ -103,8 +96,8 @@ public class GiftConfigServiceImpl implements IGiftConfigService {
 
         if (CollUtil.isNotEmpty(giftConfigPOList)) {
             List<GiftConfigDTO> resultList = ConvertBeanUtils.convertList(giftConfigPOList, GiftConfigDTO.class);
-            boolean trySetToRedis = redisTemplate.opsForValue().setIfAbsent(cacheKeyBuilder.buildGiftListLockCacheKey(),1,3,TimeUnit.SECONDS);
-            if(trySetToRedis) {
+            boolean trySetToRedis = redisTemplate.opsForValue().setIfAbsent(cacheKeyBuilder.buildGiftListLockCacheKey(), 1, 3, TimeUnit.SECONDS);
+            if (trySetToRedis) {
                 redisTemplate.opsForList().leftPushAll(cacheKey, resultList.toArray());
                 //大部分情况下，一个直播间的有效时间大概就是60min以上
                 redisTemplate.expire(cacheKey, 60, TimeUnit.MINUTES);
@@ -123,19 +116,6 @@ public class GiftConfigServiceImpl implements IGiftConfigService {
         giftConfigPO.setStatus(CommonStatusEum.VALID_STATUS.getCode());
         giftConfigMapper.insert(giftConfigPO);
         redisTemplate.delete(cacheKeyBuilder.buildGiftListCacheKey());
-        GiftCacheRemoveBO giftCacheRemoveBO = new GiftCacheRemoveBO();
-        giftCacheRemoveBO.setRemoveListCache(true);
-        Message message = new Message();
-        message.setTopic(GiftProviderTopicNames.REMOVE_GIFT_CACHE);
-        message.setBody(JSON.toJSONBytes(giftCacheRemoveBO));
-        //1秒之后延迟消费
-        message.setDelayTimeLevel(1);
-        try {
-            SendResult sendResult = mqProducer.send(message);
-            LOGGER.info("[insertOne] sendResult is {}", sendResult);
-        } catch (Exception e) {
-            LOGGER.info("[insertOne] mq send error: }", e);
-        }
     }
 
     @Override
@@ -144,19 +124,5 @@ public class GiftConfigServiceImpl implements IGiftConfigService {
         giftConfigMapper.updateById(giftConfigPO);
         redisTemplate.delete(cacheKeyBuilder.buildGiftListCacheKey());
         redisTemplate.delete(cacheKeyBuilder.buildGiftConfigCacheKey(giftConfigDTO.getGiftId()));
-        GiftCacheRemoveBO giftCacheRemoveBO = new GiftCacheRemoveBO();
-        giftCacheRemoveBO.setRemoveListCache(true);
-        giftCacheRemoveBO.setGiftId(giftConfigDTO.getGiftId());
-        Message message = new Message();
-        message.setTopic(GiftProviderTopicNames.REMOVE_GIFT_CACHE);
-        message.setBody(JSON.toJSONBytes(giftCacheRemoveBO));
-        //1秒之后延迟消费
-        message.setDelayTimeLevel(1);
-        try {
-            SendResult sendResult = mqProducer.send(message);
-            LOGGER.info("[updateOne] sendResult is {}", sendResult);
-        } catch (Exception e) {
-            LOGGER.info("[updateOne] mq send error: }", e);
-        }
     }
 }

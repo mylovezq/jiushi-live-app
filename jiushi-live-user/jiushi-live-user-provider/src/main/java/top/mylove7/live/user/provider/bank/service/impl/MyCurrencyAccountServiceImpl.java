@@ -9,11 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import top.mylove7.jiushi.live.framework.redis.starter.key.UserProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.error.BizErrorException;
-import top.mylove7.live.user.interfaces.bank.constants.TradeTypeEnum;
 import top.mylove7.live.user.interfaces.bank.dto.AccountTradeRespDTO;
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.provider.bank.dao.maper.ICurrencyAccountMapper;
+import top.mylove7.live.user.provider.bank.dao.maper.ICurrencyTradeMapper;
 import top.mylove7.live.user.provider.bank.dao.po.CurrencyAccountPO;
-import top.mylove7.live.user.provider.bank.service.ICurrencyTradeService;
+import top.mylove7.live.user.provider.bank.dao.po.CurrencyTradePO;
 import top.mylove7.live.user.provider.bank.service.IMyCurrencyAccountService;
 
 import java.time.LocalDateTime;
@@ -29,60 +30,82 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
 
     @Resource
     private ICurrencyAccountMapper currencyAccountMapper;
+
+    @Resource
+    private ICurrencyTradeMapper currencyTradeMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private UserProviderCacheKeyBuilder cacheKeyBuilder;
-    @Resource
-    private ICurrencyTradeService currencyTradeService;
 
 
     /**
      * 充值的并发不会很高  可以直接走同步
-     *
-     * @param userId
-     * @param num
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void incr(Long userId, Long num) {
-        String cacheKey = cacheKeyBuilder.buildUserBalance(userId);
+    public void incr(BalanceMqDto balanceMqDto) {
+        String cacheKey = cacheKeyBuilder.buildUserBalance(balanceMqDto.getUserId());
         Boolean cacheBalance = redisTemplate.hasKey(cacheKey);
         //充值前 必须先查询出账户余额
         Assert.isTrue(cacheBalance != null && cacheBalance, "账户异常");
 
-        redisTemplate.opsForValue().increment(cacheKey, num);
+        redisTemplate.opsForValue().increment(cacheKey, balanceMqDto.getPrice());
         redisTemplate.expire(cacheKey, 12, TimeUnit.HOURS);
 
-        this.consumeIncrDBHandler(userId, num);
-        log.info("充值成功{}", num);
+        CurrencyAccountPO currencyAccountUpdate
+                = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, balanceMqDto.getUserId()).last("for update"));
+        Assert.notNull(currencyAccountUpdate, "账户不存在");
+        Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
+        //更新db，插入db
+        if (!currencyAccountMapper.incr(balanceMqDto.getUserId(), balanceMqDto.getPrice())) {
+            log.error("新增db异常，可能是账户状态异常");
+            throw new BizErrorException("充值异常");
+        }
+        //流水记录
+        this.recordTrade(balanceMqDto);
+        log.info("充值成功{}", balanceMqDto);
 
 
     }
 
     /**
      * 送礼物时，扣减余额，特别是送小礼物时，并发很高
-     *
-     * @param userId
-     * @param num
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void decr(Long userId, Long num) {
+    public void decr(BalanceMqDto balanceMqDto) {
         //流水记录
         CurrencyAccountPO currencyAccountUpdate
-                = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
+                = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, balanceMqDto.getUserId()).last("for update"));
         Assert.notNull(currencyAccountUpdate, "账户不存在");
         Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
-        Assert.isTrue(currencyAccountUpdate.getCurrentBalance() >= num, "余额不足");
-        //流水记录
-        //更新db，插入db
-        if (!currencyAccountMapper.decr(userId, num)) {
-            log.info("扣减异常,可能余额不足");
+        Assert.isTrue(currencyAccountUpdate.getCurrentBalance() >= balanceMqDto.getPrice(), "余额不足");
+
+        if (!currencyAccountMapper.decr(balanceMqDto.getUserId(), balanceMqDto.getPrice())) {
+            log.warn("扣减异常,可能余额不足");
             throw new BizErrorException("扣减异常");
         }
-        currencyTradeService.insertOne(userId, num * -1, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
-        log.info("消费扣减成功{}", num);
+        //流水记录
+        balanceMqDto.setPrice(balanceMqDto.getPrice() * -1);
+        this.recordTrade(balanceMqDto);
+    }
+
+
+    private void recordTrade(BalanceMqDto balanceMqDto) {
+        CurrencyTradePO currencyTradePO = currencyTradeMapper.selectOne(Wrappers.<CurrencyTradePO>lambdaQuery()
+                .eq(CurrencyTradePO::getId, balanceMqDto.getTradeId())
+                .last("for update"));
+        if (currencyTradePO == null) {
+            currencyTradePO = new CurrencyTradePO();
+            currencyTradePO.setId(balanceMqDto.getTradeId());
+            currencyTradePO.setTradeType(balanceMqDto.getTradeType());
+            currencyTradePO.setNum(balanceMqDto.getPrice());
+            currencyTradePO.setUserId(balanceMqDto.getUserId());
+            currencyTradeMapper.insert(currencyTradePO);
+        } else {
+            throw new BizErrorException("该记录已完记录" + balanceMqDto.getTradeId());
+        }
     }
 
     @Override
@@ -114,19 +137,7 @@ public class MyCurrencyAccountServiceImpl implements IMyCurrencyAccountService {
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
-    public void consumeIncrDBHandler(Long userId, Long num) {
-        CurrencyAccountPO currencyAccountUpdate = currencyAccountMapper.selectOne(Wrappers.<CurrencyAccountPO>lambdaQuery().eq(CurrencyAccountPO::getUserId, userId).last("for update"));
-        Assert.notNull(currencyAccountUpdate, "账户不存在");
-        Assert.isTrue(currencyAccountUpdate.getStatus() == 1, "账户状态异常");
-        //更新db，插入db
-        if (!currencyAccountMapper.incr(userId, num)) {
-            log.error("新增db异常，可能是账户状态异常");
-            throw new BizErrorException("充值异常");
-        }
-        //流水记录
-        currencyTradeService.insertOne(userId, num, TradeTypeEnum.SEND_GIFT_TRADE.getCode());
-    }
+
 
 
     @Override

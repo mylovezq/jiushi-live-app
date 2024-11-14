@@ -38,5 +38,5 @@ dubbo:
   registry:
     address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=jiushi&&password=jiushi
   protocol:
-    name: dubbo
+    name: spring
     port: 9090

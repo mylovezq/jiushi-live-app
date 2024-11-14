@@ -15,5 +15,5 @@ public interface IPayTopicService {
      * @param code
      * @return
      */
-    PayTopicPO getByCode(Integer code);
+    PayTopicPO getByCode(String code);
 }

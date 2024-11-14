@@ -21,7 +21,7 @@ dubbo:
     #docker启动的时候，注入host的配置
     address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
   protocol:
-    name: dubbo
+    name: spring
     port: 9011
     threadpool: fixed
     dispatcher: execution

@@ -26,7 +26,7 @@ public interface IPayOrderService {
      *
      * @param payOrderPO
      */
-    String insertOne(PayOrderPO payOrderPO);
+    void insertOne(PayOrderPO payOrderPO);
 
 
     /**

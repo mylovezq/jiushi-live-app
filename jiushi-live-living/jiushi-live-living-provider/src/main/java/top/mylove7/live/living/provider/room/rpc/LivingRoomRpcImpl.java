@@ -3,6 +3,8 @@ package top.mylove7.live.living.provider.room.rpc;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
+import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingPkRespDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomRespDTO;
@@ -64,5 +66,15 @@ public class LivingRoomRpcImpl implements ILivingRoomRpc {
     @Override
     public boolean offlinePk(LivingRoomReqDTO livingRoomReqDTO) {
         return livingRoomService.offlinePk(livingRoomReqDTO);
+    }
+
+    @Override
+    public void userOnlineHandler(ImOnlineDTO imOnlineDTO) {
+        livingRoomService.userOnlineHandler(imOnlineDTO);
+    }
+
+    @Override
+    public void userOfflineHandler(ImOfflineDTO imOfflineDTO) {
+        livingRoomService.userOfflineHandler(imOfflineDTO);
     }
 }

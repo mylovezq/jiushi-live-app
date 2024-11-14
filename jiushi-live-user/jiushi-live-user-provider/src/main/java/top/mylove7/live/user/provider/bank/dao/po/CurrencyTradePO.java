@@ -23,7 +23,7 @@ public class CurrencyTradePO {
     private Long id;
     private Long userId;
     private Long num;
-    private Integer type;
+    private String tradeType;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

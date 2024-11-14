@@ -11,10 +11,12 @@ import lombok.Getter;
 public enum TradeTypeEnum {
 
     SEND_GIFT_TRADE(0,"送礼物交易"),
-    LIVING_RECHARGE(1,"直播间充值");
+    LIVING_RECHARGE(1,"直播间充值"),
+    LIVING_ROOM_SHOP(2,"直播间购物"),
+    ;
 
-    int code;
-    String desc;
+    private final int code;
+    private final String desc;
 
     TradeTypeEnum(int code, String desc) {
         this.code = code;

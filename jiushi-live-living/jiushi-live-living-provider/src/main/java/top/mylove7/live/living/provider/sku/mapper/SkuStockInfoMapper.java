@@ -1,6 +1,7 @@
 package top.mylove7.live.living.provider.sku.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import top.mylove7.live.living.provider.sku.entity.SkuStockInfo;
@@ -14,6 +15,7 @@ import top.mylove7.live.living.provider.sku.entity.SkuStockInfo;
  * @author tangfh
  * @since 2024-08-14
  */
+@Mapper
 public interface SkuStockInfoMapper extends BaseMapper<SkuStockInfo> {
 
     @Update("upLocalDateTimet_sku_stock_info set stock_num =  #{stock_num} where skuId = #{skuId} and version = #{version}")

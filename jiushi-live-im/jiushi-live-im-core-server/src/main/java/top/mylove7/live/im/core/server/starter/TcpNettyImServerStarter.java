@@ -9,12 +9,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.im.core.server.common.ChannelHandlerContextCache;
 import top.mylove7.live.im.core.server.common.TcpImMsgDecoder;
 import top.mylove7.live.im.core.server.common.TcpImMsgEncoder;
 import top.mylove7.live.im.core.server.handler.tcp.TcpImServerCoreHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +22,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static top.mylove7.live.common.interfaces.utils.ExecutorConfig.IO_EXECUTOR;
 
 /**
  * @Author jiushi
@@ -29,9 +34,8 @@ import java.net.UnknownHostException;
  * @Description
  */
 @Configuration
+@Slf4j
 public class TcpNettyImServerStarter implements InitializingBean {
-
-    private static Logger LOGGER = LoggerFactory.getLogger(TcpNettyImServerStarter.class);
 
     //指定监听的端口
     @Value("${jiushi.im.tcp.port}")
@@ -42,7 +46,8 @@ public class TcpNettyImServerStarter implements InitializingBean {
     private Environment environment;
 
     //基于netty去启动一个java进程，绑定监听的端口
-    public void startApplication() throws InterruptedException, UnknownHostException {
+
+    public void startApplication() throws UnknownHostException, InterruptedException {
         //处理accept事件
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
         //处理read&write事件
@@ -55,7 +60,7 @@ public class TcpNettyImServerStarter implements InitializingBean {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 //打印日志，方便观察
-                LOGGER.info("初始化连接渠道");
+                log.info("初始化连接渠道");
                 //设计消息体
                 //增加编解码器
                 ch.pipeline().addLast(new TcpImMsgDecoder());
@@ -70,7 +75,7 @@ public class TcpNettyImServerStarter implements InitializingBean {
         }));
         this.setIpAndPort();
         ChannelFuture channelFuture = bootstrap.bind(port).sync();
-        LOGGER.info("服务启动成功，监听端口为{}", port);
+        log.info("服务启动成功，监听端口为{}", port);
         //这里会阻塞掉主线程，实现服务长期开启的效果
         channelFuture.channel().closeFuture().sync();
     }
@@ -91,22 +96,24 @@ public class TcpNettyImServerStarter implements InitializingBean {
             throw new IllegalArgumentException("启动参数中的注册端口和注册ip不能为空");
         }
         ChannelHandlerContextCache.setServerIpAddress(registryIpEnv + ":" + registryPortEnv);
-        LOGGER.info("注册的ip{}和端口{}", registryIpEnv, registryPortEnv);
+        log.info("注册的ip{}和端口{}", registryIpEnv, registryPortEnv);
     }
 
     @Override
     public void afterPropertiesSet() {
-        Thread nettyServerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    startApplication();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+
+        IO_EXECUTOR.execute(() -> {
+            Thread.currentThread().setName("jiushi-live-im-server-tcp");
+            try {
+                startApplication();
+            } catch (Exception e) {
+               log.error("jiushi-live-im-server-tcp启动失败",e);
+               System.exit(-1);
             }
+
         });
-        nettyServerThread.setName("jiushi-live-im-server-tcp");
-        nettyServerThread.start();
+
+
+
     }
 }

@@ -35,11 +35,12 @@ public class GlobalErrorWebExceptionHandler implements ErrorWebExceptionHandler 
         response.setStatusCode(HttpStatus.OK);
         return response.writeWith(Mono.fromSupplier(() -> {
             DataBufferFactory bufferFactory = response.bufferFactory();
-            WebResponseVO webResponseVO;
-            if (ex instanceof BizErrorException || ex instanceof RuntimeException){
+            WebResponseVO webResponseVO =  WebResponseVO.bizError("服务器异常：" + ex.getMessage());;
+            if (ex instanceof BizErrorException){
                 webResponseVO = WebResponseVO.bizError(((BizErrorException) ex).getErrorCode(), ex.getMessage());
-            }else {
-                webResponseVO = WebResponseVO.bizError("服务异常" + ex.getMessage());
+            }
+            if(ex != null && ex.getMessage().contains("Unable to find instance for")){
+                webResponseVO = WebResponseVO.bizError( "服务器繁忙，请稍后再试");
             }
 
             return bufferFactory.wrap(JSONUtil.toJsonStr(webResponseVO).getBytes());

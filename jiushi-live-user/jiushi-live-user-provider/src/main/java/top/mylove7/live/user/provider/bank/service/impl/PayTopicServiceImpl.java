@@ -21,7 +21,7 @@ public class PayTopicServiceImpl implements IPayTopicService {
     private IPayTopicMapper payTopicMapper;
 
     @Override
-    public PayTopicPO getByCode(Integer code) {
+    public PayTopicPO getByCode(String code) {
         LambdaQueryWrapper<PayTopicPO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PayTopicPO::getBizCode,code);
         queryWrapper.eq(PayTopicPO::getStatus, CommonStatusEum.VALID_STATUS.getCode());

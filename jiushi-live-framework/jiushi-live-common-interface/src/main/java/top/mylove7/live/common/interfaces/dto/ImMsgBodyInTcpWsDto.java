@@ -1,6 +1,5 @@
 package top.mylove7.live.common.interfaces.dto;
 
-import cn.hutool.json.JSONUtil;
 import lombok.Data;
 
 import java.io.Serial;
@@ -8,7 +7,6 @@ import java.io.Serializable;
 
 /**
  * @Author jiushi
- *
  * @Description 会话传输的【业务消息体】
  */
 @Data
@@ -49,10 +47,5 @@ public class ImMsgBodyInTcpWsDto implements Serializable {
      * 和业务服务进行消息传递
      */
     private String data;
-
-
-    public byte[] toByte(){
-        return JSONUtil.toJsonStr(this).getBytes();
-    }
 
 }

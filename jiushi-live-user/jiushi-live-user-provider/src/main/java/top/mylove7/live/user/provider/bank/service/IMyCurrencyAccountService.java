@@ -2,23 +2,18 @@ package top.mylove7.live.user.provider.bank.service;
 
 
 import top.mylove7.live.user.interfaces.bank.dto.AccountTradeRespDTO;
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 
 public interface IMyCurrencyAccountService {
     /**
      * 增加虚拟币
-     *
-     * @param userId
-     * @param num
      */
-    void incr(Long userId,Long num);
+    void incr(BalanceMqDto balanceMqDto);
 
     /**
      * 扣减虚拟币
-     *
-     * @param userId
-     * @param num
      */
-    void decr(Long userId,Long num);
+    void decr(BalanceMqDto balanceMqDto);
 
     /**
      * 查询余额

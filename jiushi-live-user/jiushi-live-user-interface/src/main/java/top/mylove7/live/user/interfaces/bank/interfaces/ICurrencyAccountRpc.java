@@ -1,5 +1,7 @@
 package top.mylove7.live.user.interfaces.bank.interfaces;
 
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
+
 /**
  * @Author jiushi
  *
@@ -13,15 +15,15 @@ public interface ICurrencyAccountRpc {
      * @param userId
      * @param num
      */
-    void incr(Long userId,Long num);
-
+    void incrBalance(BalanceMqDto balanceMqDto);
+    void decrBalanceByDB(BalanceMqDto balanceMqDto);
     /**
      * 扣减虚拟币
      *
      * @param userId
      * @param num
      */
-    void decrByRedis(Long userId,Long num);
+    void decrBalanceByRedis(Long userId,Long num);
 
     /**
      * 查询余额
@@ -32,5 +34,5 @@ public interface ICurrencyAccountRpc {
     Integer getBalance(Long userId);
 
 
-    void decrByDBAndRedis(Long userId, Long allNum);
+
 }

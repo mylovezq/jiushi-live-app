@@ -8,8 +8,8 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.Assert;
 import top.mylove7.jiushi.live.framework.redis.starter.key.UserProviderCacheKeyBuilder;
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
-import top.mylove7.live.user.provider.bank.service.ICurrencyTradeService;
 import top.mylove7.live.user.provider.bank.service.IMyCurrencyAccountService;
 
 import java.util.Arrays;
@@ -25,8 +25,7 @@ public class CurrencyAccountRpcImpl implements ICurrencyAccountRpc {
 
     @Resource
     private IMyCurrencyAccountService myCurrencyAccountService;
-    @Resource
-    private ICurrencyTradeService currencyTradeService;
+
     @Resource
     private UserProviderCacheKeyBuilder bankProviderCacheKeyBuilder;
     @Resource
@@ -54,13 +53,9 @@ public class CurrencyAccountRpcImpl implements ICurrencyAccountRpc {
             "return '成功'";
 
 
-    @Override
-    public void incr(Long userId, Long num) {
-        myCurrencyAccountService.incr(userId, num);
-    }
 
     @Override
-    public void decrByRedis(Long userId, Long num) {
+    public void decrBalanceByRedis(Long userId, Long num) {
         RedisScript<String> deductionOfBalanceScript = new DefaultRedisScript<>(deductionOfBalance, String.class);
         String cacheKey = bankProviderCacheKeyBuilder.buildUserBalance(userId);
         // 执行 Lua 脚本
@@ -75,8 +70,13 @@ public class CurrencyAccountRpcImpl implements ICurrencyAccountRpc {
     }
 
     @Override
-    public void decrByDBAndRedis(Long userId, Long allNum) {
-        myCurrencyAccountService.decr(userId, allNum);
+    public void incrBalance(BalanceMqDto balanceMqDto) {
+        myCurrencyAccountService.incr(balanceMqDto);
+    }
+
+    @Override
+    public void  decrBalanceByDB(BalanceMqDto balanceMqDto) {
+        myCurrencyAccountService.decr(balanceMqDto);
 
     }
 

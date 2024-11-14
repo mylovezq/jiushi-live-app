@@ -20,7 +20,7 @@ public class PayTopicPO {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String topic;
-    private Integer bizCode;
+    private String bizCode;
     private Integer status;
     private String remark;
     private LocalDateTime createTime;

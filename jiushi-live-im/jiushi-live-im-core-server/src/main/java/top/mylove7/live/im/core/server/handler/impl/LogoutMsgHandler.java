@@ -4,9 +4,10 @@ import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.producer.MQProducer;
+import org.apache.dubbo.config.annotation.DubboReference;
+
 import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
+
 import top.mylove7.live.common.interfaces.constants.ImMsgCodeEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
@@ -19,6 +20,7 @@ import top.mylove7.live.common.interfaces.constants.ImCoreServerConstants;
 import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import top.mylove7.live.living.interfaces.room.rpc.ILivingRoomRpc;
 
 /**
  * 登出消息的处理逻辑统一收拢到这个类中
@@ -34,9 +36,9 @@ public class LogoutMsgHandler implements SimplyHandler {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    @Resource
-    private MQProducer mqProducer;
-
+    
+    @DubboReference
+    private ILivingRoomRpc liveRoomRpc;
     @Override
     public void handler(ChannelHandlerContext ctx, ImTcpWsDto imTcpWsDto) {
         Long userId = ImContextUtils.getUserId(ctx);
@@ -83,30 +85,13 @@ public class LogoutMsgHandler implements SimplyHandler {
         stringRedisTemplate.delete(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId);
         ImContextUtils.removeUserId(ctx);
         ImContextUtils.removeAppId(ctx);
-        this.sendLogoutMQ(ctx, userId, appId);
-    }
 
-    /**
-     * 登出的时候发送mq消息
-     *
-     * @param ctx
-     * @param userId
-     * @param appId
-     */
-    public void sendLogoutMQ(ChannelHandlerContext ctx, Long userId, Long appId) {
+
         ImOfflineDTO imOfflineDTO = new ImOfflineDTO();
         imOfflineDTO.setUserId(userId);
         imOfflineDTO.setRoomId(ImContextUtils.getRoomId(ctx));
         imOfflineDTO.setAppId(appId);
         imOfflineDTO.setLoginTime(System.currentTimeMillis());
-        Message message = new Message();
-        message.setTopic(ImCoreServerProviderTopicNames.IM_OFFLINE_TOPIC);
-        message.setBody(JSON.toJSONString(imOfflineDTO).getBytes());
-        try {
-            SendResult sendResult = mqProducer.send(message);
-            log.error("[sendLogoutMQ] result im_offline_topic is {}", sendResult);
-        } catch (Exception e) {
-            log.error("[sendLogoutMQ] error im_offline_topic is: ", e);
-        }
+        liveRoomRpc.userOfflineHandler(imOfflineDTO);
     }
 }

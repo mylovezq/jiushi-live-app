@@ -46,19 +46,11 @@
         </dependency>
         <dependency>
             <groupId>top.mylove7</groupId>
-            <artifactId>jiushi-live-auth-interface</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-framework-redis-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-im-core-server-interfaces</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.mylove7</groupId>
-            <artifactId>jiushi-live-auth-interface</artifactId>
         </dependency>
         <dependency>
             <groupId>top.mylove7</groupId>
@@ -79,13 +71,13 @@
                 <version>1.2.0</version>
                 <executions>
                     <!-- 当mvn执行install操作的时候，执行docker的build -->
-                    <execution>
-                        <id>build</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
+            <!--                    <execution>-->
+<!--                        <id>build</id>-->
+<!--                        <phase>install</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>build</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
                 </executions>
                 <configuration>
                       <dockerHost>${docker.dockerHost}</dockerHost>

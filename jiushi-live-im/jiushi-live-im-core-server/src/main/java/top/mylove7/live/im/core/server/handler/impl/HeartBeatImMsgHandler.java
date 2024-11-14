@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
+import top.mylove7.live.im.core.server.common.ChannelHandlerContextCache;
 import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.jiushi.live.framework.redis.starter.key.ImCoreServerProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.constants.ImConstants;
@@ -52,15 +53,13 @@ public class HeartBeatImMsgHandler implements SimplyHandler {
         String redisKey = cacheKeyBuilder.buildImLoginTokenKey(userId, appId);
         this.recordOnlineTime(userId, redisKey);
         this.removeExpireRecord(redisKey);
-        redisTemplate.expire(redisKey, 5, TimeUnit.MINUTES);
         //延长用户之前保存的ip绑定记录时间
-        stringRedisTemplate.expire(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId, ImConstants.DEFAULT_HEART_BEAT_GAP * 2, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(ImCoreServerConstants.IM_BIND_IP_KEY + appId + ":" + userId, ChannelHandlerContextCache.getServerIpAddress() + "%" + userId ,ImConstants.DEFAULT_HEART_BEAT_GAP * 2, TimeUnit.SECONDS);
         ImMsgBodyInTcpWsDto msgBody = new ImMsgBodyInTcpWsDto();
         msgBody.setToUserId(userId);
         msgBody.setAppId(appId);
         msgBody.setData("心跳包处理成功");
         ImTcpWsDto respMsg = ImTcpWsDto.build(ImMsgCodeEnum.IM_HEARTBEAT_MSG.getCode(), JSON.toJSONString(msgBody));
-        //log.info("[HeartBeatImMsgHandler] imTcpWsDto is {}", imTcpWsDto.toJson());
         ctx.writeAndFlush(respMsg);
     }
 
@@ -81,6 +80,7 @@ public class HeartBeatImMsgHandler implements SimplyHandler {
      */
     private void recordOnlineTime(Long userId, String redisKey) {
         redisTemplate.opsForZSet().add(redisKey, userId, System.currentTimeMillis());
+        redisTemplate.expire(redisKey, 5, TimeUnit.MINUTES);
     }
 
 

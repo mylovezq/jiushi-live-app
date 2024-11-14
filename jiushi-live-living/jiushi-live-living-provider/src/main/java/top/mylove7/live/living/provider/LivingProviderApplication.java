@@ -1,9 +1,11 @@
 package top.mylove7.live.living.provider;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
+import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
 /**
  * @Author jiushi
@@ -12,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @EnableDubbo
+@Import(RocketMQAutoConfiguration.class)
 public class LivingProviderApplication {
 
     public static void main(String[] args) {

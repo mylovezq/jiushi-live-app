@@ -5,21 +5,22 @@ import cn.hutool.json.JSONUtil;
 import io.netty.channel.ChannelHandlerContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.messaging.support.GenericMessage;
+import org.springframework.stereotype.Component;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
-import top.mylove7.live.im.core.server.common.ImTcpWsDto;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.topic.ImCoreServerProviderTopicNames;
 import top.mylove7.live.im.core.server.common.ImContextUtils;
+import top.mylove7.live.im.core.server.common.ImTcpWsDto;
 import top.mylove7.live.im.core.server.handler.SimplyHandler;
-import org.springframework.stereotype.Component;
 
 /**
  * 业务消息处理器
  *
  * @Author jiushi
- *
  * @Description
  */
 @Component
@@ -28,7 +29,7 @@ public class BizImMsgHandler implements SimplyHandler {
 
 
     @Resource
-    private MQProducer mqProducer;
+    private RocketMQTemplate rocketMQTemplate;
 
     @Override
     public void handler(ChannelHandlerContext ctx, ImTcpWsDto imTcpWsDto) {
@@ -50,15 +51,16 @@ public class BizImMsgHandler implements SimplyHandler {
         ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = JSONUtil.toBean(new String(body), ImMsgBodyInTcpWsDto.class);
         imMsgBodyInTcpWsDto.setMsgId(UUID.fastUUID().toString());
         imMsgBodyInTcpWsDto.setFromUserId(userId);
-        Message message = new Message();
-        message.setTopic(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_BIZ_MSG_TOPIC);
-        message.setBody(imMsgBodyInTcpWsDto.toByte());
         try {
-            SendResult sendResult = mqProducer.send(message);
-            log.info("[BizImMsgHandler]消息投递结果:{}", sendResult);
+            SendResult sendResult = rocketMQTemplate.syncSend(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_BIZ_MSG_TOPIC, imMsgBodyInTcpWsDto);
+            if (sendResult.getSendStatus() != SendStatus.SEND_OK) {
+                log.error("投递im业务消息异常 :{}", sendResult);
+                throw new BizErrorException("send BizImMsgHandler error");
+            }
+            log.info("投递im业务消息成功:{}", imMsgBodyInTcpWsDto);
         } catch (Exception e) {
-            log.error("send BizImMsgHandler error ,erros is :", e);
-            throw new RuntimeException(e);
+            log.error("im业务消息发送失败：", e);
+            throw new BizErrorException("im业务消息发送失败");
         }
     }
 }

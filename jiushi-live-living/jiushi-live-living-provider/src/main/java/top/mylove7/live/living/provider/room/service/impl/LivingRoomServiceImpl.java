@@ -4,9 +4,8 @@ import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
@@ -30,7 +29,7 @@ import top.mylove7.live.living.provider.room.dao.po.LivingRoomPO;
 import top.mylove7.live.living.provider.room.service.ILivingRoomService;
 import top.mylove7.live.living.provider.room.service.ILivingRoomTxService;
 import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
-import top.mylove7.live.msg.interfaces.ImRouterRpc;
+import top.mylove7.live.msg.interfaces.ImMsgRouterRpc;
 import top.mylove7.live.user.user.dto.UserDTO;
 import top.mylove7.live.user.user.interfaces.IUserRpc;
 
@@ -46,9 +45,10 @@ import java.util.stream.Collectors;
  * @Description
  */
 @Service
+@Slf4j
 public class LivingRoomServiceImpl implements ILivingRoomService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LivingRoomServiceImpl.class);
+
 
     @Resource
     private LivingRoomMapper livingRoomMapper;
@@ -61,7 +61,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     @Resource
     private ILivingRoomTxService livingRoomTxService;
     @DubboReference
-    private ImRouterRpc imRouterRpc;
+    private ImMsgRouterRpc imMsgRouterRpc;
     @DubboReference
     private IUserRpc userRpc;
 
@@ -82,7 +82,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
 
     @Override
     public void userOfflineHandler(ImOfflineDTO imOfflineDTO) {
-        LOGGER.info("offline handler,imOfflineDTO is {}", imOfflineDTO);
+        log.info("offline handler,imOfflineDTO is {}", imOfflineDTO);
         Long userId = imOfflineDTO.getUserId();
         Long roomId = imOfflineDTO.getRoomId();
         Long appId = imOfflineDTO.getAppId();
@@ -100,7 +100,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
 
     @Override
     public void userOnlineHandler(ImOnlineDTO imOnlineDTO) {
-        LOGGER.info("online handler,imOnlineDTO is {}", imOnlineDTO);
+        log.info("online handler,imOnlineDTO is {}", imOnlineDTO);
         Long userId = imOnlineDTO.getUserId();
         Long roomId = imOnlineDTO.getRoomId();
         Long appId = imOnlineDTO.getAppId();
@@ -232,6 +232,6 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             imMsgBodyInTcpWsDto.setData(jsonObject.toJSONString());
             return imMsgBodyInTcpWsDto;
         }).collect(Collectors.toList());
-        imRouterRpc.batchSendMsg(imMsgBodies);
+        imMsgRouterRpc.batchSendMsg(imMsgBodies);
     }
 }

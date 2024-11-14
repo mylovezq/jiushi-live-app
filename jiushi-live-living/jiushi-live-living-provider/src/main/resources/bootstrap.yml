@@ -21,3 +21,4 @@ spring:
     import:
       - optional:nacos:jiushi-live-living-provider.yaml
       - optional:nacos:jiushi-live-common.yaml
+      - optional:nacos:jiushi-live-rocketmq.yaml

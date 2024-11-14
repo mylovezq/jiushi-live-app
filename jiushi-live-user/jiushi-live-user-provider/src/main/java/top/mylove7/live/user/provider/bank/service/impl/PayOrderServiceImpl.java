@@ -1,44 +1,33 @@
 package top.mylove7.live.user.provider.bank.service.impl;
 
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.producer.MQProducer;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
 import top.mylove7.live.user.interfaces.bank.constants.OrderStatusEnum;
-import top.mylove7.live.user.interfaces.bank.constants.PayProductTypeEnum;
-import top.mylove7.live.user.interfaces.bank.constants.PaySourceEnum;
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.interfaces.bank.dto.PayProductDTO;
 import top.mylove7.live.user.interfaces.bank.qo.PayProductReqQo;
 import top.mylove7.live.user.interfaces.bank.vo.PayProductRespVO;
 import top.mylove7.live.user.interfaces.bank.vo.WxPayNotifyQo;
 import top.mylove7.live.user.provider.bank.dao.maper.IPayOrderMapper;
 import top.mylove7.live.user.provider.bank.dao.po.PayOrderPO;
-import top.mylove7.live.user.provider.bank.dao.po.PayTopicPO;
-
-import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
-import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
-import top.mylove7.live.common.interfaces.error.BizErrorException;
-import top.mylove7.live.common.interfaces.error.ErrorAssert;
-import top.mylove7.live.user.provider.bank.service.*;
-
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import top.mylove7.live.user.provider.bank.service.IMyCurrencyAccountService;
+import top.mylove7.live.user.provider.bank.service.IPayOrderService;
+import top.mylove7.live.user.provider.bank.service.IPayProductService;
+import top.mylove7.live.user.provider.bank.service.IPayTopicService;
 
 /**
  * @Author jiushi
@@ -55,14 +44,14 @@ public class PayOrderServiceImpl implements IPayOrderService {
     private IPayProductService payProductService;
     @Resource
     private IPayTopicService payTopicService;
-    @Resource
-    private MQProducer mqProducer;
+
     @Resource
     private IMyCurrencyAccountService myCurrencyAccountService;
     @Resource
-    private ICurrencyTradeService currencyTradeService;
-    @Resource
     private RedisTemplate redisTemplate;
+
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
 
     @Override
     public PayOrderPO queryByOrderId(String orderId) {
@@ -73,11 +62,10 @@ public class PayOrderServiceImpl implements IPayOrderService {
     }
 
     @Override
-    public String insertOne(PayOrderPO payOrderPO) {
-        String orderId = UUID.randomUUID().toString();
-        payOrderPO.setOrderId(orderId);
+    public void insertOne(PayOrderPO payOrderPO) {
+
         payOrderMapper.insert(payOrderPO);
-        return orderId;
+
     }
 
     @Override
@@ -100,40 +88,26 @@ public class PayOrderServiceImpl implements IPayOrderService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean payNotify(WxPayNotifyQo wxPayNotifyQo) {
+
+        //简单接收，正式环境要做验签
         PayOrderPO payOrderPO = this.queryByOrderId(wxPayNotifyQo.getOrderId());
         if (payOrderPO == null) {
-            log.error("error payOrderPO, wxPayNotifyQo is {}", wxPayNotifyQo);
+            log.error("订单信息为空{}", wxPayNotifyQo);
             return false;
         }
-        PayTopicPO payTopicPO = payTopicService.getByCode(wxPayNotifyQo.getBizCode());
-        if (payTopicPO == null || StrUtil.isEmpty(payTopicPO.getTopic())) {
-            log.error("error payTopicPO, wxPayNotifyQo is {}", wxPayNotifyQo);
-            return false;
-        }
-        this.payNotifyHandler(payOrderPO);
-        //假设 支付成功后，要发送消息通知 -》 msg-provider
-        //假设 支付成功后，要修改用户的vip经验值
-        //发mq
-        //中台服务，支付的对接方 10几种服务，pay-notify-topic
-        Message message = new Message();
-        message.setTopic(payTopicPO.getTopic());
-        message.setBody(JSONUtil.toJsonStr(payOrderPO).getBytes(UTF_8));
-        SendResult sendResult = null;
-        try {
-            sendResult = mqProducer.send(message);
-            log.info("[payNotify] sendResult is {} ", sendResult);
-        } catch (Exception e) {
-            log.error("[payNotify] sendResult is {}, error is ", sendResult, e);
-        }
+
+        this.updateOrderStatus(payOrderPO.getOrderId(), OrderStatusEnum.PAYED.getCode());
+        BalanceMqDto balanceMqDto = BeanUtil.copyProperties(payOrderPO, BalanceMqDto.class);
+        myCurrencyAccountService.incr(balanceMqDto);
         return true;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PayProductRespVO payProduct(PayProductReqQo payProductReqQo) {
         //参数校验
-        ErrorAssert.isNotNull(PaySourceEnum.find(payProductReqQo.getPaySource()), BizBaseErrorEnum.PARAM_ERROR);
-
         PayProductDTO payProductDTO = payProductService.getByProductId(payProductReqQo.getProductId());
         Assert.notNull(payProductDTO, "该商品不存在");
 
@@ -141,54 +115,25 @@ public class PayOrderServiceImpl implements IPayOrderService {
         PayOrderPO payOrderPo = new PayOrderPO();
         payOrderPo.setProductId(payProductReqQo.getProductId());
         payOrderPo.setUserId(payProductReqQo.getUserId());
-        payOrderPo.setSource(payProductReqQo.getPaySource());
-        payOrderPo.setPayChannel(payProductReqQo.getPayChannel());
-        String orderId = this.insertOne(payOrderPo);
+        payOrderPo.setTradeType(payProductReqQo.getTradeType());
+        payOrderPo.setStatus(OrderStatusEnum.PAYING.getCode());
+        payOrderPo.setOrderId(IdWorker.getId() + "");
+        payOrderPo.setTradeId(IdWorker.getId());
 
-        //更新订单为支付中状态
-        this.updateOrderStatus(orderId, OrderStatusEnum.PAYING.getCode());
-        PayProductRespVO payProductRespVO = new PayProductRespVO();
-        payProductRespVO.setOrderId(orderId);
+        this.insertOne(payOrderPo);
+
+        WxPayNotifyQo wxPayNotifyQo = new WxPayNotifyQo();
+        wxPayNotifyQo.setOrderId(payOrderPo.getOrderId());
 
         //todo 远程http请求 resttemplate-》支付回调接口
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.set("orderId", orderId);
-        jsonObject.set("userId", JiushiLoginRequestContext.getUserId());
-        jsonObject.set("bizCode", 10001);
         HttpRequest httpRequest = HttpUtil.createPost("http://localhost/live/api/payNotify/wxNotify");
-        httpRequest.body(jsonObject.toString());
+        httpRequest.body(JSONUtil.toJsonStr(wxPayNotifyQo));
         HttpResponse response = httpRequest.execute();
         log.info("请求的结果{}", response.body());
+        PayProductRespVO payProductRespVO = new PayProductRespVO();
+        payProductRespVO.setOrderId(payOrderPo.getOrderId());
         return payProductRespVO;
     }
 
-    /**
-     * 增加用户余额
-     *
-     * @param payOrderPO
-     */
-    private void payNotifyHandler(PayOrderPO payOrderPO) {
-        try {
-            this.updateOrderStatus(payOrderPO.getOrderId(), OrderStatusEnum.PAYED.getCode());
-            Integer productId = payOrderPO.getProductId();
-            PayProductDTO payProductDTO = payProductService.getByProductId(productId);
-            if (payProductDTO != null &&
-                    PayProductTypeEnum.JIUSHI_COIN.getCode().equals(payProductDTO.getType())) {
-                Long userId = payOrderPO.getUserId();
-                JSONObject jsonObject = JSONUtil.parseObj(payProductDTO.getExtra());
-                Long num = jsonObject.getLong("coin");
-                boolean lockStatus = redisTemplate.opsForValue().setIfAbsent(payOrderPO.getId()+"", -1L, 24, TimeUnit.HOURS);
-                if (!lockStatus) {
-                    log.info("[payNotifyHandler] 该笔订单已经充值, orderId is {}", payOrderPO.getId());
-                    return;
-                }
-                myCurrencyAccountService.incr(userId, num);
-            }
-        } catch (Exception e) {
-            log.error("[payNotifyHandler] error is 充值失败 ", e);
-            redisTemplate.delete(payOrderPO.getId());
-            throw new BizErrorException("充值失败");
-        }
-    }
 
 }

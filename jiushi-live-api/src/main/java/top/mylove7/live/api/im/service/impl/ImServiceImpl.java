@@ -31,14 +31,7 @@ public class ImServiceImpl implements ImService {
     public ImConfigVO getImConfig() {
         ImConfigVO imConfigVO = new ImConfigVO();
         imConfigVO.setToken(imTokenRpc.createImLoginToken(JiushiLoginRequestContext.getUserId(), AppIdEnum.JIUSHI_LIVE_BIZ.getCode()));
-        buildImServerAddress(imConfigVO);
         return imConfigVO;
     }
 
-    private void buildImServerAddress(ImConfigVO imConfigVO) {
-        List<ServiceInstance> serviceInstanceList = discoveryClient.getInstances("jiushi-live-im-core-server");
-        Collections.shuffle(serviceInstanceList);
-        ServiceInstance aimInstance = serviceInstanceList.get(0);
-
-    }
 }

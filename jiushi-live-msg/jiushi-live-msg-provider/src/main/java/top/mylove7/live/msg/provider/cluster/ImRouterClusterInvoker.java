@@ -1,5 +1,6 @@
 package top.mylove7.live.msg.provider.cluster;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
@@ -24,6 +25,12 @@ public class ImRouterClusterInvoker<T> extends AbstractClusterInvoker<T> {
     protected Result doInvoke(Invocation invocation, List list, LoadBalance loadbalance) throws RpcException {
         checkWhetherDestroyed();
         String ip = (String) RpcContext.getContext().get("ip");
+        if (StrUtil.isBlank(ip)){
+
+            Invoker select = loadbalance.select(list, getUrl(), invocation);
+            return select.invoke(invocation);
+        }
+
         if (StringUtils.isEmpty(ip)) {
             throw new RuntimeException("ip can not be null!");
         }

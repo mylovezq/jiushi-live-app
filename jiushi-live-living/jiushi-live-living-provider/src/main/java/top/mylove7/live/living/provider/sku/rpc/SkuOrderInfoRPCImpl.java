@@ -1,12 +1,15 @@
 package top.mylove7.live.living.provider.sku.rpc;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
-import org.apache.rocketmq.client.producer.MQProducer;
-import org.apache.rocketmq.common.message.Message;
+
+
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -22,11 +25,14 @@ import top.mylove7.live.living.provider.sku.service.ISkuInfoService;
 import top.mylove7.live.living.provider.sku.service.ISkuOrderInfoService;
 import top.mylove7.live.living.provider.sku.service.ISkuStockInfoService;
 import top.mylove7.live.user.interfaces.bank.constants.OrderStatusEnum;
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static top.mylove7.live.user.interfaces.bank.constants.TradeTypeEnum.LIVING_ROOM_SHOP;
 
 /**
  * @Program: jiushi-live-app
@@ -47,9 +53,9 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
     @Resource
     private ISkuInfoService skuInfoService;
     @DubboReference
-    private ICurrencyAccountRpc accountRpc;
+    private ICurrencyAccountRpc currencyAccountRpc;
     @Resource
-    private MQProducer mqProducer;
+    private RocketMQTemplate rocketMQTemplate;
 
 
     @Override
@@ -96,7 +102,7 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
         shopCarService.removeFromCar(shopCarReqDTO);
         Long orderId = skuOrderInfo.getId();
         //库存回滚的mq延迟消息发送
-        stockRollbackHandler(userId, orderId);
+        this.stockRollbackHandler(userId, orderId);
 
         List<SkuPrepareOrderItemInfoDTO> skuPrepareOrderItemInfoDTOList = new ArrayList<>();
         int totalPrice = 0;
@@ -143,8 +149,15 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
         shopCarReqDTO.setRoomId(skuOrderInfoRespDTO.getRoomId());
         shopCarService.clearCar(shopCarReqDTO);
 
+
+        BalanceMqDto balanceMqDto = new BalanceMqDto();
+        balanceMqDto.setTradeId(IdWorker.getId());
+        balanceMqDto.setPrice(allSkuPrice);
+        balanceMqDto.setTradeType(LIVING_ROOM_SHOP.name());
+        balanceMqDto.setUserId(skuOrderInfoRespDTO.getUserId());
+
         //扣减虚拟币 当前可以用数据库承接 扣减失败就抛错   就事务回滚
-        accountRpc.decrByDBAndRedis(skuOrderInfoRespDTO.getUserId(), allSkuPrice);
+        currencyAccountRpc.decrBalanceByDB(balanceMqDto);
 
         return true;
     }
@@ -156,16 +169,7 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
      * @param orderId
      */
     private void stockRollbackHandler(Long userId, Long orderId) {
-        Message message = new Message();
-        message.setTopic(SkuProviderTopicNames.ROLL_BACK_STOCK);
-        message.setBody(JSON.toJSONString(new RockBackInfoDTO(userId, orderId)).getBytes());
-        //delayTimeLevel=1s 5s 10s(3) 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m(16) 1h 2h
-        //从1开始 16 就是延迟 30m
-        message.setDelayTimeLevel(16);
-        try {
-            mqProducer.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        rocketMQTemplate.syncSend(SkuProviderTopicNames.ROLL_BACK_STOCK, new RockBackInfoDTO(userId, orderId));
+
     }
 }

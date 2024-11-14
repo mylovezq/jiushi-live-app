@@ -3,41 +3,45 @@ package top.mylove7.live.living.provider.gift.rpc;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
-import org.apache.rocketmq.client.producer.MQProducer;
+
 import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.Assert;
 import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
-import top.mylove7.live.common.interfaces.dto.SendGiftMq;
+import top.mylove7.live.common.interfaces.dto.SendGiftDto;
 import top.mylove7.live.common.interfaces.error.ApiErrorEnum;
 import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.error.ErrorAssert;
-import top.mylove7.live.common.interfaces.topic.GiftProviderTopicNames;
+import top.mylove7.live.common.interfaces.topic.BalanceChangeTopic;
 import top.mylove7.live.living.interfaces.gift.constants.SendGiftTypeEnum;
 import top.mylove7.live.living.interfaces.gift.dto.GiftConfigDTO;
-import top.mylove7.live.living.interfaces.gift.interfaces.IGiftSendRpc;
+import top.mylove7.live.living.interfaces.gift.rpc.IGiftSendRpc;
 import top.mylove7.live.living.interfaces.gift.qo.GiftReqQo;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomRespDTO;
 import top.mylove7.live.living.interfaces.room.rpc.ILivingRoomRpc;
 import top.mylove7.live.living.provider.gift.service.IGiftConfigService;
 import top.mylove7.live.msg.constants.ImMsgBizCodeEnum;
-import top.mylove7.live.msg.interfaces.ImRouterRpc;
+import top.mylove7.live.msg.interfaces.ImMsgRouterRpc;
+import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.rocketmq.client.producer.SendStatus.SEND_OK;
 
 @DubboService
 @Slf4j
@@ -60,17 +64,18 @@ public class IGiftSendImpl implements IGiftSendRpc {
     private IGiftConfigService giftConfigService;
     @DubboReference
     private ICurrencyAccountRpc currencyAccountRpc;
-    @Resource
-    private MQProducer mqProducer;
     @DubboReference
     private ILivingRoomRpc livingRoomRpc;
     @DubboReference
-    private ImRouterRpc routerRpc;
+    private ImMsgRouterRpc routerRpc;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
     @Resource
     private LivingProviderCacheKeyBuilder cacheKeyBuilder;
+
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
 
     @Override
     public void sendGift(GiftReqQo giftReqQo) {
@@ -91,24 +96,31 @@ public class IGiftSendImpl implements IGiftSendRpc {
         log.info("直播间用户信息{}", userIdList);
         Assert.isTrue(CollUtil.isNotEmpty(userIdList), "直播间异常，请重进直播间");
 
-        currencyAccountRpc.decrByRedis(giftReqQo.getSenderUserId(), Long.valueOf(giftConfigDTO.getPrice()));
+        currencyAccountRpc.decrBalanceByRedis(giftReqQo.getSenderUserId(), giftConfigDTO.getPrice());
 
-        SendGiftMq sendGiftMq = new SendGiftMq();
-        Message message = this.buildMessage(giftReqQo, giftConfigDTO, sendGiftMq);
+
+        SendGiftDto sendGiftDto = this.buildMessage(giftReqQo, giftConfigDTO);
         try {
             //投递成功就只做扣减库存操作，就是失败，也从mq里面筛选出
-            SendResult sendResult = mqProducer.send(message);
-            log.info("送礼发送结果{}===发送内容{}", sendResult, sendGiftMq);
+            BalanceMqDto balanceMqDto = new BalanceMqDto();
+            balanceMqDto.setTradeId(IdWorker.getId());
+            balanceMqDto.setUserId(sendGiftDto.getUserId());
+            balanceMqDto.setPrice(sendGiftDto.getPrice());
+            SendResult sendResult = rocketMQTemplate.syncSend(BalanceChangeTopic.DECR_BALANCE, balanceMqDto);
+            log.info("送礼发送{}结果===发送内容{}",sendResult, sendGiftDto);
+            if (sendResult.getSendStatus() != SEND_OK){
+                throw new BizErrorException("礼物发送失败");
+            }
 
         } catch (Exception e) {
-            log.info("[gift-send] send result is error:", e);
+            log.info("送礼发送===发送异常", e);
             //人工兜底
-            throw new BizErrorException("礼物发送失败");
+            throw new BizErrorException("礼物发送异常");
         }
 
         try {
             //没有走db，内部调用应该都很快
-            this.sendGiftAfterDB(sendGiftMq);
+            this.sendGiftAfterDB(sendGiftDto);
         } catch (Exception e) {
             log.error("礼物特效推送功能异常", e);
             //直接抛给前端
@@ -116,37 +128,41 @@ public class IGiftSendImpl implements IGiftSendRpc {
         }
     }
 
-    private void sendGiftAfterDB(SendGiftMq sendGiftMq) {
+    private void sendGiftAfterDB(SendGiftDto sendGiftDto) {
         //如果余额扣减成功
-        Integer sendGiftType = sendGiftMq.getType();
+        Integer sendGiftType = sendGiftDto.getType();
         JSONObject jsonObject = new JSONObject();
         if (SendGiftTypeEnum.DEFAULT_SEND_GIFT.getCode().equals(sendGiftType)) {
             //触发礼物特效推送功能
-            jsonObject.put("url", sendGiftMq.getUrl());
-            jsonObject.put("roomId", sendGiftMq.getRoomId());
-            LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
-            reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
-            reqDTO.setRoomId(sendGiftMq.getRoomId());
-            List<Long> userIdList = livingRoomRpc.queryUserIdByRoomId(reqDTO);
-            Assert.isTrue(CollUtil.isNotEmpty(userIdList), "直播间异常，请重进直播间");
-
-            this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_SEND_GIFT_SUCCESS, jsonObject);
+            this.sendDefaultGift(sendGiftDto, jsonObject);
             return;
         }
         if (SendGiftTypeEnum.PK_SEND_GIFT.getCode().equals(sendGiftType)) {
             //改成全直播间可见
-            this.pkImMsgSend(jsonObject, sendGiftMq);
+            this.pkImMsgSend(jsonObject, sendGiftDto);
         }
     }
 
-    private void pkImMsgSend(JSONObject jsonObject, SendGiftMq sendGiftMq) {
+    private void sendDefaultGift(SendGiftDto sendGiftDto, JSONObject jsonObject) {
+        jsonObject.put("url", sendGiftDto.getUrl());
+        jsonObject.put("roomId", sendGiftDto.getRoomId());
+        LivingRoomReqDTO reqDTO = new LivingRoomReqDTO();
+        reqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
+        reqDTO.setRoomId(sendGiftDto.getRoomId());
+        List<Long> userIdList = livingRoomRpc.queryUserIdByRoomId(reqDTO);
+        Assert.isTrue(CollUtil.isNotEmpty(userIdList), "直播间异常，请重进直播间");
+
+        this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_SEND_GIFT_SUCCESS, jsonObject);
+    }
+
+    private void pkImMsgSend(JSONObject jsonObject, SendGiftDto sendGiftDto) {
         //pk类型的送礼 要通知什么给直播间的用户
         //url 礼物特效全直播间可见
         //todo 进度条全直播间可见
         // 1000,进度条长度一共是1000，每个礼物对于进度条的影响就是一个数值（500（A）：500（B），550：450）
         // 直播pk进度是不是以roomId为维度，string，送礼（A）incr，送礼给（B）就是decr。
-        Long roomId = sendGiftMq.getRoomId();
-        Long receiverId = sendGiftMq.getReceiverId();
+        Long roomId = sendGiftDto.getRoomId();
+        Long receiverId = sendGiftDto.getReceiverId();
         String isOverCacheKey = cacheKeyBuilder.buildLivingPkIsOver(roomId);
         if (redisTemplate.hasKey(isOverCacheKey)) {
             return;
@@ -164,24 +180,24 @@ public class IGiftSendImpl implements IGiftSendRpc {
         redisScript.setResultType(Long.class);
         Long sendGiftSeqNum = System.currentTimeMillis();
         if (pkUserId.equals(receiverId)) {
-            Long moveStep = sendGiftMq.getPrice() / 10;
+            Long moveStep = sendGiftDto.getPrice() / 10;
             pkNum = this.redisTemplate.execute(redisScript, Collections.singletonList(pkNumKey), PK_INIT_NUM, PK_MAX_NUM, PK_MIN_NUM, moveStep);
             if (PK_MAX_NUM <= pkNum) {
                 jsonObject.put("winnerId", pkUserId);
             }
         } else if (pkObjId.equals(receiverId)) {
-            Long moveStep = sendGiftMq.getPrice() / 10 * -1;
+            Long moveStep = sendGiftDto.getPrice() / 10 * -1;
             pkNum = this.redisTemplate.execute(redisScript, Collections.singletonList(pkNumKey), PK_INIT_NUM, PK_MAX_NUM, PK_MIN_NUM, moveStep);
             if (PK_MIN_NUM >= pkNum) {
                 this.redisTemplate.opsForValue().set(cacheKeyBuilder.buildLivingPkIsOver(roomId), -1);
                 jsonObject.put("winnerId", pkObjId);
             }
         }
-        jsonObject.put("receiverId", sendGiftMq.getReceiverId());
+        jsonObject.put("receiverId", sendGiftDto.getReceiverId());
         jsonObject.put("sendGiftSeqNum", sendGiftSeqNum);
         jsonObject.put("pkNum", pkNum);
-        jsonObject.put("roomId", sendGiftMq.getRoomId());
-        jsonObject.put("url", sendGiftMq.getUrl());
+        jsonObject.put("roomId", sendGiftDto.getRoomId());
+        jsonObject.put("url", sendGiftDto.getUrl());
         LivingRoomReqDTO livingRoomReqDTO = new LivingRoomReqDTO();
         livingRoomReqDTO.setRoomId(roomId);
         livingRoomReqDTO.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
@@ -189,20 +205,17 @@ public class IGiftSendImpl implements IGiftSendRpc {
         this.batchSendImMsg(userIdList, ImMsgBizCodeEnum.LIVING_ROOM_PK_SEND_GIFT_SUCCESS, jsonObject);
     }
 
-    private Message buildMessage(GiftReqQo giftReqQo, GiftConfigDTO giftConfigDTO, SendGiftMq sendGiftMq) {
-        sendGiftMq.setUserId(giftReqQo.getSenderUserId());
-        sendGiftMq.setGiftId(giftReqQo.getGiftId());
-        sendGiftMq.setRoomId(giftReqQo.getRoomId());
-        sendGiftMq.setReceiverId(giftReqQo.getReceiverId());
-        sendGiftMq.setUrl(giftConfigDTO.getSvgaUrl());
-        sendGiftMq.setType(giftReqQo.getType());
-        sendGiftMq.setPrice(giftConfigDTO.getPrice());
-        //避免重复消费
-        sendGiftMq.setUuid(UUID.fastUUID().toString());
-        Message message = new Message();
-        message.setTopic(GiftProviderTopicNames.SEND_GIFT);
-        message.setBody(JSON.toJSONBytes(sendGiftMq));
-        return message;
+    private SendGiftDto buildMessage(GiftReqQo giftReqQo, GiftConfigDTO giftConfigDTO) {
+        SendGiftDto sendGiftDto = new SendGiftDto();
+        sendGiftDto.setUserId(giftReqQo.getSenderUserId());
+        sendGiftDto.setGiftId(giftReqQo.getGiftId());
+        sendGiftDto.setRoomId(giftReqQo.getRoomId());
+        sendGiftDto.setReceiverId(giftReqQo.getReceiverId());
+        sendGiftDto.setUrl(giftConfigDTO.getSvgaUrl());
+        sendGiftDto.setType(giftReqQo.getType());
+        sendGiftDto.setPrice(giftConfigDTO.getPrice());
+
+        return sendGiftDto;
     }
 
     private void batchSendImMsg(List<Long> userIdList, ImMsgBizCodeEnum imMsgBizCodeEnum, JSONObject jsonObject) {

@@ -39,8 +39,7 @@
         <spring-cloud-starter-bootstrap.version>3.0.2</spring-cloud-starter-bootstrap.version>
         <alibaba-fastjson.version>2.0.31</alibaba-fastjson.version>
         <redisson.version>3.17.0</redisson.version>
-        <mongodb-starter.version>3.3.4</mongodb-starter.version>
-        <mongodb-plus.version>2.1.4</mongodb-plus.version>
+        <rocket.starter-version>2.2.2</rocket.starter-version>
 
         <sharding.jdbc.version>5.3.2</sharding.jdbc.version>
         <jiushi-live.version>1.0.0</jiushi-live.version>
@@ -121,6 +120,11 @@
                 <artifactId>spring-cloud-starter-bootstrap</artifactId>
                 <version>${spring-cloud-boostrap.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocket.starter-version}</version>
+            </dependency>
             <!--redisson-->
             <dependency>
                 <groupId>org.redisson</groupId>
@@ -132,26 +136,13 @@
                 <artifactId>jiushi-live-framework-redis-starter</artifactId>
                 <version>${jiushi-live.version}</version>
             </dependency>
-            <dependency>
-                <groupId>top.mylove7</groupId>
-                <artifactId>jiushi-live-framework-mq-starter</artifactId>
-                <version>${jiushi-live.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>transmittable-thread-local</artifactId>
                 <version>${transmittable-thread-local.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-mongodb</artifactId>
-                <version>${mongodb-starter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.gitee.anwena</groupId>
-                <artifactId>mongo-plus-boot-starter</artifactId>
-                <version>${mongodb-plus.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>top.mylove7</groupId>
                 <artifactId>jiushi-live-living-interface</artifactId>
@@ -169,11 +160,6 @@
             </dependency>
             <dependency>
                 <groupId>top.mylove7</groupId>
-                <artifactId>jiushi-live-auth-interface</artifactId>
-                <version>${jiushi-live.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.mylove7</groupId>
                 <artifactId>jiushi-live-msg-interface</artifactId>
                 <version>${jiushi-live.version}</version>
             </dependency>
@@ -187,7 +173,16 @@
                 <artifactId>jiushi-live-dubbo</artifactId>
                 <version>${jiushi-live.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>top.mylove7</groupId>
+                <artifactId>jiushi-live-rocketmq-starter</artifactId>
+                <version>${jiushi-live.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.mylove7</groupId>
+                <artifactId>jiushi-live-framework-web-starter</artifactId>
+                <version>${jiushi-live.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>

@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+
 public class BizErrorException extends RuntimeException{
 
     private int errorCode;
@@ -32,6 +33,8 @@ public class BizErrorException extends RuntimeException{
         this.errorCode = 500;
         this.errorMsg = errorMsg;
     }
+
+
 
     @Override
     public String toString() {

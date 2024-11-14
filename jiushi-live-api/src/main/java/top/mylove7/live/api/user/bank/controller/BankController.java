@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
 import top.mylove7.live.api.user.bank.service.IBankService;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
@@ -38,6 +39,7 @@ public class BankController {
     // 可以根据业务标识去回调不同的业务服务（自定义参数组成中，塞入一个业务code，根据业务code去回调不同的业务服务）
 
     @PostMapping("/payProduct")
+    @RequestLimit(limit = 1, second = 2, msg = "请求过于频繁")
     public WebResponseVO payProduct(@RequestBody @Validated PayProductReqQo payProductReqVO) {
         return WebResponseVO.success(bankService.payProduct(payProductReqVO));
     }

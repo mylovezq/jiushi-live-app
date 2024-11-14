@@ -40,11 +40,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>top.mylove7</groupId>
-            <artifactId>jiushi-live-framework-mq-starter</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -87,6 +83,10 @@
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-dubbo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>top.mylove7</groupId>
+            <artifactId>jiushi-live-rocketmq-starter</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -98,13 +98,13 @@
                 <version>1.2.0</version>
                 <executions>
                     <!-- 当mvn执行install操作的时候，执行docker的build -->
-                    <execution>
-                        <id>build</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
+            <!--                    <execution>-->
+<!--                        <id>build</id>-->
+<!--                        <phase>install</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>build</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
                 </executions>
                 <configuration>
                       <dockerHost>${docker.dockerHost}</dockerHost>

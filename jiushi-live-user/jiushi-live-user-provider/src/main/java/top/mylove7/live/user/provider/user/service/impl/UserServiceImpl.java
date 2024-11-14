@@ -4,8 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import jakarta.annotation.Resource;
-import org.apache.rocketmq.client.producer.MQProducer;
-import org.apache.rocketmq.common.message.Message;
+
+
 
 import top.mylove7.jiushi.live.framework.redis.starter.key.UserProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.topic.UserProviderTopicNames;
@@ -50,8 +50,7 @@ public class UserServiceImpl implements IUserService {
     private RedisTemplate<String, UserDTO> redisTemplate;
     @Resource
     private UserProviderCacheKeyBuilder cacheKeyBuilder;
-    @Resource
-    private MQProducer mqProducer;
+    
 
     @Override
     public UserDTO getByUserId(Long userId) {
@@ -80,22 +79,6 @@ public class UserServiceImpl implements IUserService {
         if (updateStatus > -1) {
             String key = cacheKeyBuilder.buildUserInfoKey(userDTO.getUserId());
             redisTemplate.delete(key);
-            UserCacheAsyncDeleteDTO userCacheAsyncDeleteDTO = new UserCacheAsyncDeleteDTO();
-            userCacheAsyncDeleteDTO.setCode(CacheAsyncDeleteCode.USER_INFO_DELETE.getCode());
-            Map<String,Object> jsonParam = new HashMap<>();
-            jsonParam.put("userId",userDTO.getUserId());
-            userCacheAsyncDeleteDTO.setJson(JSON.toJSONString(jsonParam));
-            Message message = new Message();
-            message.setTopic(UserProviderTopicNames.CACHE_ASYNC_DELETE_TOPIC);
-
-            message.setBody(JSON.toJSONString(userCacheAsyncDeleteDTO).getBytes());
-            //延迟一秒进行缓存的二次删除
-            message.setDelayTimeLevel(1);
-            try {
-                mqProducer.send(message);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
         }
         return true;
     }

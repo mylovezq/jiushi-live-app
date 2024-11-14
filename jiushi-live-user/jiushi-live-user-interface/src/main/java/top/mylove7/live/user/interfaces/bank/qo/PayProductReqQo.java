@@ -21,17 +21,10 @@ public class PayProductReqQo {
     private Integer productId;
 
     /**
-     * 支付来源 (直播间，个人中心，聊天页面，第三方宣传页面，广告弹窗引导)
-     * @see PaySourceEnum
+     * 交易类型
      */
     @NotNull(message = "支付来源不能为空")
-    private Integer paySource;
-
-    /**
-     * 支付渠道
-     * @see PayChannelEnum
-     */
-    private Integer payChannel;
+    private String tradeType;
 
     private Long userId;
 

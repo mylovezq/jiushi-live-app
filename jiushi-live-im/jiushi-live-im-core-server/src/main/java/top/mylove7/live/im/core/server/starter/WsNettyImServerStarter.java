@@ -16,21 +16,22 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import jakarta.annotation.Resource;
-import top.mylove7.live.im.core.server.common.ChannelHandlerContextCache;
-import top.mylove7.live.im.core.server.common.WebsocketEncoder;
-import top.mylove7.live.im.core.server.handler.ws.WsImServerCoreHandler;
-import top.mylove7.live.im.core.server.handler.ws.WsSharkHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+import top.mylove7.live.im.core.server.common.ChannelHandlerContextCache;
+import top.mylove7.live.im.core.server.common.WebsocketEncoder;
+import top.mylove7.live.im.core.server.handler.ws.WsImServerCoreHandler;
+import top.mylove7.live.im.core.server.handler.ws.WsSharkHandler;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import static top.mylove7.live.common.interfaces.utils.ExecutorConfig.IO_EXECUTOR;
 
 /**
  * @Author jiushi
@@ -38,9 +39,8 @@ import java.util.Properties;
  * @Description
  */
 @Configuration
+@Slf4j
 public class WsNettyImServerStarter implements InitializingBean {
-
-    private static Logger LOGGER = LoggerFactory.getLogger(WsNettyImServerStarter.class);
 
     //指定监听的端口
     @Value("${jiushi.im.ws.port}")
@@ -68,7 +68,7 @@ public class WsNettyImServerStarter implements InitializingBean {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 //打印日志，方便观察
-                LOGGER.info("初始化连接渠道");
+                log.info("初始化连接渠道");
                 //因为基于http协议 使用http的编码和解码器
                 ch.pipeline().addLast(new HttpServerCodec());
                 //是以块方式写 添加处理器
@@ -89,7 +89,7 @@ public class WsNettyImServerStarter implements InitializingBean {
         this.setDubboIpAndPort();
         this.registerNacosService();
         ChannelFuture channelFuture = bootstrap.bind(wsPort).sync();
-        LOGGER.info("im webSocket服务启动成功，监听端口为{}", wsPort);
+        log.info("im webSocket服务启动成功，监听端口为{}", wsPort);
         //这里会阻塞掉主线程，实现服务长期开启的效果
         channelFuture.channel().closeFuture().sync();
     }
@@ -101,12 +101,13 @@ public class WsNettyImServerStarter implements InitializingBean {
         properties.setProperty(PropertyKeyConst.NAMESPACE, nacosDiscoveryProperties.getNamespace());
         NamingService namingService = NamingFactory.createNamingService(properties);
         String hostAddress = NetUtil.getLocalhostStr();
+        //jiushi-live-im-core-server-ws
         namingService.registerInstance(applicationName + "-ws",hostAddress, wsPort);
         ChannelHandlerContextCache.setWsIpAddress(hostAddress + ":" + wsPort);
 
     }
 
-    private void setDubboIpAndPort() throws UnknownHostException {
+    private void setDubboIpAndPort() {
         //获取im的服务注册ip和暴露端口
         String registryIpEnv = environment.getProperty("DUBBO_IP_TO_REGISTRY");
         if (StrUtil.isBlank(registryIpEnv)){
@@ -122,22 +123,20 @@ public class WsNettyImServerStarter implements InitializingBean {
             throw new IllegalArgumentException("启动参数中的注册端口和注册ip不能为空");
         }
         ChannelHandlerContextCache.setServerIpAddress(registryIpEnv + ":" + registryPortEnv);
-        LOGGER.info("duboo注册的ip{}和端口{}", registryIpEnv, registryPortEnv);
+        log.info("duboo注册的ip{}和端口{}", registryIpEnv, registryPortEnv);
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        Thread nettyServerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    startApplication();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
+    public void afterPropertiesSet() {
+      IO_EXECUTOR.execute(() -> {
+            Thread.currentThread().setName("jiushi-live-im-server-ws");
+          try {
+              startApplication();
+          } catch (Exception e) {
+             log.error("jiushi-live-im-server-ws启动失败",e);
+             System.exit(-1);
+          }
         });
-        nettyServerThread.setName("jiushi-live-im-server-ws");
-        nettyServerThread.start();
+
     }
 }

@@ -39,7 +39,7 @@ public class ShopInfoServiceImpl implements IShopInfoService {
         LivingRoomRespDTO livingRoomRespDTO = livingRoomRpc.queryByRoomId(roomId);
         Assert.notNull(livingRoomRespDTO,"直播间不存在");
         List<SkuInfoDTO> skuInfoDTOList = skuRpc.queryByAnchorId(livingRoomRespDTO.getAnchorId());
-        ErrorAssert.isTure(!CollectionUtils.isEmpty(skuInfoDTOList), BizBaseErrorEnum.PARAM_ERROR);
+
         return ConvertBeanUtils.convertList(skuInfoDTOList, SkuInfoVO.class);
     }
 

@@ -3,7 +3,7 @@ package top.mylove7.live.living.provider.gift.rpc;
 import jakarta.annotation.Resource;
 import org.apache.dubbo.config.annotation.DubboService;
 import top.mylove7.live.living.interfaces.gift.dto.GiftConfigDTO;
-import top.mylove7.live.living.interfaces.gift.interfaces.IGiftConfigRpc;
+import top.mylove7.live.living.interfaces.gift.rpc.IGiftConfigRpc;
 import top.mylove7.live.living.provider.gift.service.IGiftConfigService;
 
 import java.util.List;

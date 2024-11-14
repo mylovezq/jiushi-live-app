@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -21,11 +22,12 @@ public class PayOrderPO {
     private String orderId;
     private Integer productId;
     private Long userId;
-    private Integer source;
-    private Integer payChannel;
+    private String tradeType;
+    private Long tradeId;
     private Integer status;
-    private Date payTime;
-    private Date createTime;
-    private Date updateTime;
+    private Long price;
+    private LocalDateTime payTime;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 
 }
