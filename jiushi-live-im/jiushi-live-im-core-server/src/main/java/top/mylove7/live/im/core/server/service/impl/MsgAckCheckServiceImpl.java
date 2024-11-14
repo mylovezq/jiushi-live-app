@@ -7,6 +7,7 @@ import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import top.mylove7.jiushi.live.framework.redis.starter.key.ImCoreServerProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
@@ -55,7 +56,8 @@ public class MsgAckCheckServiceImpl implements IMsgAckCheckService {
 
     @Override
     public void sendDelayMsg(ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto) {
-        SendResult sendResult = rocketMQTemplate.syncSend(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_ACK_MSG_TOPIC, imMsgBodyInTcpWsDto, 10000);
+        SendResult sendResult
+                = rocketMQTemplate.syncSend(ImCoreServerProviderTopicNames.JIUSHI_LIVE_IM_ACK_MSG_TOPIC, MessageBuilder.withPayload(imMsgBodyInTcpWsDto).build() , 5000,2);
         log.info("发送ack消息延迟确认消息result:{}", sendResult);
         if (sendResult.getSendStatus() != SEND_OK) {
             log.error("发送ack消息延迟确认消息失败");
