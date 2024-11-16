@@ -13,6 +13,7 @@ public enum TradeTypeEnum {
     SEND_GIFT_TRADE(0,"送礼物交易"),
     LIVING_RECHARGE(1,"直播间充值"),
     LIVING_ROOM_SHOP(2,"直播间购物"),
+    RED_PACKET_RECHARGE(2,"抢红包"),
     ;
 
     private final int code;

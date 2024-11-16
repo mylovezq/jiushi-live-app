@@ -37,9 +37,9 @@ public class ImAckConsumerListener implements RocketMQListener<ImMsgBodyInTcpWsD
 
         //能发送成功，说明之前没有发送给，判断辨识为true了  就发送了，发送了再发就检验 已经确认消费 或达到最大重试次数
         if (sendSuccess) {
-           throw new BizErrorException("消息没有发送成功，开始进行校验");
+           throw new BizErrorException("消息发送成功，开始进行校验");
         }
-        log.info("消息确认送达");
+        log.info("ack检验。消息确认送达{}",imMsgBodyInTcpWsDto);
     }
 
 

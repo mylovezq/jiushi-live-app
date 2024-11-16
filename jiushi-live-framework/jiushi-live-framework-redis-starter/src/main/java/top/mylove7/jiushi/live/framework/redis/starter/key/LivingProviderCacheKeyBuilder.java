@@ -37,6 +37,17 @@ public class LivingProviderCacheKeyBuilder extends RedisKeyBuilder {
     private static String SKU_ORDER_INFO = "sku_order_info";
     private static String SKU_ORDER_INFO_BY_ORDER_ID = "sku_order_info_by_order_id";
 
+
+    private static String RED_PACKET_LIST = "red_packet_list";
+
+    private static String RED_PACKET_INIT_LOCK = "red_packet_init_lock";
+    private static String RED_PACKET_TOTAL_GET_CACHE = "red_packet_total_get_cache";
+    private static String RED_PACKET_TOTAL_GET_PRICE_CACHE = "red_packet_total_get_price_cache";
+    private static String MAX_GET_PRICE_CACHE = "max_get_price_cache";
+    private static String USER_TOTAL_GET_PRICE_CACHE = "user_total_get_price_cache";
+    private static String RED_PACKET_PREPARE_SUCCESS = "red_packet_prepare_success";
+    private static String RED_PACKET_NOTIFY = "red_packet_notify";
+
     public String buildLivingOnlinePk(Long roomId) {
         return super.getPrefix() + LIVING_ONLINE_PK + super.getSplitItem() + roomId;
     }
@@ -104,5 +115,34 @@ public class LivingProviderCacheKeyBuilder extends RedisKeyBuilder {
 
     public String buildSkuDetail(Long skuId) {
         return super.getPrefix() + SKU_DETAIL + super.getSplitItem() + skuId;
+    }
+
+
+    public String buildRedPacketInitLock() {
+        return super.getPrefix() + GIFT_LIST_LOCK;
+    }
+
+    public String buildRedPacketList(String code) {
+        return super.getPrefix() + RED_PACKET_LIST + super.getSplitItem() + code;
+    }
+
+    public String buildRedPacketPrepareSuccessCache(String code) {
+        return super.getPrefix() + RED_PACKET_PREPARE_SUCCESS + super.getSplitItem() + code;
+    }
+
+    public String buildRedPacketNotifyCache(String code) {
+        return super.getPrefix() + RED_PACKET_NOTIFY + super.getSplitItem() + code;
+    }
+
+
+    public String buildRedPacketTotalGetPriceCache(String code) {
+        return super.getPrefix() + RED_PACKET_TOTAL_GET_PRICE_CACHE + super.getSplitItem() + code;
+    }
+
+    public String buildRedPacketTotalGetCache(String code) {
+        return super.getPrefix() + RED_PACKET_TOTAL_GET_CACHE + super.getSplitItem() + code;
+    }
+    public String buildUserTotalGetPriceCache(Long userId) {
+        return super.getPrefix() + USER_TOTAL_GET_PRICE_CACHE + super.getSplitItem() + userId;
     }
 }
