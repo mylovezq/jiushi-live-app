@@ -119,6 +119,7 @@ public class PayOrderServiceImpl implements IPayOrderService {
         payOrderPo.setStatus(OrderStatusEnum.PAYING.getCode());
         payOrderPo.setOrderId(IdWorker.getId() + "");
         payOrderPo.setTradeId(IdWorker.getId());
+        payOrderPo.setPrice(Long.valueOf(payProductDTO.getPrice()));
 
         this.insertOne(payOrderPo);
 

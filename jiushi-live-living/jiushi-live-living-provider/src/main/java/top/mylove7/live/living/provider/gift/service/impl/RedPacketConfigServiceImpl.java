@@ -18,6 +18,7 @@ import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKe
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.dto.ImMsgBodyInTcpWsDto;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
+import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.common.interfaces.topic.BalanceChangeTopic;
 import top.mylove7.live.common.interfaces.utils.ListUtils;
 import top.mylove7.live.living.interfaces.gift.constants.RedPacketStatusEum;
@@ -169,7 +170,7 @@ public class RedPacketConfigServiceImpl implements IRedPacketConfigService {
             imMsgBody.setAppId(AppIdEnum.JIUSHI_LIVE_BIZ.getCode());
             imMsgBody.setBizCode(imMsgBizCodeEnum.getCode());
             imMsgBody.setToUserId(userId);
-            imMsgBody.setMsgId(cn.hutool.core.lang.UUID.fastUUID().toString());
+            imMsgBody.setMsgId(UUID.fastUUID().toString());
             imMsgBody.setData(jsonObject.toJSONString());
             return imMsgBody;
         }).collect(Collectors.toList());
@@ -185,6 +186,16 @@ public class RedPacketConfigServiceImpl implements IRedPacketConfigService {
         if (priceObj == null) {
             return null;
         }
+        String totalGetCacheKey = cacheKeyBuilder.buildRedPacketTotalGetCache(code);
+        String totalGetPriceCacheKey = cacheKeyBuilder.buildRedPacketTotalGetPriceCache(code);
+        String userTotalGetPriceCacheKey = cacheKeyBuilder.buildUserTotalGetPriceCache(redPacketConfigReqDTO.getUserId());
+        redisTemplate.opsForValue().increment(totalGetCacheKey);
+        redisTemplate.expire(totalGetCacheKey, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().increment(totalGetPriceCacheKey, (Long) priceObj);
+        redisTemplate.expire(totalGetPriceCacheKey, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().increment(userTotalGetPriceCacheKey, (Long) priceObj);
+
+
         log.info("[receiveRedPacket] code is {}, price is {}", code, priceObj);
         BalanceMqDto balanceMqDto = new BalanceMqDto();
         balanceMqDto.setUserId(redPacketConfigReqDTO.getUserId());
@@ -197,10 +208,11 @@ public class RedPacketConfigServiceImpl implements IRedPacketConfigService {
         try {
             SendResult result = new SendResult();
             if (SendStatus.SEND_OK.equals(result.getSendStatus())) {
-                return new RedPacketReceiveDTO(balanceMqDto.getPrice(), "恭喜领取红包" + balanceMqDto.getPrice() + "旗鱼币");
+                return new RedPacketReceiveDTO(balanceMqDto.getPrice(), "恭喜领取红包" + balanceMqDto.getPrice() + "九十币");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("抢红包结果消息投递异常", e);
+            throw new BizErrorException(e.getMessage());
         }
         return new RedPacketReceiveDTO(-1L, "抱歉，红包被人抢走了，再试试？");
     }

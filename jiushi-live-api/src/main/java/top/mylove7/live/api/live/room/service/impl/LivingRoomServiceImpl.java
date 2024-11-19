@@ -1,6 +1,7 @@
 package top.mylove7.live.api.live.room.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import org.springframework.util.Assert;
 import top.mylove7.live.api.live.room.service.ILivingRoomService;
 import top.mylove7.live.common.interfaces.error.ApiErrorEnum;
 import top.mylove7.live.api.live.room.vo.LivingRoomInitVO;
@@ -13,7 +14,11 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
+import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
+import top.mylove7.live.living.interfaces.gift.dto.RedPacketConfigReqDTO;
+import top.mylove7.live.living.interfaces.gift.dto.RedPacketConfigRespDTO;
+import top.mylove7.live.living.interfaces.gift.rpc.IRedPacketConfigRPC;
 import top.mylove7.live.living.interfaces.room.dto.LivingPkRespDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomRespDTO;
@@ -27,6 +32,7 @@ import top.mylove7.live.user.user.interfaces.IUserRpc;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +47,8 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
     private IUserRpc userRpc;
     @DubboReference
     private ILivingRoomRpc livingRoomRpc;
+    @DubboReference
+    private IRedPacketConfigRPC redPacketConfigRPC;
 
     @Override
     public LivingRoomPageRespVO list(LivingRoomReqQo livingRoomReqQo) {
@@ -104,9 +112,35 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             respVO.setAnchorId(respDTO.getAnchorId());
             respVO.setAnchor(respDTO.getAnchorId().equals(userId));
         }
-        //
+        if (Objects.equals(respVO.isAnchor(), true)) {
+            RedPacketConfigRespDTO redPacketConfigRespDTO = redPacketConfigRPC.queryByAuthorId(userId);
+            if (redPacketConfigRespDTO != null) {
+                respVO.setRedPacketConfigCode(redPacketConfigRespDTO.getConfigCode());
+            }
+        }
 
         return respVO;
+    }
+
+    @Override
+    public boolean prepareRedPacket(Long userId, Long roomId) {
+        LivingRoomRespDTO respDTO = livingRoomRpc.queryByRoomId(roomId);
+        Assert.notNull(respDTO,"直播间不存在");
+        Assert.notNull(userId,"用户不能为空");
+        Assert.notNull(roomId,"房间号不能为空");
+
+        return redPacketConfigRPC.prepareRedPacket(userId);
+    }
+
+    @Override
+    public boolean startRedPacket(Long userId, String code) {
+        LivingRoomRespDTO respDTO = livingRoomRpc.queryByAuthorId(userId);
+        Assert.notNull(respDTO,"用户不存在");
+        RedPacketConfigReqDTO reqDTO = new RedPacketConfigReqDTO();
+        reqDTO.setUserId(userId);
+        reqDTO.setConfigCode(code);
+        reqDTO.setRoomId(respDTO.getId());
+        return redPacketConfigRPC.startRedPacket(reqDTO);
     }
 
 }

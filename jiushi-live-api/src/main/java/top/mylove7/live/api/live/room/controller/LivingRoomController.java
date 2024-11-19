@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;
+import top.mylove7.live.living.interfaces.sku.qo.LivingRoomReqVO;
 
 /**
  * @Author jiushi
@@ -27,6 +28,29 @@ public class LivingRoomController {
 
     @Resource
     private ILivingRoomService livingRoomService;
+
+
+    /**
+     * 准备生成红包雨数据
+     *
+     * @return
+     */
+    @PostMapping("/prepareRedPacket")
+    @RequestLimit(limit = 1, second = 10, msg = "正在初始化中，请稍等")
+    public WebResponseVO prepareRedPacket(LivingRoomReqVO livingRoomReqVO) {
+        return WebResponseVO.success(livingRoomService.prepareRedPacket(JiushiLoginRequestContext.getUserId(), livingRoomReqVO.getRoomId()));
+    }
+    /**
+     * 开始红包雨活动，广播直播间用户，开始抢红包
+     *
+     * @return
+     */
+    @PostMapping("/startRedPacket")
+    @RequestLimit(limit = 1, second = 10, msg = "正在广播直播间用户，请稍等")
+    public WebResponseVO startRedPacket(String code) {
+        return WebResponseVO.success(livingRoomService.startRedPacket(JiushiLoginRequestContext.getUserId(), code));
+    }
+
 
     @PostMapping("/list")
     public WebResponseVO list(@RequestBody @Validated LivingRoomReqQo livingRoomReqQo) {

@@ -84,4 +84,6 @@ public interface ILivingRoomRpc {
     boolean offlinePk(LivingRoomReqDTO livingRoomReqDTO);
     void userOnlineHandler(ImOnlineDTO livingRoomReqDTO);
     void userOfflineHandler(ImOfflineDTO imOfflineDTO);
+
+    LivingRoomRespDTO queryByAuthorId(Long userId);
 }

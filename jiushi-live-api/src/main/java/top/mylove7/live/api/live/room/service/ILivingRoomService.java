@@ -53,4 +53,7 @@ public interface ILivingRoomService {
      */
     LivingRoomInitVO anchorConfig(Long userId, Long roomId);
 
+    boolean prepareRedPacket(Long userId, Long roomId);
+
+    boolean startRedPacket(Long userId, String code);
 }

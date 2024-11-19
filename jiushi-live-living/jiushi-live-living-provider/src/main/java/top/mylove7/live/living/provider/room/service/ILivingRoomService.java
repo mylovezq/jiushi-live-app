@@ -97,4 +97,6 @@ public interface ILivingRoomService {
      * @return
      */
     boolean offlinePk(LivingRoomReqDTO livingRoomReqDTO);
+
+    LivingRoomRespDTO queryByAuthorId(Long userId);
 }

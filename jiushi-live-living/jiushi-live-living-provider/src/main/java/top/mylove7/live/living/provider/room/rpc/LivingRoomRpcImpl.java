@@ -77,4 +77,9 @@ public class LivingRoomRpcImpl implements ILivingRoomRpc {
     public void userOfflineHandler(ImOfflineDTO imOfflineDTO) {
         livingRoomService.userOfflineHandler(imOfflineDTO);
     }
+
+    @Override
+    public LivingRoomRespDTO queryByAuthorId(Long userId) {
+        return livingRoomService.queryByAuthorId(userId);
+    }
 }

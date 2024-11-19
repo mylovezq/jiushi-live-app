@@ -222,6 +222,15 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         return redisTemplate.delete(cacheKey);
     }
 
+    @Override
+    public LivingRoomRespDTO queryByAuthorId(Long userId) {
+        LambdaQueryWrapper<LivingRoomPO> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.eq(LivingRoomPO::getAnchorId, userId);
+        queryWrapper.eq(LivingRoomPO::getStatus, CommonStatusEum.VALID_STATUS.getCode());
+        queryWrapper.last("limit 1");
+        return ConvertBeanUtils.convert(livingRoomMapper.selectOne(queryWrapper), LivingRoomRespDTO.class);
+    }
+
     private void batchSendImMsg(List<Long> userIdList, int bizCode, JSONObject jsonObject, Long pkObjId) {
         List<ImMsgBodyInTcpWsDto> imMsgBodies = userIdList.stream().map(userId -> {
             ImMsgBodyInTcpWsDto imMsgBodyInTcpWsDto = new ImMsgBodyInTcpWsDto();

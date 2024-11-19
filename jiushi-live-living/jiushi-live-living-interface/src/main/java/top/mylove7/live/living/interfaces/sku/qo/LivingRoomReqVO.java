@@ -13,7 +13,7 @@ public class LivingRoomReqVO {
     private Integer type;
     private int page;
     private int pageSize;
-    private Integer roomId;
+    private Long roomId;
     private String redPacketConfigCode;
 
 }

@@ -15,7 +15,7 @@ import top.mylove7.live.user.provider.bank.service.IMyCurrencyAccountService;
 @Slf4j
 @Component
 @RocketMQMessageListener(
-        topic = BalanceChangeTopic.DECR_BALANCE,
+        topic = BalanceChangeTopic.INCR_BALANCE,
         consumerGroup = "${spring.application.name}_IncrUserBalanceListener",
         messageModel = MessageModel.CLUSTERING)
 public class IncrUserBalanceListener implements RocketMQListener<BalanceMqDto> {
@@ -25,7 +25,7 @@ public class IncrUserBalanceListener implements RocketMQListener<BalanceMqDto> {
 
     @Override
     public void onMessage(BalanceMqDto balanceMqDto) {
-        log.info("开始扣减账户balanceMqDto{}", balanceMqDto);
-        myCurrencyAccountService.decr(balanceMqDto);
+        log.info("开始新增账户balanceMqDto{}", balanceMqDto);
+        myCurrencyAccountService.incr(balanceMqDto);
     }
 }

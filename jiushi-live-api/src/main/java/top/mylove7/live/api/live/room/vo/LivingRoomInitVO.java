@@ -25,4 +25,6 @@ public class LivingRoomInitVO {
     private String defaultBgImg;
     private Long pkObjId;
 
+    private String  redPacketConfigCode;
+
 }
