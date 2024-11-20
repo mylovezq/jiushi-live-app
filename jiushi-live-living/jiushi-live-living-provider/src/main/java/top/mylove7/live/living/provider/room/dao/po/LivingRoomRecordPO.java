@@ -17,7 +17,7 @@ import java.util.Date;
 public class LivingRoomRecordPO {
 
     @TableId(type = IdType.ASSIGN_ID)
-    private Integer id;
+    private Long id;
     private Long anchorId;
     private Integer type;
     private String roomName;

@@ -13,6 +13,7 @@ import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.constants.AppIdEnum;
@@ -34,6 +35,7 @@ import top.mylove7.live.msg.interfaces.ImMsgRouterRpc;
 import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -115,7 +117,7 @@ public class RedPacketConfigServiceImpl implements IRedPacketConfigService {
         String cacheKey = cacheKeyBuilder.buildRedPacketList(code);
         List<List<Long>> splitList = ListUtils.splitList(redPacketPriceList, 100);
         for (List<Long> list : splitList) {
-            redisTemplate.opsForList().leftPushAll(cacheKey, list);
+            redisTemplate.opsForList().leftPushAll(cacheKey, new ArrayList<>(list));
         }
         redisTemplate.expire(cacheKey, 1, TimeUnit.DAYS);
         configPO.setStatus(RedPacketStatusEum.IS_PREPARE.getCode());
@@ -131,14 +133,11 @@ public class RedPacketConfigServiceImpl implements IRedPacketConfigService {
         String code = reqDTO.getConfigCode();
         String cacheKey = cacheKeyBuilder.buildRedPacketPrepareSuccessCache(code);
         boolean isRedPacketPrepared = Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey));
-        if (!isRedPacketPrepared) {
-            return false;
-        }
+        Assert.isTrue(isRedPacketPrepared, "请先初始化红包");
+
         String isRedPacketHadNotifyCacheKey = cacheKeyBuilder.buildRedPacketNotifyCache(code);
         boolean isRedPacketHadNotify = Boolean.TRUE.equals(redisTemplate.hasKey(isRedPacketHadNotifyCacheKey));
-        if (isRedPacketHadNotify) {
-            return false;
-        }
+        Assert.isTrue(!isRedPacketHadNotify, "红包通知已发，请勿重复操作");
         RedPacketConfigPO configPO = this.queryByConfigCode(code);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("redPacketConfig", JSON.toJSONString(configPO));
@@ -186,28 +185,30 @@ public class RedPacketConfigServiceImpl implements IRedPacketConfigService {
         if (priceObj == null) {
             return null;
         }
+        long priceObjLong = Long.parseLong(priceObj+"");
         String totalGetCacheKey = cacheKeyBuilder.buildRedPacketTotalGetCache(code);
         String totalGetPriceCacheKey = cacheKeyBuilder.buildRedPacketTotalGetPriceCache(code);
         String userTotalGetPriceCacheKey = cacheKeyBuilder.buildUserTotalGetPriceCache(redPacketConfigReqDTO.getUserId());
         redisTemplate.opsForValue().increment(totalGetCacheKey);
         redisTemplate.expire(totalGetCacheKey, 1, TimeUnit.DAYS);
-        redisTemplate.opsForValue().increment(totalGetPriceCacheKey, (Long) priceObj);
+        redisTemplate.opsForValue().increment(totalGetPriceCacheKey,  priceObjLong);
         redisTemplate.expire(totalGetPriceCacheKey, 1, TimeUnit.DAYS);
-        redisTemplate.opsForValue().increment(userTotalGetPriceCacheKey, (Long) priceObj);
+        redisTemplate.opsForValue().increment(userTotalGetPriceCacheKey,  priceObjLong);
 
+        //LUA记录最大值
 
-        log.info("[receiveRedPacket] code is {}, price is {}", code, priceObj);
+        log.info("[用户{}收到code是{}的【{}】元红包]", redPacketConfigReqDTO.getUserId(), redPacketConfigReqDTO.getConfigCode(),redPacketConfigReqDTO.getTotalPrice());
         BalanceMqDto balanceMqDto = new BalanceMqDto();
         balanceMqDto.setUserId(redPacketConfigReqDTO.getUserId());
-        balanceMqDto.setPrice((Long) priceObj);
+        balanceMqDto.setPrice(priceObjLong);
         balanceMqDto.setTradeType(RED_PACKET_RECHARGE.name());
         balanceMqDto.setTradeId(IdWorker.getId());
 
         SendResult sendResult = rocketMQTemplate.syncSend(BalanceChangeTopic.INCR_BALANCE, balanceMqDto);
         log.info("抢红包结果消息投递{}",sendResult);
         try {
-            SendResult result = new SendResult();
-            if (SendStatus.SEND_OK.equals(result.getSendStatus())) {
+
+            if (SendStatus.SEND_OK.equals(sendResult.getSendStatus())) {
                 return new RedPacketReceiveDTO(balanceMqDto.getPrice(), "恭喜领取红包" + balanceMqDto.getPrice() + "九十币");
             }
         } catch (Exception e) {

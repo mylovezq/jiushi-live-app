@@ -36,7 +36,7 @@ public class LivingRoomController {
      * @return
      */
     @PostMapping("/prepareRedPacket")
-    @RequestLimit(limit = 1, second = 10, msg = "正在初始化中，请稍等")
+    @RequestLimit(limit = 1, second = 5, msg = "正在初始化中，请稍等")
     public WebResponseVO prepareRedPacket(LivingRoomReqVO livingRoomReqVO) {
         return WebResponseVO.success(livingRoomService.prepareRedPacket(JiushiLoginRequestContext.getUserId(), livingRoomReqVO.getRoomId()));
     }
@@ -46,11 +46,20 @@ public class LivingRoomController {
      * @return
      */
     @PostMapping("/startRedPacket")
-    @RequestLimit(limit = 1, second = 10, msg = "正在广播直播间用户，请稍等")
-    public WebResponseVO startRedPacket(String code) {
-        return WebResponseVO.success(livingRoomService.startRedPacket(JiushiLoginRequestContext.getUserId(), code));
+    @RequestLimit(limit = 1, second = 5, msg = "正在广播直播间用户，请稍等")
+    public WebResponseVO startRedPacket(String redPacketConfigCode) {
+        return WebResponseVO.success(livingRoomService.startRedPacket(JiushiLoginRequestContext.getUserId(), redPacketConfigCode));
     }
-
+    /**
+     * 领取红包
+     *
+     * @return
+     */
+    @RequestLimit(limit = 1, second = 3, msg = "手速太快，请重试")
+    @PostMapping("/receiveRedPacket")
+    public WebResponseVO receiveRedPacket(LivingRoomReqVO livingRoomReqVO) {
+        return WebResponseVO.success(livingRoomService.receiveRedPacket(JiushiLoginRequestContext.getUserId(), livingRoomReqVO.getRedPacketConfigCode()));
+    }
 
     @PostMapping("/list")
     public WebResponseVO list(@RequestBody @Validated LivingRoomReqQo livingRoomReqQo) {

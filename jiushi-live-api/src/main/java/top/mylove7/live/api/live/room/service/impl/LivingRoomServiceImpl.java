@@ -18,6 +18,8 @@ import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
 import top.mylove7.live.living.interfaces.gift.dto.RedPacketConfigReqDTO;
 import top.mylove7.live.living.interfaces.gift.dto.RedPacketConfigRespDTO;
+import top.mylove7.live.living.interfaces.gift.dto.RedPacketReceiveDTO;
+import top.mylove7.live.living.interfaces.gift.dto.RedPacketReceiveVO;
 import top.mylove7.live.living.interfaces.gift.rpc.IRedPacketConfigRPC;
 import top.mylove7.live.living.interfaces.room.dto.LivingPkRespDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
@@ -141,6 +143,22 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         reqDTO.setConfigCode(code);
         reqDTO.setRoomId(respDTO.getId());
         return redPacketConfigRPC.startRedPacket(reqDTO);
+    }
+
+    @Override
+    public RedPacketReceiveVO receiveRedPacket(Long userId, String redPacketConfigCode) {
+        RedPacketConfigReqDTO reqDTO = new RedPacketConfigReqDTO();
+        reqDTO.setUserId(userId);
+        reqDTO.setConfigCode(redPacketConfigCode);
+        RedPacketReceiveDTO redPacketReceiveDTO = redPacketConfigRPC.receiveRedPacket(reqDTO);
+        RedPacketReceiveVO redPacketReceiveVO = new RedPacketReceiveVO();
+        if (redPacketReceiveDTO == null) {
+            redPacketReceiveVO.setMsg("红包已派发完毕");
+        } else {
+            redPacketReceiveVO.setPrice(redPacketReceiveDTO.getPrice());
+            redPacketReceiveVO.setMsg(redPacketReceiveDTO.getNotifyMsg());
+        }
+        return redPacketReceiveVO;
     }
 
 }

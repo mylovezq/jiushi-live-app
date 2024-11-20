@@ -95,7 +95,7 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
         roomReqDTO.setAnchorId(imOfflineDTO.getUserId());
         this.offlinePk(roomReqDTO);
         //当主播断开im服务器的时候，也要监听它的动作，然后将直播间的状态修改为关闭状态
-        livingRoomTxService.closeLiving(roomReqDTO);
+        //livingRoomTxService.closeLiving(roomReqDTO);
     }
 
     @Override
