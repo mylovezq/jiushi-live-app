@@ -100,6 +100,7 @@ public class ImSendMsgNettyServiceImpl implements IImSendMsgNettyService {
             imAckDto.setRetryTime(0);
             imAckDto.setHadAck(false);
             redisTemplate.opsForHash().put(hadSendMsgKey, imMsg.getMsgId(), imAckDto);
+            redisTemplate.expire(hadSendMsgKey, 1, TimeUnit.HOURS);
             return true;
         }
         imAckDto.setRetryTime(imAckDto.getRetryTime() + 1);

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -22,9 +23,9 @@ import java.util.Date;
 @Data
 public class SkuInfo implements Serializable {
 
-    private static final long serialVersionUID = 1L;
 
-   
+    @Serial
+    private static final long serialVersionUID = -3034876557183013363L;
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
