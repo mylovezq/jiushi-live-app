@@ -4,7 +4,7 @@ spring:
   data:
     redis:
       port: 6379
-      host: 192.168.1.20
+      host: mylove7.top
       password: mylovezq
       lettuce:
         pool:
@@ -16,7 +16,7 @@ dubbo:
     name: jiushi-live-api
     qos-enable: false
   registry:
-    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
+    address: nacos://mylove7.top:8848?namespace=jiushiLive&&username=nacos&&password=nacos
 
 server:
   port: 8100
@@ -30,7 +30,7 @@ server:
 jiushi:
   rmq:
     producer:
-      nameSrv: 192.168.1.20:9876
+      nameSrv: mylove7.top:9876
       groupName: ${spring.application.name}
       applicationName: ${spring.application.name}
       sendMsgTimeout: 3000

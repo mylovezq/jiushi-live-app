@@ -2,7 +2,7 @@ version: '3'
 services:
   jiushi-live-api-dockers-1:
     container_name: jiushi-live-api-docker-1
-    image: '192.168.1.20/jiushi-live/jiushi-live-api-docker:1.0.0'
+    image: 'mylove7.top/jiushi-live/jiushi-live-api-docker:1.0.0'
     deploy:
       resources:
         limits:
@@ -15,7 +15,7 @@ services:
     volumes:
       - /tmp/logs/jiushi-live-api:/tmp/logs/jiushi-live-api
     environment:
-      - spring.cloud.nacos.discovery.ip=192.168.1.20
+      - spring.cloud.nacos.discovery.ip=mylove7.top
       - TZ=Asia/Shanghai
       - server_port=8100
       - JAVA_OPTS=-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m -Xms128m -Xmx128m -Xmn128m -Xss256k
@@ -34,7 +34,7 @@ services:
     volumes:
       - /tmp/logs/jiushi-live-api:/tmp/logs/jiushi-live-api
     environment:
-      - spring.cloud.nacos.discovery.ip=192.168.1.20
+      - spring.cloud.nacos.discovery.ip=mylove7.top
       - TZ=Asia/Shanghai
       - server_port=8200
       - JAVA_OPTS=-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m -Xms128m -Xmx128m -Xmn128m -Xss256k

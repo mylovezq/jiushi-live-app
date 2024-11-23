@@ -2,20 +2,20 @@ dataSources:
   user_master:  ##新表，重建的分表
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.1.20:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://mylove7.top:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
 
   user_slave0:  ##新表，重建的分表
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.1.20:3307/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://mylove7.top:3307/jiushi_live_user?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
   user_slave1:  ##新表，重建的分表
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.1.20:3308/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://mylove7.top:3308/jiushi_live_user?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
 

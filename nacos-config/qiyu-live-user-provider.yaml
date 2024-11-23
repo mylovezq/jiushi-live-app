@@ -3,7 +3,7 @@ spring:
     name: jiushi-live-user-provider
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
-    url: jdbc:shardingsphere:nacos:192.168.1.20:8848:jiushi-live-user-shardingjdbc.yaml?username=nacos&&password=nacos&&namespace=jiushiLive
+    url: jdbc:shardingsphere:nacos:mylove7.top:8848:jiushi-live-user-shardingjdbc.yaml?username=nacos&&password=nacos&&namespace=jiushiLive
     hikari:
       pool-name: jiushi-user-pool
       minimum-idle: 100
@@ -14,7 +14,7 @@ spring:
   data:
     redis:
       port: 6379
-      host: 192.168.1.20
+      host: mylove7.top
       password: mylovezq
       lettuce:
         pool:
@@ -24,10 +24,10 @@ spring:
 jiushi:
   rmq:
     consumer:
-      nameSrv: 192.168.1.20:9876
+      nameSrv: mylove7.top:9876
       groupName: jiushiLiveMqApplication
     producer:
-      nameSrv: 192.168.1.20:9876
+      nameSrv: mylove7.top:9876
       groupName: ${spring.application.name}
       applicationName: ${spring.application.name}
       sendMsgTimeout: 3000
@@ -39,7 +39,7 @@ dubbo:
     name: ${spring.application.name}
   registry:
     #docker启动的时候，注入host的配置
-    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
+    address: nacos://mylove7.top:8848?namespace=jiushiLive&&username=nacos&&password=nacos
   protocol:
     name: spring
     port: 9090

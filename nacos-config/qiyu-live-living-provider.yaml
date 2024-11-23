@@ -7,13 +7,13 @@ spring:
       maximum-pool-size: 200
     driver-class-name: com.mysql.cj.jdbc.Driver
     #访问主库
-    url: jdbc:mysql://192.168.1.20:3306/jiushi_live_living?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://mylove7.top:3306/jiushi_live_living?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
   data:
     redis:
       port: 6379
-      host: 192.168.1.20
+      host: mylove7.top
       password: mylovezq
       lettuce:
         pool:
@@ -23,10 +23,10 @@ spring:
 jiushi:
   rmq:
     consumer:
-      nameSrv: 192.168.1.20:9876
+      nameSrv: mylove7.top:9876
       groupName: ${spring.application.name}
     producer:
-      nameSrv: 192.168.1.20:9876
+      nameSrv: mylove7.top:9876
       groupName: ${spring.application.name}
       applicationName: ${spring.application.name}
       sendMsgTimeout: 3000
@@ -37,7 +37,7 @@ dubbo:
   application:
     name: ${spring.application.name}
   registry:
-    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=jiushi&&password=jiushi
+    address: nacos://mylove7.top:8848?namespace=jiushiLive&&username=jiushi&&password=jiushi
   protocol:
     name: spring
     port: 9089
