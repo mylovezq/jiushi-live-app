@@ -31,7 +31,7 @@ public class LivingProviderCacheKeyBuilder extends RedisKeyBuilder {
 
 
     private static String SKU_DETAIL = "sku_detail";
-    private static String SHOP_Car = "shop_Car";
+    private static String SHOP_CAR = "shop_car";
     private static String SKU_STOCK = "sku_stock";
     private static String SKU_STOCK_SYNC_LOCK = "sku_stock_sync_lock";
     private static String SKU_ORDER_INFO = "sku_order_info";
@@ -110,7 +110,7 @@ public class LivingProviderCacheKeyBuilder extends RedisKeyBuilder {
     }
 
     public String buildShopCar(Long userId, Long roomId) {
-        return super.getPrefix() + SHOP_Car + super.getSplitItem() + userId + super.getSplitItem() + roomId;
+        return super.getPrefix() + SHOP_CAR + super.getSplitItem() + userId + super.getSplitItem() + roomId;
     }
 
     public String buildSkuDetail(Long skuId) {
