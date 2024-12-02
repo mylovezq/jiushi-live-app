@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: jiushi-live-im-core-server
+  cloud:
+    nacos:
+      discovery:
+        ip: 192.168.1.20
+jiushi:
+  im:
+    tcp:
+      port: 18065
+    ws:
+      port: 18066
+
+  rmq:
+    consumer:
+      nameSrv: 192.168.1.20:9876
+      groupName: ${spring.application.name}ConsumerGroup
+      consumeTimeout: 10000
+    producer:
+      nameSrv: 192.168.1.20:9876
+      groupName: ${spring.application.name}ProducerGroup
+      applicationName: ${spring.application.name}ProducerApplic
+      sendMsgTimeout: 3000
+      retryTimes: 3
+
+dubbo:
+  application:
+    name: ${spring.application.name}
+    qos-enable: false
+  registry:
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
+  protocol:
+    port: 9055
+  consumer:
+    timeout: 50000
+    loadbalance: roundrobin
+    check: false

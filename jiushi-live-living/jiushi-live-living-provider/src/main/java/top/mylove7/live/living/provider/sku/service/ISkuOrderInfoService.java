@@ -11,7 +11,7 @@ import top.mylove7.live.living.provider.sku.entity.SkuOrderInfo;
  * 商品订单表 服务类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 public interface ISkuOrderInfoService extends IService<SkuOrderInfo> {

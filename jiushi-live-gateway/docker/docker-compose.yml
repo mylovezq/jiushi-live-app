@@ -2,7 +2,7 @@ version: '3'
 services:
   jiushi-gateway-provider-1:
     container_name: jiushi-live-gateway-1
-    image: 'mylove7.top/jiushi-live/jiushi-live-gateway-docker:1.0.0'
+    image: '192.168.1.20/jiushi-live/jiushi-live-gateway-docker:1.0.0'
     ports:
       - "80:80"
     volumes:

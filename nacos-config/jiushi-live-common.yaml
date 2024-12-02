@@ -1,0 +1,16 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    redis:
+      port: 6379
+      host: mylove7.top
+      password: mylovezq
+      lettuce:
+        pool:
+          min-idle: 10
+          max-active: 100
+          max-idle: 10
+dubbo:
+  provider:
+    filter: -exception,customDubboExceptionFilter

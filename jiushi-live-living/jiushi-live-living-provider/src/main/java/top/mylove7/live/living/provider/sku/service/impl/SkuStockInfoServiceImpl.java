@@ -7,6 +7,7 @@ import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.mylove7.jiushi.live.framework.redis.starter.key.LivingProviderCacheKeyBuilder;
 import top.mylove7.live.common.interfaces.enums.CommonStatusEum;
 import top.mylove7.live.living.interfaces.sku.dto.RockBackInfoDTO;
@@ -29,7 +30,7 @@ import java.util.List;
  * sku库存表 服务实现类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @Service
@@ -76,10 +77,13 @@ public class SkuStockInfoServiceImpl extends ServiceImpl<SkuStockInfoMapper, Sku
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UpdateStockNumDto decrStockNumBySkuIdDB(Long skuId, Integer num) {
         SkuStockInfo skuStockInfo = this.queryBySkuId(skuId);
         int version = Math.toIntExact(skuStockInfo.getVersion());
         boolean isSuccess = getBaseMapper().dcrStockNumBySkuId(skuId, num, version) > 0;
+        //记录库存扣减记录，保证接口幂等
+        //TODO
         return new UpdateStockNumDto(isSuccess, skuStockInfo.getStockNum() >= num);
     }
 

@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: jiushi-live-msg-provider
+  datasource:
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 200
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #访问主库
+    url: jdbc:mysql://192.168.1.20:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: mylovezq
+
+jiushi:
+  sms:
+    ccp:
+      smsServerIp: app.cloopen.com
+      port: 8883
+      accountSId: 2c94811c9035ff9f0191f51216975d5c
+      accountToken: 1e15bbea0b044672bc699a4a700a6010
+      appId: 2c94811c9035ff9f0191f51218195d63
+      templateId: 1
+      testPhone: 17612520985
+  rmq:
+    consumer:
+      nameSrv: 192.168.1.20:9876
+      groupName: ${spring.application.name}ConsumerGroup
+      consumeTimeout: 10000
+    producer:
+      nameSrv: 192.168.1.20:9876
+      groupName: ${spring.application.name}ProducerGroup
+      applicationName: ${spring.application.name}ProducerApplic
+      sendMsgTimeout: 3000
+      retryTimes: 3
+      
+dubbo:
+  application:
+    name: ${spring.application.name}
+  registry:
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive&&username=nacos&&password=nacos
+  protocol:
+    name: dubbo
+    port: 9095
+  consumer:
+    timeout: 50000
+    loadbalance: roundrobin
+    check: false

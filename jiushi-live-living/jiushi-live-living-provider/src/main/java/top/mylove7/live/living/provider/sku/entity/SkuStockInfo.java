@@ -15,7 +15,7 @@ import java.util.Date;
  * sku库存表
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @TableName("t_sku_stock_info")

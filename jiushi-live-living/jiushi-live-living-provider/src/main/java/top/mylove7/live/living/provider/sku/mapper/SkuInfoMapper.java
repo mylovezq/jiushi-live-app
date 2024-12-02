@@ -13,7 +13,7 @@ import java.util.List;
  * 商品sku信息表 Mapper 接口
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @Mapper

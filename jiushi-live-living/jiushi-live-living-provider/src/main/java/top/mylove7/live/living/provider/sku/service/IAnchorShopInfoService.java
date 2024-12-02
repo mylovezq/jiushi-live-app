@@ -11,7 +11,7 @@ import java.util.List;
  * 带货主播权限配置表 服务类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 public interface IAnchorShopInfoService extends IService<AnchorShopInfo> {

@@ -11,7 +11,7 @@ import java.util.List;
  * 商品sku信息表 服务类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 public interface ISkuInfoService extends IService<SkuInfo> {

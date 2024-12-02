@@ -13,7 +13,7 @@ import top.mylove7.live.living.provider.sku.entity.CategoryInfo;
  * 类目表 服务实现类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @Service

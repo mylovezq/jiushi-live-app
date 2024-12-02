@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * 商品sku信息表 服务实现类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @Service

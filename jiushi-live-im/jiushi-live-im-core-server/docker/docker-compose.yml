@@ -2,7 +2,7 @@ version: '3'
 services:
   jiushi-live-im-core-servers-1:
     container_name: jiushi-live-im-core-server-1
-    image: 'mylove7.top/jiushi-live/jiushi-live-im-core-server-docker:1.0.0'
+    image: '192.168.1.20/jiushi-live/jiushi-live-im-core-server-docker:1.0.0'
     ports:
       - "18085:18085"
       - "18086:18086"
@@ -18,7 +18,7 @@ services:
           memory: 256m
   jiushi-live-im-core-servers-2:
     container_name: jiushi-live-im-core-server-2
-    image: 'mylove7.top/jiushi-live/jiushi-live-im-core-server-docker:1.0.0'
+    image: '192.168.1.20/jiushi-live/jiushi-live-im-core-server-docker:1.0.0'
     ports:
       - "18095:18085"
       - "18096:18086"

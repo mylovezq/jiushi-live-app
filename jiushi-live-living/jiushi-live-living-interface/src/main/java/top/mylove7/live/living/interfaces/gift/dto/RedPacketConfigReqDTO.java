@@ -6,11 +6,11 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
- * @Author: tangfh
+ * @Author: jiushi
  *
  * @Create: 2024-08-13 10:49
  */

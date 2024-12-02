@@ -15,7 +15,7 @@ import java.util.Date;
  * 类目表
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @TableName("t_category_info")

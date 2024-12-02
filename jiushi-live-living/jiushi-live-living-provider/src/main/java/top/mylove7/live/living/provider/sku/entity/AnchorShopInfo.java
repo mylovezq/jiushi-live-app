@@ -15,7 +15,7 @@ import java.util.Date;
  * 带货主播权限配置表
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @TableName("t_anchor_shop_info")

@@ -2,20 +2,21 @@ dataSources:
   user_master:  ##新表，重建的分表
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://mylove7.top:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://192.168.1.20:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
 
-  user_slave0:  ##新表，重建的分表
+  user_slave0:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://mylove7.top:3307/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://192.168.1.20:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
-  user_slave1:  ##新表，重建的分表
+    
+  user_slave1:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://mylove7.top:3308/jiushi_live_user?useUnicode=true&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://192.168.1.20:3306/jiushi_live_user?useUnicode=true&characterEncoding=utf8
     username: root
     password: mylovezq
 
@@ -29,7 +30,7 @@ rules:
             - user_slave0
             - user_slave1
   - !SINGLE
-    defaultDataSource: user_ds ## 不分表分分库的默认数据源
+    defaultDataSource: user_ds
   - !SHARDING
     tables:
       t_user:
@@ -38,12 +39,6 @@ rules:
           standard:
             shardingColumn: user_id
             shardingAlgorithmName: t_user-inline
-      t_user_tag:
-        actualDataNodes: user_ds.t_user_tag_${(0..4).collect(){it.toString().padLeft(2,'0')}}
-        tableStrategy:
-          standard:
-            shardingColumn: user_id
-            shardingAlgorithmName: t_user_tag-inline
       t_user_phone:
         actualDataNodes: user_ds.t_user_phone_${(0..4).collect(){it.toString().padLeft(2,'0')}}
         tableStrategy:
@@ -55,14 +50,10 @@ rules:
         type: INLINE
         props:
           algorithm-expression: t_user_${(user_id % 5).toString().padLeft(2,'0')}
-      t_user_tag-inline:
-        type: INLINE
-        props:
-          algorithm-expression: t_user_tag_${(user_id % 5).toString().padLeft(2,'0')}
       t_user_phone-inline:
         type: INLINE
         props:
           algorithm-expression: t_user_phone_${(user_id % 5).toString().padLeft(2,'0')}
 props:
   sql-show: true
-  max-connections-size-per-query: 3
+  max-connections-size-per-query: 300

@@ -15,7 +15,7 @@ import java.util.Date;
  * 商品订单表
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @TableName("t_sku_order_info")

@@ -37,7 +37,7 @@ import static top.mylove7.live.user.interfaces.bank.constants.TradeTypeEnum.LIVI
 /**
  * @Program: jiushi-live-app
  * @Description:
- * @Author: tangfh
+ * @Author: jiushi
  * @Create: 2024-08-16 13:53
  */
 @DubboService

@@ -28,7 +28,6 @@ public class ShopInfoServiceImpl implements IShopInfoService {
 
     @DubboReference
     private ISkuRPC skuRpc;
-
     @DubboReference
     private IShopCarRPC shopCarRPC;
     @DubboReference

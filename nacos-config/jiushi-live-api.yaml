@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: jiushi-live-api
+dubbo:
+  application:
+    name: jiushi-live-api
+    qos-enable: false
+  registry:
+    address: nacos://192.168.1.20:8848?namespace=jiushiLive
+  protocol:
+    name: dubbo
+    port: 9094
+    threadpool: fixed
+    dispatcher: execution
+    threads: 500
+    accepts: 
+  consumer:
+    timeout: 50000
+    loadbalance: roundrobin
+    check: false
+server:
+  port: ${server_port:8200}
+  servlet:
+    context-path: /live/api
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 500 #最大工作线程数量
+    min-spare-threads: 20 #最小工作线程数量
+    max-connections: 500 #一瞬间最大支持的并发的连接数

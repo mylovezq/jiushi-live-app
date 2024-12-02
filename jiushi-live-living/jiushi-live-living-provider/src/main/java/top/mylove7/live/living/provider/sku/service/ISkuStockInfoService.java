@@ -14,7 +14,7 @@ import java.util.List;
  * sku库存表 服务类
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 public interface ISkuStockInfoService extends IService<SkuStockInfo> {

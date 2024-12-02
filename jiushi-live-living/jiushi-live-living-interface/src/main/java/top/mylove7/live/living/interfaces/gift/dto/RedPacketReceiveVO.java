@@ -3,11 +3,11 @@ package top.mylove7.live.living.interfaces.gift.dto;
 import lombok.Data;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  *
  * @Description:
  *
- * @Author: tangfh
+ * @Author: jiushi
  *
  * @Create: 2024-08-13 10:14
  */

@@ -15,7 +15,7 @@ import top.mylove7.live.living.interfaces.sku.vo.PrepareOrderVO;
  * 商品sku信息表 前端控制器
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @RestController

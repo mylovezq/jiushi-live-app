@@ -2,13 +2,13 @@ version: '3'
 services:
   jiushi-live-msg-provider-1:
     container_name: jiushi-live-msg-provider-1
-    image: 'mylove7.top/jiushi-live/jiushi-live-msg-provider-docker:1.0.0'
+    image: '192.168.1.20/jiushi-live/jiushi-live-msg-provider-docker:1.0.0'
     ports:
       - "9098:9098"
     volumes:
       - /tmp/logs/jiushi-live-msg-provider:/tmp/logs/jiushi-live-msg-provider
     environment:
-      - DUBBO_IP_TO_REGISTRY=mylove7.top
+      - DUBBO_IP_TO_REGISTRY=192.168.1.20
       - DUBBO_PORT_TO_REGISTRY=9098
       - DUBBO_PORT_TO_BIND=9098
       - TZ=Asia/Shanghai

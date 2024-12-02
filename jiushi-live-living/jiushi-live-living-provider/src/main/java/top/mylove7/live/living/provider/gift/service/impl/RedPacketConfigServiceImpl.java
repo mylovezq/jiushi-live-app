@@ -43,9 +43,9 @@ import java.util.stream.Collectors;
 import static top.mylove7.live.user.interfaces.bank.constants.TradeTypeEnum.RED_PACKET_RECHARGE;
 
 /**
- * @Program: qiyu-live-app
+ * @Program: jiushi-live-app
  * @Description:
- * @Author: tangfh
+ * @Author: jiushi
  * @Create: 2024-08-12 16:50
  */
 @Service

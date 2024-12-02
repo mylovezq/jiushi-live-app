@@ -9,7 +9,7 @@ import top.mylove7.live.living.provider.sku.entity.AnchorShopInfo;
  * 带货主播权限配置表 Mapper 接口
  * </p>
  *
- * @author tangfh
+ * @author jiushi
  * @since 2024-08-14
  */
 @Mapper

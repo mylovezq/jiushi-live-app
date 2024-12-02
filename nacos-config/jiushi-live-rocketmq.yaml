@@ -1,0 +1,16 @@
+
+rocketmq:
+  # rocketMq的nameServer地址
+  name-server: 192.168.1.20:9876     
+  producer:
+    # 生产者组别
+    group: ${spring.application.name}ProducerGroup
+    # 消息发送的超时时间
+    send-message-timeout: 5000
+    # 异步消息发送失败重试次数
+    retry-times-when-send-async-failed: 3
+    # 发送消息的最大大小，单位字节，这里等于4M
+    max-message-size: 4194304
+  consumer:
+    consumeTimeout: 5000
+    maxReconsumeTimes: 3 
