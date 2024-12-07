@@ -1,8 +1,8 @@
 version: '3'
 services:
-  jiushi-live-user-provider-docker-1:
-    container_name: jiushi-live-user-provider-docker-1
-    image: '192.168.1.20/jiushi-live/jiushi-live-user-provider-docker:1.0.0'
+  jiushi-live-living-provider-docker-1:
+    container_name: jiushi-live-living-provider-docker-1
+    image: '192.168.1.20/jiushi-live/jiushi-live-living-provider-docker:1.0.0'
     deploy:
       resources:
         limits:
@@ -10,10 +10,9 @@ services:
         reservations:
           memory: 256m
     ports:
-      - "9091:9091"
-
+      - "9098:9098"
     volumes:
-      - /tmp/logs/jiushi-live-user-provider:/tmp/logs/jiushi-live-user-provider
+      - /tmp/logs/jiushi-live-living-provider:/tmp/logs/jiushi-live-living-provider
     environment:
       - TZ=Asia/Shanghai
       - DUBBO_IP_TO_REGISTRY=192.168.1.20
@@ -21,10 +20,9 @@ services:
       - DUBBO_PORT_TO_BIND=9091
       - JAVA_OPTS=-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m -Xms128m -Xmx128m -Xmn128m -Xss256k
 
-
-  jiushi-live-user-provider-docker-2:
-    container_name: jiushi-live-user-provider-docker-2
-    image: '192.168.1.20/jiushi-live/jiushi-live-user-provider-docker:1.0.0'
+  jiushi-live-living-provider-docker-2:
+    container_name: jiushi-live-living-provider-docker-2
+    image: '192.168.1.20/jiushi-live/jiushi-live-living-provider-docker:1.0.0'
     deploy:
       resources:
         limits:
@@ -32,9 +30,9 @@ services:
         reservations:
           memory: 256m
     ports:
-      - "9092:9092"
+      - "19098:9098"
     volumes:
-      - /tmp/logs/jiushi-live-user-provider:/tmp/logs/jiushi-live-user-provider
+      - /tmp/logs/jiushi-live-living-provider:/tmp/logs/jiushi-live-living-provider
     environment:
       - TZ=Asia/Shanghai
       - DUBBO_IP_TO_REGISTRY=192.168.1.20

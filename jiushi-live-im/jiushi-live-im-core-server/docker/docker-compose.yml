@@ -20,6 +20,7 @@ services:
     container_name: jiushi-live-im-core-server-2
     image: '192.168.1.20/jiushi-live/jiushi-live-im-core-server-docker:1.0.0'
     ports:
+#可以容器内部接口不变，宿主机映射端口变了就行
       - "18095:18085"
       - "18096:18086"
     volumes:

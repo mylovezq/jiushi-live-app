@@ -1,4 +1,5 @@
-- Dubbo 3.2
+- 学习慕课《SpringCloudAlibaba高并发仿斗鱼直播平台实战》
+- Dubbo 3.2 + JDK 17
 - SpringBoot 3.0.4
 - MyBatis-Plus 3.5.3
 - MySQL 8.0
@@ -10,4 +11,4 @@
 - Netty 3.7.0
 - Docker 容器部署
 - Docker-Compose 容器集群管理
-- 
+- 重构了并且精简了项目结构，适合有经验的开发者，方便阅读和理解。
