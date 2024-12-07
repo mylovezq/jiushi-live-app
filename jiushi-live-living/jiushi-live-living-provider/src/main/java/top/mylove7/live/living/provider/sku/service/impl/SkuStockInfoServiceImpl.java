@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import top.mylove7.live.living.interfaces.sku.dto.RockBackInfoDTO;
 import top.mylove7.live.living.interfaces.sku.dto.SkuOrderInfoReqDTO;
 import top.mylove7.live.living.interfaces.sku.dto.SkuOrderInfoRespDTO;
 import top.mylove7.live.living.interfaces.sku.dto.UpdateStockNumDto;
+import top.mylove7.live.living.provider.sku.entity.SkuOrderInfo;
 import top.mylove7.live.living.provider.sku.entity.SkuStockInfo;
 import top.mylove7.live.living.provider.sku.mapper.SkuStockInfoMapper;
 import top.mylove7.live.living.provider.sku.service.ISkuOrderInfoService;
@@ -34,6 +36,7 @@ import java.util.List;
  * @since 2024-08-14
  */
 @Service
+@Slf4j
 public class SkuStockInfoServiceImpl extends ServiceImpl<SkuStockInfoMapper, SkuStockInfo> implements ISkuStockInfoService {
 
 
@@ -148,7 +151,15 @@ public class SkuStockInfoServiceImpl extends ServiceImpl<SkuStockInfoMapper, Sku
         SkuOrderInfoReqDTO skuOrderInfoReqDTO = new SkuOrderInfoReqDTO();
         skuOrderInfoReqDTO.setUserId(rockBackInfoDTO.getUserId());
         skuOrderInfoReqDTO.setStatus(OrderStatusEnum.IN_VALID.getCode());
-        skuOrderInfoService.updateStatus(skuOrderInfoReqDTO);
+        boolean update = skuOrderInfoService.lambdaUpdate()
+                .set(SkuOrderInfo::getStatus, OrderStatusEnum.IN_VALID.getCode())
+                .eq(SkuOrderInfo::getId, rockBackInfoDTO.getOrderId())
+                .eq(SkuOrderInfo::getStatus, OrderStatusEnum.WAITING_PAY.getCode())
+                .update();
+        if (!update){
+            log.info("订单不为待支付");
+            return false;
+        }
         //因为我们的直播带货场景比较特别，每件商品只能买一件
         List<Long> skuIdList = Arrays.stream(skuOrderInfoRespDTO.getSkuIdList().split(",")).toList().stream().map(Long::valueOf).toList();
         skuIdList.parallelStream().forEach(skuId -> {

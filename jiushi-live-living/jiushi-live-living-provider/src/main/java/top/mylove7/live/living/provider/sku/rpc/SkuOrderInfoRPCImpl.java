@@ -8,6 +8,8 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 
 
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +71,7 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SkuPrepareOrderInfoDTO prepareOrder(PrepareOrderReqDTO reqDTO) {
         ShopCarReqDTO shopCarReqDTO = new ShopCarReqDTO();
         Long userId = reqDTO.getUserId();
@@ -77,14 +80,14 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
         ShopCarRespDTO shopCarRespDTO = shopCarService.getCarInfo(shopCarReqDTO);
         List<ShopCarItemRespDTO> shopCarItemRespDTOList = shopCarRespDTO.getShopCarItemRespDTOList();
         if (CollectionUtils.isEmpty(shopCarItemRespDTOList)) {
-            return null;
+            throw new BizErrorException("购物为空");
         }
         List<Long> skuIdList = shopCarItemRespDTOList.stream().map(shopCarItemRespDTO -> shopCarItemRespDTO.getSkuInfoDTO().getSkuId()).toList();
         //核心的知识点库存回滚
         //10个skuId前5个扣减成功了，后边5个有问题
         boolean isDecrSuccess = skuStockInfoService.decrStockNumBySkuIdCache(skuIdList, 1);
         if (!isDecrSuccess) {
-            return null;
+           throw new BizErrorException("库存不足");
         }
         //订单超时的概念，21：00,21：30分订单会自动关闭，21：25分的时候会有订单是醒功能
         //1.定时任务 扫描DB, 指定好索引，如果数据量非常高，扫描表的sqL会很耗时
@@ -100,9 +103,8 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
             return null;
         }
         shopCarService.removeFromCar(shopCarReqDTO);
-        Long orderId = skuOrderInfo.getId();
         //库存回滚的mq延迟消息发送
-        this.stockRollbackHandler(userId, orderId);
+        this.stockRollbackHandler(userId, skuOrderInfo.getId());
 
         List<SkuPrepareOrderItemInfoDTO> skuPrepareOrderItemInfoDTOList = new ArrayList<>();
         int totalPrice = 0;
@@ -162,6 +164,7 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
         return true;
     }
 
+
     /**
      * 库存回滚的mq延迟消息发送
      *
@@ -169,7 +172,11 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
      * @param orderId
      */
     private void stockRollbackHandler(Long userId, Long orderId) {
-        rocketMQTemplate.syncSend(SkuProviderTopicNames.ROLL_BACK_STOCK, new RockBackInfoDTO(userId, orderId));
+        SendResult sendResult = rocketMQTemplate.syncSend(SkuProviderTopicNames.ROLL_BACK_STOCK, new RockBackInfoDTO(userId, orderId));
+        log.info("库存回滚消息投递结果: {}", sendResult);
+        if (sendResult.getSendStatus() != SendStatus.SEND_OK) {
+            throw new BizErrorException("库存回滚消息投递失败");
+        }
 
     }
 }

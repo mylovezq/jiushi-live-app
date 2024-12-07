@@ -39,7 +39,7 @@ public class RefreshSkuStockNumJob implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         //一秒钟刷新一次直播间列表数据
-        schedulePool.scheduleWithFixedDelay(new RefreshCacheListJob(), 3000, 1000, TimeUnit.MILLISECONDS);
+        schedulePool.scheduleWithFixedDelay(new RefreshCacheListJob(), 3000, 15000, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -57,7 +57,7 @@ public class RefreshSkuStockNumJob implements InitializingBean {
 
     private void refreshRedisToDB() {
         String cacheKey = keyBuilder.buildSkuStockSyncLock();
-        boolean lockStatus = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(cacheKey, 1, 10, TimeUnit.SECONDS));
+        boolean lockStatus = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(cacheKey, 1, 15, TimeUnit.SECONDS));
         if (lockStatus) {
             List<Long> anchorIds = anchorShopInfoService.queryAllValidAnchorIds();
             for (Long anchorId : anchorIds) {

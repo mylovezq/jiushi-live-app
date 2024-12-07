@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.mylove7.live.api.live.sku.service.IShopInfoService;
+import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.living.interfaces.sku.qo.ShopCarReqVO;
 import top.mylove7.live.living.interfaces.sku.qo.SkuInfoReqVO;
@@ -68,6 +69,13 @@ public class ShopInfoController {
     @PostMapping("prepareOrder")
     public WebResponseVO prepareOrder(PrepareOrderVO reqVO) {
         return WebResponseVO.success(shopInfoService.prepareOrder(reqVO));
+    }
+
+    @PostMapping("prepareStockInfo")
+    public WebResponseVO prepareStockInfo() {
+        Long userId = JiushiLoginRequestContext.getUserId();
+        shopInfoService.prepareStockInfo(userId);
+        return WebResponseVO.success();
     }
 
     @PostMapping("payNow")

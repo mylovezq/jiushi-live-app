@@ -75,12 +75,9 @@ public class SkuStockInfoRPCImpl implements ISkuStockInfoRPC {
         List<Long> skuIdList = anchorShopInfoService.querySkuIdsByAuthorId(anchorId);
         List< SkuStockInfo> stockInfoList = skuStockInfoService.queryBySkuIds(skuIdList);
         //通常来说一个主播带货的个数不多，可能也就几十个商品，所以使用f0r循环也是可以的，如果带货商品数量大也可以用 redisTemplate.opsForValue().multiSet();
-//        for (SkuStockInfo skuStockInfo : stockInfoList) {
-//            Long skuId = skuStockInfo.getSkuId();
-//            String cacheKey = keyBuilder.buildSkuStock(skuId);
-//            redisTemplate.opsForValue().set(cacheKey, skuStockInfo.getStockNum(), 1, TimeUnit.DAYS);
-//        }
-        Map<String, Long> saveCacheMap = stockInfoList.stream().collect(Collectors.toMap(stockInfo -> keyBuilder.buildSkuStock(stockInfo.getSkuId()), x -> x.getStockNum()));
+        Map<String, Long> saveCacheMap
+                = stockInfoList.stream()
+                .collect(Collectors.toMap(stockInfo -> keyBuilder.buildSkuStock(stockInfo.getSkuId()), x -> x.getStockNum()));
         redisTemplate.opsForValue().multiSet(saveCacheMap);
         //对命令执行批量过期设置操作
         redisTemplate.executePipelined(new SessionCallback<>() {
@@ -110,7 +107,6 @@ public class SkuStockInfoRPCImpl implements ISkuStockInfoRPC {
             if (stockNum == -1) {
                 continue;
             }
-            //LOGGER.info("syncStockNumToMySql skuId: {}, stockNum: {}", skuId, stockNum);
             skuStockInfoService.updateStockNumBySkuId(skuId, stockNum);
         }
         return true;

@@ -76,4 +76,6 @@ public interface IShopInfoService {
      * @return
      */
     boolean payNow(PrepareOrderVO prepareOrderVO);
+
+    void prepareStockInfo(Long userId);
 }

@@ -17,6 +17,7 @@ import top.mylove7.live.living.interfaces.sku.qo.SkuInfoReqVO;
 import top.mylove7.live.living.interfaces.sku.rpc.IShopCarRPC;
 import top.mylove7.live.living.interfaces.sku.rpc.ISkuOrderInfoRPC;
 import top.mylove7.live.living.interfaces.sku.rpc.ISkuRPC;
+import top.mylove7.live.living.interfaces.sku.rpc.ISkuStockInfoRPC;
 import top.mylove7.live.living.interfaces.sku.vo.*;
 
 import java.util.List;
@@ -32,6 +33,8 @@ public class ShopInfoServiceImpl implements IShopInfoService {
     private IShopCarRPC shopCarRPC;
     @DubboReference
     private ISkuOrderInfoRPC skuOrderInfoRPC;
+    @DubboReference
+    private ISkuStockInfoRPC skuStockInfoRPC;
 
     @Override
     public List<SkuInfoVO> queryByRoomId(Long roomId) {
@@ -97,5 +100,10 @@ public class ShopInfoServiceImpl implements IShopInfoService {
         boolean isSuccess = skuOrderInfoRPC.payNow(ConvertBeanUtils.convert(prepareOrderVO, PayNowReqDTO.class));
         Assert.isTrue(isSuccess, "支付失败");
         return true;
+    }
+
+    @Override
+    public void prepareStockInfo(Long userId) {
+        skuStockInfoRPC.prepareStockInfo(userId);
     }
 }
