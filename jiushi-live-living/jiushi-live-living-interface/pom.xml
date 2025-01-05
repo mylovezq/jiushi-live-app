@@ -16,5 +16,10 @@
             <groupId>top.mylove7</groupId>
             <artifactId>jiushi-live-im-core-server-interfaces</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
     </dependencies>
 </project>

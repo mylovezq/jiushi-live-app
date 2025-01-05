@@ -3,6 +3,7 @@ package top.mylove7.live.living.interfaces.room.rpc;
 
 
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
+import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
 import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingPkRespDTO;
@@ -86,4 +87,6 @@ public interface ILivingRoomRpc {
     void userOfflineHandler(ImOfflineDTO imOfflineDTO);
 
     LivingRoomRespDTO queryByAuthorId(Long userId);
+
+    void initInfo();
 }

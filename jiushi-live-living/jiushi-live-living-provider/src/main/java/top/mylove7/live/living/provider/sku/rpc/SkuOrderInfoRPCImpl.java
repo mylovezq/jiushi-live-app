@@ -30,6 +30,8 @@ import top.mylove7.live.user.interfaces.bank.constants.OrderStatusEnum;
 import top.mylove7.live.user.interfaces.bank.dto.BalanceMqDto;
 import top.mylove7.live.user.interfaces.bank.interfaces.ICurrencyAccountRpc;
 
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -178,5 +180,15 @@ public class SkuOrderInfoRPCImpl implements ISkuOrderInfoRPC {
             throw new BizErrorException("库存回滚消息投递失败");
         }
 
+    }
+
+    public static void main(String[] args) {
+        List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
+        for (GarbageCollectorMXBean gcBean : gcBeans) {
+            System.out.println("Name: " + gcBean.getName());
+            System.out.println("Collection Count: " + gcBean.getCollectionCount());
+            System.out.println("Collection Time: " + gcBean.getCollectionTime() + " ms");
+            System.out.println("-----------------------------------");
+        }
     }
 }

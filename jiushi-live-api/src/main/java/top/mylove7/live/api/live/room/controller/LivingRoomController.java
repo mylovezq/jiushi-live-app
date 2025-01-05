@@ -2,7 +2,7 @@ package top.mylove7.live.api.live.room.controller;
 
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import top.mylove7.live.api.live.room.service.ILivingRoomService;
 import top.mylove7.live.api.live.room.vo.LivingRoomInitVO;
 import top.mylove7.live.api.live.room.qo.LivingRoomReqQo;
@@ -10,9 +10,6 @@ import top.mylove7.live.api.live.room.qo.OnlinePkReqVO;
 import top.mylove7.jiushi.live.web.starter.config.RequestLimit;
 import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
 import top.mylove7.live.common.interfaces.error.ErrorAssert;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.living.interfaces.sku.qo.LivingRoomReqVO;
@@ -103,5 +100,11 @@ public class LivingRoomController {
     public WebResponseVO<LivingRoomInitVO> anchorConfig(Long roomId) {
         return WebResponseVO.success(livingRoomService.anchorConfig(JiushiLoginRequestContext.getUserId(), roomId));
     }
+
+    @GetMapping("/init")
+    public WebResponseVO initInfo() {
+        return WebResponseVO.success(livingRoomService.initInfo());
+    }
+
 
 }

@@ -17,6 +17,9 @@ spring:
         server-addr: 192.168.1.20:8848
         # 读取配置的nacos的名空间
         namespace: jiushiLive
+  data:
+    mongodb:
+      uri: mongodb://mongo:mongo@192.168.1.20:27017/mydata?authSource=admin
   config:
     import:
       - optional:nacos:jiushi-live-living-provider.yaml

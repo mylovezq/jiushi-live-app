@@ -4,6 +4,7 @@ import top.mylove7.live.api.live.room.vo.LivingRoomInitVO;
 import top.mylove7.live.api.live.room.qo.LivingRoomReqQo;
 import top.mylove7.live.api.live.room.qo.OnlinePkReqVO;
 import top.mylove7.live.api.live.room.vo.LivingRoomPageRespVO;
+import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.living.interfaces.gift.dto.RedPacketReceiveVO;
 
 /**
@@ -59,4 +60,6 @@ public interface ILivingRoomService {
     boolean startRedPacket(Long userId, String code);
 
     RedPacketReceiveVO receiveRedPacket(Long userId, String redPacketConfigCode);
+
+    WebResponseVO initInfo();
 }

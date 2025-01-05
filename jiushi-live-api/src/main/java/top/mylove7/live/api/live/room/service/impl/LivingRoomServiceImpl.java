@@ -16,6 +16,7 @@ import top.mylove7.live.common.interfaces.context.JiushiLoginRequestContext;
 import top.mylove7.live.common.interfaces.dto.PageWrapper;
 import top.mylove7.live.common.interfaces.error.BizBaseErrorEnum;
 import top.mylove7.live.common.interfaces.utils.ConvertBeanUtils;
+import top.mylove7.live.common.interfaces.vo.WebResponseVO;
 import top.mylove7.live.living.interfaces.gift.dto.RedPacketConfigReqDTO;
 import top.mylove7.live.living.interfaces.gift.dto.RedPacketConfigRespDTO;
 import top.mylove7.live.living.interfaces.gift.dto.RedPacketReceiveDTO;
@@ -159,6 +160,12 @@ public class LivingRoomServiceImpl implements ILivingRoomService {
             redPacketReceiveVO.setMsg(redPacketReceiveDTO.getNotifyMsg());
         }
         return redPacketReceiveVO;
+    }
+
+    @Override
+    public WebResponseVO initInfo() {
+         livingRoomRpc.initInfo();
+         return new WebResponseVO();
     }
 
 }

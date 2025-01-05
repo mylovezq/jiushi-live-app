@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * @Author linhao
- * @LocalDateTimecreated in 9:07 下午 2023/1/2
+ * 
+ * 
  */
 @Data
 @TableName("t_living_room")
