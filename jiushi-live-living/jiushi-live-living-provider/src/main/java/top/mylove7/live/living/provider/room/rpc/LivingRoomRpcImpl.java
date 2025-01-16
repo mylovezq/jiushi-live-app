@@ -1,5 +1,6 @@
 package top.mylove7.live.living.provider.room.rpc;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -14,12 +15,14 @@ import top.mylove7.live.common.interfaces.dto.PageWrapper;
 import top.mylove7.live.common.interfaces.error.BizErrorException;
 import top.mylove7.live.im.core.server.interfaces.dto.ImOfflineDTO;
 import top.mylove7.live.im.core.server.interfaces.dto.ImOnlineDTO;
+import top.mylove7.live.living.provider.room.dao.mapper.ProductRepository;
 import top.mylove7.live.living.provider.room.dao.po.DoctorInfo;
 import top.mylove7.live.living.interfaces.room.dto.LivingPkRespDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomReqDTO;
 import top.mylove7.live.living.interfaces.room.dto.LivingRoomRespDTO;
 import top.mylove7.live.living.interfaces.room.rpc.ILivingRoomRpc;
 import top.mylove7.live.living.provider.room.dao.mapper.MyDataMapper;
+import top.mylove7.live.living.provider.room.dao.po.EsDoctorInfo;
 import top.mylove7.live.living.provider.room.dao.po.MyDataPO;
 import top.mylove7.live.living.provider.room.service.ILivingRoomService;
 import top.mylove7.live.living.provider.room.service.ILivingRoomTxService;
@@ -27,12 +30,13 @@ import top.mylove7.live.living.provider.room.service.ILivingRoomTxService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
  * @Author jiushi
- *
  * @Description
  */
 @DubboService
@@ -43,6 +47,8 @@ public class LivingRoomRpcImpl implements ILivingRoomRpc {
     private ILivingRoomService livingRoomService;
     @Resource
     private MyDataMapper myDataMapper;
+    @Resource
+    private ProductRepository repository;
     @Autowired
     private MongoTemplate mongoTemplate;
     @Resource
@@ -105,7 +111,6 @@ public class LivingRoomRpcImpl implements ILivingRoomRpc {
     }
 
     @Override
-    @Transactional(rollbackFor =Exception.class)
     public void initInfo() {
 
         Faker faker = new Faker();
@@ -120,12 +125,20 @@ public class LivingRoomRpcImpl implements ILivingRoomRpc {
 //            mongoTemplate.insert(myDataPOList, DoctorInfo.class);
 //            log.info("结束" + i + "条数据");
 //        });
-        long id = IdWorker.getId();
-        List<DoctorInfo> myDataPOList = new ArrayList<>();
-        myDataPOList.add(new DoctorInfo(id, faker, random));
-        mongoTemplate.insert(myDataPOList, DoctorInfo.class);
-        mongoTemplate.insert(myDataPOList, DoctorInfo.class);
-        throw new BizErrorException("66");
+
+        for (int i = 0; i < 400; i++) {
+            log.info("开始封装成第" + i + "条数据");
+            Set<EsDoctorInfo> myDataPOList = new ConcurrentHashSet<>();
+            IntStream.range(0, 10000).parallel().forEach(index -> {
+                long id = IdWorker.getId();
+                myDataPOList.add(new EsDoctorInfo(id, faker, random));
+            });
+            log.info("封装成功好第" + i + "条数据");
+            repository.saveAll(myDataPOList);
+            log.info("保存===好第" + i + "条数据");
+            myDataPOList.clear();
+        }
+
 
     }
 }
